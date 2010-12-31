@@ -1,0 +1,145 @@
+<project name="DbDeploy++" default="build" basedir=".">
+	<description>
+		Build file for DbDeploy++
+	</description>
+	
+	<!-- set global properties for this build -->
+    <property name="compiler"  value="make"/>
+    <property name="project.build.folder"  value="../ide/${compiler}"/>
+	<property name="project.cdt.folder"  value="../ide/cdt"/>
+	<property name="project.make.folder"  value="../ide/make"/>
+    
+	<property name="project.root" location=".."/>
+    
+	<property name="src" location="src"/>
+	<property name="build" location="build"/>
+	<property name="dist"  location="dist"/>
+	
+	<property name="vs.devenv.exe"  value="msdev"/>
+	<property name="python"  value="c:/python26/python.exe"/>
+	
+	<property name="cmake.exe"  value="/Applications/CMake 2.8-0.app/Contents/bin/cmake"/>
+	<property name="ctest.exe"  value="/Applications/CMake 2.8-0.app/Contents/bin/ctest"/>
+	<property name="upx.exe"  value="../library/upx.exe"/>
+	<property name="valgrind"  value="valgrind"/>
+	<property name="project.file"  value="Makefile"/>
+	<property name="reports.dir"  value="reports"/>
+	<!-- <property name="config"  value="Release"/> -->
+	<property name="config"  value=""/>
+	<property name="project.binary.folder"  value="${project.build.folder}/bin/${config}"/>
+    
+	<target name="full" depends="clean,build,test">
+
+	</target>
+	
+	<target name="compile-make" depends="prepare-build">
+
+	</target>
+  
+
+	<target name="init">
+	  <!-- Create the time stamp -->
+	  <tstamp/>
+  
+	  <!-- Create the build directory structure used by compile -->
+	  <mkdir dir="${project.build.folder}"/>
+	</target>
+
+	<target name="prepare-build" depends="init">
+	    <exec executable="${cmake.exe}" dir="${project.build.folder}" append="true" failonerror="true">
+	   	  <arg value="-G" />
+	   	  <arg value="Unix Makefiles" />
+	   	  <arg value="${project.root}" />
+	   	</exec>
+	</target>
+ 
+	<target name="cdt" depends="">
+	    <exec executable="${cmake.exe}" dir="${project.cdt.folder}" append="true" failonerror="true">
+	   	  <arg value="-G" />
+	   	  <arg value="Eclipse CDT4 - Unix Makefiles" />
+	   	  <arg value="${project.root}" />
+	   	</exec>
+	</target>
+
+	<target name="make" depends="">
+	    <exec executable="${cmake.exe}" dir="${project.make.folder}" append="true" failonerror="true">
+	   	  <arg value="-G" />
+	   	  <arg value="Unix Makefiles" />
+	   	  <arg value="${project.root}" />
+	   	</exec>
+	</target>
+	
+
+	<target name="openssl">
+		<echo message="Preparing openssl library..."/>
+		<exec executable="make" append="true" failonerror="true" dir="../lib/openssl-0.9.8k/crypto" output="/dev/null">
+		</exec>
+		<echo message="done"/>
+	</target>
+
+
+	<target name="test" depends="ut">
+	</target>
+
+	<target name="ft" depends="">
+		<exec executable="${python}" append="true" failonerror="true" dir="../GuiTests">
+		 <arg value="GenerateFilesTest.py" />
+		</exec>
+	</target>
+
+	<target name="ut" depends="build">
+		<exec executable="${ctest.exe}" append="true" failonerror="true" dir="${project.build.folder}">
+		</exec>
+	</target>
+	
+	<target name="mem" depends="build">
+		<exec executable="${valgrind}" append="true" failonerror="true" dir="${project.binary.folder}">
+		 <arg value="-q" />	
+		 <arg value="--leak-check=yes" />
+		 <arg value="--auto-run-dsymutil=yes" />
+	  	 <arg value="./utilTest" />
+		</exec>
+		
+		<exec executable="${valgrind}" append="true" failonerror="true" dir="${project.binary.folder}">
+		 <arg value="-q" />	
+		 <arg value="--leak-check=full" />
+		 <arg value="--auto-run-dsymutil=yes" />
+	  	 <arg value="./xmlRpcClientTest" />
+		</exec>
+				
+		<exec executable="${valgrind}" append="true" failonerror="true" dir="${project.binary.folder}">
+		 <arg value="-q" />	
+		 <arg value="--leak-check=full" />
+		 <arg value="--auto-run-dsymutil=yes" />
+	  	 <arg value="./liveWriterCoreTest" />
+		</exec>
+	</target>
+	
+
+	<target name="build" depends="compile-make">
+		<echo message="start to compile using file ${project.file}" />
+		<exec executable="${compiler}" append="true" failonerror="true" dir="${project.build.folder}">
+		 <arg value="VERBOSE=1" />
+		 <arg value="-f" />
+		 <arg value="${project.file}" />
+		</exec>
+	</target>
+
+	<target name="upx">
+		<exec executable="${upx.exe}" append="true" failonerror="false">
+		 <arg value="${project.binary.folder}/bin/*" />
+		</exec>
+	</target>
+
+	<target name="package" depends="build,upx">
+		<exec executable="${vs.devenv.exe}" append="true" failonerror="true">
+		 <arg value="${project.file}" />
+		 <arg value="/make" />
+		 <arg value="PACKAGE - win32 ${config}" />
+		</exec>
+	</target>
+
+	<target name="clean" description="clean up" >
+	  <delete dir="${project.build.folder}" />
+	</target>
+</project>
