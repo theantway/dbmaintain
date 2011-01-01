@@ -1,13 +1,21 @@
 #include "ChangeScript.h"
+#include "StringUtil.h"
 
+#include <openssl/md5.h>
+
+#include <ctime>
 #include <sstream>
+#include <iostream>
+#include <fstream>
+#include <iomanip>
 
-const string ChangeScript::UNDO_MARKER = "--//@UNDO";
+using namespace std;
+ChangeScript::ChangeScript(int id, string filename, string directory):
+	id(id), filename(filename), directory(directory)
+{
+}
 
-ChangeScript::ChangeScript(int id, string filename, string description) {
-	this->id = id;
-	this->filename = filename;
-	this->description = description;
+ChangeScript::~ChangeScript() {
 }
 
 string ChangeScript::getFilename() {
@@ -33,45 +41,47 @@ string ChangeScript::toString() {
 }
 
 string ChangeScript::getContent() {
-	return getFileContents(false);
+	return getFileContents();
 }
 
-string ChangeScript::getUndoContent() {
-	return getFileContents(true);
+string ChangeScript::getFullPath(){
+	string dir(directory);
+	dir = StringUtil::trimRight(dir, "/\\");
+	return dir + '/' + filename;
 }
 
-string ChangeScript::getFileContents(bool onlyAfterUndoMarker) {
-	
-	// try {
-	// 		StringBuilder content = new StringBuilder();
-	// 		boolean foundUndoMarker = false;
-	// 		BufferedReader reader = new BufferedReader(new FileReader(file));
-	//
-	// 		try {
-	// 			for (;;) {
-	// 				String str = reader.readLine();
-	//
-	// 				if (str == null)
-	// 					break;
-	//
-	// 				if (str.trim().equals(UNDO_MARKER)) {
-	// 					foundUndoMarker = true;
-	// 					continue;
-	// 				}
-	//
-	// 				if (foundUndoMarker == onlyAfterUndoMarker) {
-	// 					content.append(str);
-	// 					content.append('\n');
-	// 				}
-	// 			}
-	// 		} finally {
-	// 			reader.close();
-	// 		}
-	//
-	// 		return content.toString();
-	// 	} catch (IOException e) {
-	// 		throw new DbDeployException("Failed to read change script file", e);
-	// 	}
+string ChangeScript::getFileContents() {
+	ifstream is;
+	ostringstream oss;
 
-	return "";
+	is.open(getFullPath().c_str(), ios::binary);
+
+	if(!is.good()){
+		return oss.str();
+	}
+
+	oss << is.rdbuf();
+	is.close();
+
+	return oss.str();
+}
+
+time_t ChangeScript::getLastModifiedAt(){
+	struct stat pathStat;
+	stat(getFullPath().c_str(), &pathStat);
+
+	return pathStat.st_mtime;
+}
+
+string ChangeScript::getCheckSum(){
+	unsigned char result[MD5_DIGEST_LENGTH];
+	string content = getFileContents();
+	MD5((unsigned char*) content.c_str(), content.length(), result);
+
+	ostringstream oss;
+	for(int i=0; i < MD5_DIGEST_LENGTH; i++) {
+		oss << setw( 2 ) << setfill( '0' ) << hex << int(result[i]);
+	}
+
+	return oss.str();
 }

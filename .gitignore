@@ -19,6 +19,13 @@ ide
 *.la
 *.lai
 *.orig
+*.cmake
+Makefile
+CMakeFiles
+CMakeCache.txt
+bin
+.project
+.cproject
 lib/xmlrpc-c-1.06.35/**/blddir
 lib/xmlrpc-c-1.06.35/**/srcdir
 lib/xmlrpc-c-1.06.35/Makefile.config

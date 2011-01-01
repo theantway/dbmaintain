@@ -15,9 +15,7 @@ public:
 
 	void checkForDuplicateIds(list< shared_ptr<ChangeScript> >);
 
-	list< shared_ptr<ChangeScript> > getOrderedListOfDoChangeScripts();
-
-	list< shared_ptr<ChangeScript> > getOrderedListOfUndoChangeScripts();
+	list< shared_ptr<ChangeScript> > getScriptsToApply(int latestNo);
 
 	list< shared_ptr<ChangeScript> > getAvailableChangeScripts();
 

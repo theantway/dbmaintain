@@ -29,8 +29,8 @@ list< shared_ptr<ChangeScript> > DirectoryScanner::getChangeScriptsForDirectory(
 			continue;
 		}
         int id = atoi(ep->d_name);
-		shared_ptr<ChangeScript> script(new ChangeScript(id, ep->d_name, ep->d_name));
 
+        shared_ptr<ChangeScript> script(new ChangeScript(id, ep->d_name, directory));
         scripts.push_back(script);
 	}
 

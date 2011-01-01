@@ -2,6 +2,9 @@
 #define DBDEPLOY_H_
 
 #include <string>
+
+#include "ScriptRunner.h"
+
 using namespace std;
 
 class DbDeploy {
@@ -30,6 +33,8 @@ public:
 	void setUndoOutputfile(string undoOutputfile);
 
 	void go();
+
+	int getLatestVersion(shared_ptr<ScriptRunner> runner, string tableName);
 
 	void validate();
 

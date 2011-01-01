@@ -5,6 +5,7 @@
 
 #include "ChangeScriptRepository.h"
 #include "DirectoryScanner.h"
+#include "ScriptRunner.h"
 
 using namespace std;
 
@@ -46,14 +47,45 @@ void DbDeploy::setDeltaset(string deltaset) {
 }
 
 void DbDeploy::go(){
+	ScriptRunner::init();
+	shared_ptr<ScriptRunner> runner = ScriptRunner::getRunner("postgres");
+	runner->setConnectionString("dbname=db3 user=postgres");
+
     cout << getWelcomeString() <<endl;
 
-//
-//    validate();
+    string tableName = "script_table";
+    map<string, string> fieldsMap;
+    runner->ensureScriptsTableExists(tableName, fieldsMap);
+    int latestNo = getLatestVersion(runner, tableName);
 
     ChangeScriptRepository changeScriptRepository(DirectoryScanner().getChangeScriptsForDirectory(scriptdirectory));
 
-	
+    list< shared_ptr<ChangeScript> > scriptsToApply = changeScriptRepository.getScriptsToApply(latestNo);
+
+    cout << "Found " << changeScriptRepository.getAvailableChangeScripts().size() << " scripts in file system, "
+    	<< "the latest script no in db is "<< latestNo << ". " << endl
+    	<< "There are " << scriptsToApply.size() << " script(s) need to apply." << endl;
+
+    for (list< shared_ptr<ChangeScript> >::iterator it=scriptsToApply.begin() ; it != scriptsToApply.end(); it++ ){
+		shared_ptr<ChangeScript> script = *it;
+		cout << "  applying " << script->getFilename() <<endl;
+		runner->beginRunScript(tableName, fieldsMap, script);
+		runner->execute(script->getContent());
+		runner->endRunScript(tableName, fieldsMap, script);
+	}
+
+    cout << "Successed." <<endl;
+}
+
+int DbDeploy::getLatestVersion(shared_ptr<ScriptRunner> runner, string tableName){
+    map<string, shared_ptr<Value> > latest = runner->getLatestVersion(tableName);
+    shared_ptr<Value> no = latest["script_no"];
+
+    int latestNo = 0;
+    if(no.get() != NULL){
+    	latestNo = no->asInt();
+    }
+    return latestNo;
 }
 
 void DbDeploy::validate() {

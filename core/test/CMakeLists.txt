@@ -4,6 +4,7 @@ PROJECT(coreTest)
 FILE(GLOB_RECURSE inFiles RELATIVE
     ${CMAKE_CURRENT_SOURCE_DIR}
 	*.cpp
+	${baseTest_SOURCE_DIR}/Main.cpp
 )
 
 INCLUDE_DIRECTORIES(

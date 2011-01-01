@@ -2,6 +2,7 @@
 #define CHANGESCRIPT_H_
 
 #include <string>
+#include <sys/stat.h>
 #include <boost/shared_ptr.hpp>
 
 using namespace boost;
@@ -9,9 +10,12 @@ using namespace std;
 
 class ChangeScript {
 public:
-	ChangeScript(int id, string filename="test", string description="test");
+	ChangeScript(int id, string filename, string directory);
+	
+	virtual ~ChangeScript();
 
 	string getFilename();
+	string getFullPath();
 
 	int getId();
 
@@ -23,14 +27,18 @@ public:
 
 	string getContent();
 
-	string getUndoContent();
+	time_t getLastModifiedAt();
+
+	string getCheckSum();
 
 private:
 	int id;
 	string filename;
+	string directory;
 	string description;
-	static const string UNDO_MARKER;// = "--//@UNDO";
-
-	string getFileContents(bool onlyAfterUndoMarker);
+	long fileLastModifiedAt;
+	string checksum;
+	
+	string getFileContents();
 };
 #endif /* CHANGESCRIPT_H_ */

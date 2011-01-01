@@ -5,11 +5,12 @@
 	
 	<!-- set global properties for this build -->
     <property name="compiler"  value="make"/>
-    <property name="project.build.folder"  value="../ide/${compiler}"/>
-	<property name="project.cdt.folder"  value="../ide/cdt"/>
-	<property name="project.make.folder"  value="../ide/make"/>
+    <property name="ide.path"  value="./ide"/>
+    <property name="project.build.folder"  value="${ide.path}/${compiler}"/>
+	<property name="project.cdt.folder"  value="."/>
+	<property name="project.make.folder"  value="${ide.path}/make"/>
     
-	<property name="project.root" location=".."/>
+	<property name="project.root" location="."/>
     
 	<property name="src" location="src"/>
 	<property name="build" location="build"/>
@@ -18,9 +19,8 @@
 	<property name="vs.devenv.exe"  value="msdev"/>
 	<property name="python"  value="c:/python26/python.exe"/>
 	
-	<property name="cmake.exe"  value="/Applications/CMake 2.8-0.app/Contents/bin/cmake"/>
-	<property name="ctest.exe"  value="/Applications/CMake 2.8-0.app/Contents/bin/ctest"/>
-	<property name="upx.exe"  value="../library/upx.exe"/>
+	<property name="cmake.exe"  value="/Applications/CMake 2.8-3.app/Contents/bin/cmake"/>
+	<property name="ctest.exe"  value="/Applications/CMake 2.8-3.app/Contents/bin/ctest"/>
 	<property name="valgrind"  value="valgrind"/>
 	<property name="project.file"  value="Makefile"/>
 	<property name="reports.dir"  value="reports"/>
