@@ -49,7 +49,7 @@ void DbDeploy::setDeltaset(string deltaset) {
 void DbDeploy::go(){
 	ScriptRunner::init();
 	shared_ptr<ScriptRunner> runner = ScriptRunner::getRunner("postgres");
-	runner->setConnectionString("dbname=db3 user=postgres");
+	runner->setConnectionString("dbname=dbmaintain_test user=postgres");
 
     cout << getWelcomeString() <<endl;
 

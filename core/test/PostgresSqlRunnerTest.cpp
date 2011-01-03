@@ -18,6 +18,7 @@ SUITE(PostgresSqlScriptRunnerTest){
         PostgresSqlScriptRunnerTest() {
 			runner = shared_ptr<PostgresSqlScriptRunner>(new PostgresSqlScriptRunner());
 			runner->setConnectionString("dbname=dbmaintain_test user=postgres");
+			runner->clearDatabase(set<string>());
         }
         virtual ~PostgresSqlScriptRunnerTest() {
         }
@@ -52,4 +53,18 @@ SUITE(PostgresSqlScriptRunnerTest){
     	ASSERT_EQUAL(runner->scalar("SELECT relname FROM pg_class WHERE relname = 'dbscripts'")->asString(), "dbscripts");
     	ASSERT_EQUAL(runner->scalar("SELECT id FROM dbscripts LIMIT 1")->asInt(), 1);
     }
+
+    TEST_FIXTURE (PostgresSqlScriptRunnerTest, should_clear_database)
+    {
+    	runner->execute("CREATE TABLE Test(id BIGSERIAL PRIMARY KEY, name varchar(100))");
+    	runner->execute("CREATE TABLE Test2(id BIGSERIAL PRIMARY KEY, name varchar(100))");
+
+    	set<string> preservedObjects;
+    	preservedObjects.insert("test2");
+
+    	runner->clearDatabase(preservedObjects);
+
+    	ASSERT_EQUAL(runner->scalar("SELECT relname FROM pg_class WHERE relname = 'test2'")->asString(), "test2");
+    }
+
 }

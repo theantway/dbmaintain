@@ -3,7 +3,7 @@
 
 // #include "PostgresSqlScriptRunner.h"
 #include <iostream>
-
+#include <set>
 #include "Value.h"
 #include "ScriptRunner.h"
 #include "ChangeScript.h"
@@ -30,10 +30,13 @@ public:
 
 	virtual void beginRunScript(string tableName, map<string, string> fieldsMap, shared_ptr<ChangeScript> script);
 	virtual void endRunScript(string tableName, map<string, string> fieldsMap, shared_ptr<ChangeScript> script);
+	void clearDatabase(set<string> preservedObjects);
 
 private:
 	PGconn* getConnection();
 	list< map<string, shared_ptr<Value> > > _execute(string script);
+	void clearTables(set<string> preservedObjects);
+	void clearFunctions(set<string> preservedObjects);
 
 private:
 	PGconn     *m_pConn;

@@ -181,3 +181,69 @@ void PostgresSqlScriptRunner::endRunScript(string tableName, map<string, string>
 			<< script->getId();
 	_execute(stream.str());
 }
+
+void PostgresSqlScriptRunner::clearDatabase(set<string> preservedObjects){
+	clearFunctions(preservedObjects);
+	clearTables(preservedObjects);
+}
+
+void PostgresSqlScriptRunner::clearTables(set<string> preservedObjects){
+	string sql = " \
+		SELECT n.nspname as schema, \
+		  c.relname as name, \
+		  CASE c.relkind \
+			 WHEN 'r' THEN 'table' \
+			 WHEN 'v' THEN 'view' \
+			 WHEN 'i' THEN 'index' \
+			 WHEN 'S' THEN 'sequence' \
+			 WHEN 's' THEN 'special' \
+		  END as type, \
+		  pg_catalog.pg_get_userbyid(c.relowner) as owner \
+		FROM pg_catalog.pg_class c \
+			 LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace \
+		WHERE c.relkind in ('r', 'v', 'S') \
+			  AND n.nspname <> 'pg_catalog' \
+			  AND n.nspname <> 'information_schema' \
+			  AND n.nspname !~ '^pg_toast' \
+		  AND pg_catalog.pg_table_is_visible(c.oid) \
+	";
+
+	list< map<string, shared_ptr<Value> > > objects = _execute(sql);
+
+	for (list< map<string, shared_ptr<Value> > >::iterator it= objects.begin() ; it != objects.end(); it++ ){
+    	map<string, shared_ptr<Value> > object = *it;
+
+    	if(preservedObjects.find(object["name"]->asString() ) != preservedObjects.end() ){
+    		continue;
+    	}
+
+    	ostringstream drop;
+    	drop << "DROP " << object["type"]->asString() << " \"" << object["name"]->asString() << "\" cascade"<<endl;
+    	try{
+    		_execute(drop.str());
+    	}catch(DbException& e){
+    		if(e.getMessage().find("does not exist") != string::npos && e.getMessage().find(object["type"]->asString()) != string::npos){
+    			continue;
+    		}
+
+    		throw e;
+    	}
+	}
+}
+
+void PostgresSqlScriptRunner::clearFunctions(set<string> preservedObjects){
+	string sql = "SELECT 'DROP FUNCTION ' || ns.nspname || '.' || proname || '(' || oidvectortypes(proargtypes) || ') CASCADE' as drop_sql \
+					FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) \
+					WHERE ns.nspname NOT IN ('pg_catalog', 'information_schema') order by proname";
+
+	list< map<string, shared_ptr<Value> > > objects = _execute(sql);
+
+	for (list< map<string, shared_ptr<Value> > >::iterator it= objects.begin() ; it != objects.end(); it++ ){
+    	map<string, shared_ptr<Value> > object = *it;
+//
+//    	ostringstream drop;
+//    	drop << "DROP " << object["type"]->asString() << " \"" << object["name"]->asString() << "\""<<endl;
+    	_execute(object["drop_sql"]->asString());
+	}
+
+}
