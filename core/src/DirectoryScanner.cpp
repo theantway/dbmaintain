@@ -7,7 +7,6 @@ DirectoryScanner::DirectoryScanner() {
 }
 
 DirectoryScanner::~DirectoryScanner() {
-    //Auto-generated destructor stub
 }
 
 list< shared_ptr<ChangeScript> > DirectoryScanner::getChangeScriptsForDirectory(string directory)  {

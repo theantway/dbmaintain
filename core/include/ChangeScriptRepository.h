@@ -13,7 +13,7 @@ public:
     ChangeScriptRepository(list< shared_ptr<ChangeScript> > scripts);
     virtual ~ChangeScriptRepository();
 
-	void checkForDuplicateIds(list< shared_ptr<ChangeScript> >);
+	void validateScripts(list< shared_ptr<ChangeScript> >);
 
 	list< shared_ptr<ChangeScript> > getScriptsToApply(int latestNo);
 
