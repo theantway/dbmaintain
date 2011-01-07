@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <set>
 
 #include "ChangeScriptRepository.h"
 #include "DirectoryScanner.h"
@@ -46,13 +47,25 @@ void DbDeploy::setDeltaset(string deltaset) {
     this->deltaset = deltaset;
 }
 
-void DbDeploy::go(){
+void DbDeploy::clear(){
+	set<string> preservedTables;
+	shared_ptr<ScriptRunner> runner = initRunner();
+	set<string> allPreservedTables = runner->getDependentTables(preservedTables);
+
+	runner->clearDatabase(allPreservedTables);
+}
+
+shared_ptr<ScriptRunner> DbDeploy::initRunner(){
 	ScriptRunner::init();
 	shared_ptr<ScriptRunner> runner = ScriptRunner::getRunner("postgres");
 	runner->setConnectionString("dbname=dbmaintain_test user=postgres");
+	return runner;
+}
+
+void DbDeploy::go(){
+	shared_ptr<ScriptRunner> runner = initRunner();
 
     cout << getWelcomeString() <<endl;
-
     string tableName = "script_table";
     map<string, string> fieldsMap;
     runner->ensureScriptsTableExists(tableName, fieldsMap);

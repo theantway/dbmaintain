@@ -14,20 +14,6 @@
 using namespace boost;
 using namespace std;
 
-//class PostgresSqlScriptRunner: public SqlScriptRunner {
-//public:
-//	PostgresSqlScriptRunner();
-//	virtual ~PostgresSqlScriptRunner();
-//
-//	virtual void execute(shared_ptr<ChangeScript> script);
-//	virtual list< map<string, shared_ptr<Value> > > query(string script);
-//	virtual map<string, shared_ptr<Value> > get(string script);
-//	virtual shared_ptr<Value> scalar(string script);
-//} postgresSqlScriptRunner;
-//
-//PostgresSqlScriptRunner postgresSqlScriptRunner;
-//RunnerAdder runner("postgres", &postgresSqlScriptRunner);
-
 PostgresSqlScriptRunner::PostgresSqlScriptRunner(){
 	m_pConn = NULL;
 }
@@ -37,7 +23,6 @@ PostgresSqlScriptRunner::~PostgresSqlScriptRunner(){
 		PQfinish(m_pConn);
 		m_pConn = NULL;
 	}
-	
 }
 
 void PostgresSqlScriptRunner::setConnectionString(string connectionString){
@@ -183,8 +168,8 @@ void PostgresSqlScriptRunner::endRunScript(string tableName, map<string, string>
 }
 
 void PostgresSqlScriptRunner::clearDatabase(set<string> preservedObjects){
-	clearFunctions(preservedObjects);
 	clearTables(preservedObjects);
+	clearFunctions(preservedObjects);
 }
 
 void PostgresSqlScriptRunner::clearTables(set<string> preservedObjects){
@@ -201,7 +186,7 @@ void PostgresSqlScriptRunner::clearTables(set<string> preservedObjects){
 		  pg_catalog.pg_get_userbyid(c.relowner) as owner \
 		FROM pg_catalog.pg_class c \
 			 LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace \
-		WHERE c.relkind in ('r', 'v', 'S') \
+		WHERE c.relkind in ('r', 'v') \
 			  AND n.nspname <> 'pg_catalog' \
 			  AND n.nspname <> 'information_schema' \
 			  AND n.nspname !~ '^pg_toast' \
@@ -232,7 +217,7 @@ void PostgresSqlScriptRunner::clearTables(set<string> preservedObjects){
 }
 
 void PostgresSqlScriptRunner::clearFunctions(set<string> preservedObjects){
-	string sql = "SELECT 'DROP FUNCTION ' || ns.nspname || '.' || proname || '(' || oidvectortypes(proargtypes) || ') CASCADE' as drop_sql \
+	string sql = "SELECT 'DROP FUNCTION ' || ns.nspname || '.' || proname || '(' || oidvectortypes(proargtypes) || ') ' as drop_sql \
 					FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) \
 					WHERE ns.nspname NOT IN ('pg_catalog', 'information_schema') order by proname";
 
@@ -246,4 +231,60 @@ void PostgresSqlScriptRunner::clearFunctions(set<string> preservedObjects){
     	_execute(object["drop_sql"]->asString());
 	}
 
+}
+
+list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::getTableDependencies(){
+	string sql="SELECT tc.constraint_name, tc.table_name, kcu.column_name, \
+					ccu.table_name AS foreign_table_name, \
+					ccu.column_name AS foreign_column_name \
+				FROM \
+					information_schema.table_constraints AS tc \
+					JOIN information_schema.key_column_usage AS kcu ON tc.constraint_name = kcu.constraint_name \
+					JOIN information_schema.constraint_column_usage AS ccu ON ccu.constraint_name = tc.constraint_name \
+				WHERE constraint_type = 'FOREIGN KEY' \
+				";
+	list< map<string, shared_ptr<Value> > > result = _execute(sql);
+
+	return result;
+}
+
+set<string> PostgresSqlScriptRunner::getDependentTables(set<string> tables){
+	list< map<string, shared_ptr<Value> > > dependencies = getTableDependencies();
+	set<string> result;
+	for (set<string>::iterator it= tables.begin() ; it != tables.end(); it++ ){
+		deque<string> subs = getDependentTables(*it, dependencies);
+	    result.insert(subs.begin(), subs.end());
+	}
+
+	return result;
+}
+
+list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::getDependentFunctions(string tableName){
+	string sql="select c.relname, p.proname \
+				from pg_depend d, pg_class c, pg_proc p \
+				where d.objid=c.oid AND p.oid = d.refobjid \
+					and c.oid in ( \
+					SELECT c2.oid \
+					FROM pg_catalog.pg_class c, pg_catalog.pg_class c2, pg_catalog.pg_index i \
+					WHERE c.relname = 'test2' AND c.oid = i.indrelid AND i.indexrelid = c2.oid \
+					) \
+				";
+	list< map<string, shared_ptr<Value> > > result = _execute(sql);
+	return result;
+}
+
+deque<string> PostgresSqlScriptRunner::getDependentTables(string tableName, list< map<string, shared_ptr<Value> > > dependencies){
+	deque<string> result;
+
+	for (list< map<string, shared_ptr<Value> > >::iterator it= dependencies.begin() ; it != dependencies.end(); it++ ){
+    	map<string, shared_ptr<Value> > dependency = *it;
+
+    	if(dependency["table_name"]->asString() == tableName){
+    		result.insert(result.begin(), dependency["foreign_table_name"]->asString());
+    		deque<string> subs = getDependentTables(dependency["foreign_table_name"]->asString(), dependencies);
+    		result.insert(result.begin(), subs.begin(), subs.end());
+    	}
+	}
+
+	return result;
 }

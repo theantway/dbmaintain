@@ -32,6 +32,10 @@ public:
 
 	void setUndoOutputfile(string undoOutputfile);
 
+	void clear();
+
+	shared_ptr<ScriptRunner> initRunner();
+
 	void go();
 
 	int getLatestVersion(shared_ptr<ScriptRunner> runner, string tableName);

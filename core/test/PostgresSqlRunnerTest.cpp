@@ -17,7 +17,7 @@ SUITE(PostgresSqlScriptRunnerTest){
     public:
         PostgresSqlScriptRunnerTest() {
 			runner = shared_ptr<PostgresSqlScriptRunner>(new PostgresSqlScriptRunner());
-			runner->setConnectionString("dbname=dbmaintain_test user=postgres");
+			runner->setConnectionString("dbname=db3 user=postgres");
 			runner->clearDatabase(set<string>());
         }
         virtual ~PostgresSqlScriptRunnerTest() {
@@ -56,15 +56,43 @@ SUITE(PostgresSqlScriptRunnerTest){
 
     TEST_FIXTURE (PostgresSqlScriptRunnerTest, should_clear_database)
     {
+    	runner->execute("CREATE OR REPLACE FUNCTION reverse_last_64(TEXT) RETURNS TEXT AS $$ \
+							 SELECT \
+								array_to_string( \
+								  ARRAY \
+									( SELECT substring($1, s.i,1) FROM generate_series(length($1), greatest(length($1) - 64 + 1, 1), -1) AS s(i) ), \
+								  ''); \
+							$$ LANGUAGE SQL IMMUTABLE");
+    	runner->execute("CREATE OR REPLACE FUNCTION another(TEXT) RETURNS TEXT AS $$ \
+							 SELECT reverse_last_64( $1 ); \
+							$$ LANGUAGE SQL IMMUTABLE");
+
     	runner->execute("CREATE TABLE Test(id BIGSERIAL PRIMARY KEY, name varchar(100))");
-    	runner->execute("CREATE TABLE Test2(id BIGSERIAL PRIMARY KEY, name varchar(100))");
+    	runner->execute("CREATE TABLE Test2(id BIGSERIAL PRIMARY KEY, name varchar(100), test_id bigint references test(id) )");
+    	runner->execute("CREATE INDEX idx_test2_name  ON test2(reverse_last_64(name) varchar_pattern_ops)");
 
     	set<string> preservedObjects;
-    	preservedObjects.insert("test2");
+//    	preservedObjects.insert("test2");
 
     	runner->clearDatabase(preservedObjects);
 
-    	ASSERT_EQUAL(runner->scalar("SELECT relname FROM pg_class WHERE relname = 'test2'")->asString(), "test2");
+//    	ASSERT_EQUAL(runner->scalar("SELECT relname FROM pg_class WHERE relname = 'test2'")->asString(), "test2");
     }
 
+    TEST_FIXTURE (PostgresSqlScriptRunnerTest, should_get_dependent_tables)
+    {
+    	runner->execute("CREATE TABLE account(id BIGSERIAL PRIMARY KEY, name varchar(100))");
+    	runner->execute("CREATE TABLE account_user(id BIGSERIAL PRIMARY KEY, name varchar(100), account_id bigint references account(id) )");
+    	runner->execute("CREATE TABLE access_log(id BIGSERIAL PRIMARY KEY,  user_id bigint references account_user(id) )");
+    	runner->execute("CREATE TABLE other_table(id BIGSERIAL PRIMARY KEY)");
+
+    	set<string> preservedTables;
+    	preservedTables.insert("access_log");
+
+    	set<string> result = runner->getDependentTables(preservedTables);
+
+    	ASSERT_EQUAL(result.size(), size_t(2));
+    	ASSERT_EQUAL(result.find("account") != result.end(), true);
+    	ASSERT_EQUAL(result.find("account_user") != result.end(), true);
+    }
 }

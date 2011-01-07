@@ -31,7 +31,8 @@ public:
 	}
 	virtual void beginRunScript(string tableName, map<string, string> fieldsMap, shared_ptr<ChangeScript> script){}
 	virtual void endRunScript(string tableName, map<string, string> fieldsMap, shared_ptr<ChangeScript> script){}
-
+	virtual void clearDatabase(set<string> preservedTables){}
+	virtual set<string> getDependentTables(set<string> tables){return set<string>();}
 
 };
 

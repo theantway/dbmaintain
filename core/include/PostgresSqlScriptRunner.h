@@ -4,6 +4,8 @@
 // #include "PostgresSqlScriptRunner.h"
 #include <iostream>
 #include <set>
+#include <deque>
+#include <vector>
 #include "Value.h"
 #include "ScriptRunner.h"
 #include "ChangeScript.h"
@@ -30,13 +32,18 @@ public:
 
 	virtual void beginRunScript(string tableName, map<string, string> fieldsMap, shared_ptr<ChangeScript> script);
 	virtual void endRunScript(string tableName, map<string, string> fieldsMap, shared_ptr<ChangeScript> script);
-	void clearDatabase(set<string> preservedObjects);
+	virtual void clearDatabase(set<string> preservedTables);
+	virtual set<string> getDependentTables(set<string> tables);
 
+protected:
+	list< map<string, shared_ptr<Value> > > getTableDependencies();
+	list< map<string, shared_ptr<Value> > > getDependentFunctions(string tableName);
+	deque<string> getDependentTables(string tableName, list< map<string, shared_ptr<Value> > > dependencies);
 private:
 	PGconn* getConnection();
 	list< map<string, shared_ptr<Value> > > _execute(string script);
-	void clearTables(set<string> preservedObjects);
-	void clearFunctions(set<string> preservedObjects);
+	void clearTables(set<string> preservedTables);
+	void clearFunctions(set<string> preservedFunctions);
 
 private:
 	PGconn     *m_pConn;
