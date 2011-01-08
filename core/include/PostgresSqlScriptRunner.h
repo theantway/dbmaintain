@@ -35,10 +35,16 @@ public:
 	virtual void clearDatabase(set<string> preservedTables);
 	virtual set<string> getDependentTables(set<string> tables);
 
+	list< map<string, shared_ptr<Value> > > getTables();
+
 protected:
+	list<string> sortTablesByDependency(list< map<string, shared_ptr<Value> > > allTables, list< map<string, shared_ptr<Value> > > dependencies);
 	list< map<string, shared_ptr<Value> > > getTableDependencies();
 	list< map<string, shared_ptr<Value> > > getDependentFunctions(string tableName);
 	deque<string> getDependentTables(string tableName, list< map<string, shared_ptr<Value> > > dependencies);
+
+	bool hasDependency(string tableName, list< map<string, shared_ptr<Value> > >& dependencies);
+	void removeDependenciesOn(string tableName, list< map<string, shared_ptr<Value> > >& dependencies);
 private:
 	PGconn* getConnection();
 	list< map<string, shared_ptr<Value> > > _execute(string script);

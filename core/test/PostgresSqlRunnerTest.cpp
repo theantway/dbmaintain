@@ -63,20 +63,35 @@ SUITE(PostgresSqlScriptRunnerTest){
 									( SELECT substring($1, s.i,1) FROM generate_series(length($1), greatest(length($1) - 64 + 1, 1), -1) AS s(i) ), \
 								  ''); \
 							$$ LANGUAGE SQL IMMUTABLE");
+
     	runner->execute("CREATE OR REPLACE FUNCTION another(TEXT) RETURNS TEXT AS $$ \
 							 SELECT reverse_last_64( $1 ); \
 							$$ LANGUAGE SQL IMMUTABLE");
+
+    	runner->execute("CREATE TABLE customer(id BIGSERIAL PRIMARY KEY, name varchar(100))");
+    	runner->execute("CREATE TABLE purchase(id BIGSERIAL PRIMARY KEY, name varchar(100), customer_id bigint references customer(id) )");
+    	runner->execute("CREATE TABLE purchase_log(id BIGSERIAL PRIMARY KEY,  purchase_id bigint references purchase(id) )");
+    	runner->execute("CREATE TABLE other_table(id BIGSERIAL PRIMARY KEY, parent_id bigint references other_table(id))");
 
     	runner->execute("CREATE TABLE Test(id BIGSERIAL PRIMARY KEY, name varchar(100))");
     	runner->execute("CREATE TABLE Test2(id BIGSERIAL PRIMARY KEY, name varchar(100), test_id bigint references test(id) )");
     	runner->execute("CREATE INDEX idx_test2_name  ON test2(reverse_last_64(name) varchar_pattern_ops)");
 
     	set<string> preservedObjects;
-//    	preservedObjects.insert("test2");
+    	preservedObjects.insert("purchase_log");
 
     	runner->clearDatabase(preservedObjects);
 
-//    	ASSERT_EQUAL(runner->scalar("SELECT relname FROM pg_class WHERE relname = 'test2'")->asString(), "test2");
+    	set<string> expectedTables;
+    	expectedTables.insert("customer");
+    	expectedTables.insert("purchase");
+    	expectedTables.insert("purchase_log");
+
+    	list< map<string, shared_ptr<Value> > > tables = runner->getTables();
+    	ASSERT_EQUAL(tables.size(), size_t(3));
+    	for (list< map<string, shared_ptr<Value> > >::iterator it= tables.begin() ; it != tables.end(); it++ ){
+    		ASSERT_EQUAL(expectedTables.find((*it)["name"]->asString()) != expectedTables.end(), true);
+    	}
     }
 
     TEST_FIXTURE (PostgresSqlScriptRunnerTest, should_get_dependent_tables)
@@ -91,8 +106,9 @@ SUITE(PostgresSqlScriptRunnerTest){
 
     	set<string> result = runner->getDependentTables(preservedTables);
 
-    	ASSERT_EQUAL(result.size(), size_t(2));
+    	ASSERT_EQUAL(result.size(), size_t(3));
     	ASSERT_EQUAL(result.find("account") != result.end(), true);
     	ASSERT_EQUAL(result.find("account_user") != result.end(), true);
+    	ASSERT_EQUAL(result.find("access_log") != result.end(), true);
     }
 }
