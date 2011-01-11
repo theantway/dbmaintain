@@ -9,6 +9,7 @@
 #include "Value.h"
 #include "ScriptRunner.h"
 #include "ChangeScript.h"
+#include "ClearOptions.h"
 
 #include "libpq-fe.h"
 #include <string>
@@ -32,16 +33,21 @@ public:
 
 	virtual void beginRunScript(string tableName, map<string, string> fieldsMap, shared_ptr<ChangeScript> script);
 	virtual void endRunScript(string tableName, map<string, string> fieldsMap, shared_ptr<ChangeScript> script);
-	virtual void clearDatabase(set<string> preservedTables);
-	virtual set<string> getDependentTables(set<string> tables);
+	virtual void clearDatabase(ClearOptions clearOptions);
+
+	ClearOptions extendPreservedObjects(const ClearOptions& options);
+	ClearOptions extendPreservedTables(ClearOptions& clearOptions);
+	ClearOptions extendPreservedFunctions(ClearOptions& clearOptions);
+	ClearOptions extendViewDependencies(string tableName, list< map<string, shared_ptr<Value> > >& viewDependendedTables, ClearOptions& clearOptions);
 
 	list< map<string, shared_ptr<Value> > > getTables();
-
+	list< map<string, shared_ptr<Value> > > getViews();
 protected:
 	list<string> sortTablesByDependency(list< map<string, shared_ptr<Value> > > allTables, list< map<string, shared_ptr<Value> > > dependencies);
 	list< map<string, shared_ptr<Value> > > getTableDependencies();
+	list< map<string, shared_ptr<Value> > > getViewDependencies();
 	list< map<string, shared_ptr<Value> > > getDependentFunctions(string tableName);
-	deque<string> getDependentTables(string tableName, list< map<string, shared_ptr<Value> > > dependencies);
+	deque<string> getDependentTables(string tableName, list< map<string, shared_ptr<Value> > >& dependencies);
 
 	bool hasDependency(string tableName, list< map<string, shared_ptr<Value> > >& dependencies);
 	void removeDependenciesOn(string tableName, list< map<string, shared_ptr<Value> > >& dependencies);
@@ -49,6 +55,7 @@ private:
 	PGconn* getConnection();
 	list< map<string, shared_ptr<Value> > > _execute(string script);
 	void clearTables(set<string> preservedTables);
+	void clearViews(set<string> preservedViews);
 	void clearFunctions(set<string> preservedFunctions);
 
 private:

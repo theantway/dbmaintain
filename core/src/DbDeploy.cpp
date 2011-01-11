@@ -49,10 +49,11 @@ void DbDeploy::setDeltaset(string deltaset) {
 
 void DbDeploy::clear(){
 	set<string> preservedTables;
+	ClearOptions clearOptions;
 	shared_ptr<ScriptRunner> runner = initRunner();
-	set<string> allPreservedTables = runner->getDependentTables(preservedTables);
+//	set<string> allPreservedTables = runner->getDependentTables(preservedTables);
 
-	runner->clearDatabase(allPreservedTables);
+	runner->clearDatabase(clearOptions);
 }
 
 shared_ptr<ScriptRunner> DbDeploy::initRunner(){

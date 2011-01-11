@@ -5,6 +5,7 @@
 #include "BaseTest.h"
 #include <iostream>
 #include "ScriptRunner.h"
+#include "ClearOptions.h"
 #include "Value.h"
 
 using namespace std;
@@ -31,8 +32,8 @@ public:
 	}
 	virtual void beginRunScript(string tableName, map<string, string> fieldsMap, shared_ptr<ChangeScript> script){}
 	virtual void endRunScript(string tableName, map<string, string> fieldsMap, shared_ptr<ChangeScript> script){}
-	virtual void clearDatabase(set<string> preservedTables){}
-	virtual set<string> getDependentTables(set<string> tables){return set<string>();}
+	virtual void clearDatabase(ClearOptions options){}
+	virtual set<string> getPreservedTables(ClearOptions options){return set<string>();}
 
 };
 

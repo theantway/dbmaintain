@@ -3,6 +3,7 @@
 
 #include "Value.h"
 #include "ChangeScript.h"
+#include "ClearOptions.h"
 
 #include <string>
 #include <list>
@@ -30,8 +31,8 @@ public:
 	virtual map<string, shared_ptr<Value> > getLatestVersion(string tableName) = 0L;
 	virtual void beginRunScript(string tableName, map<string, string> fieldsMap, shared_ptr<ChangeScript> script)=0L;
 	virtual void endRunScript(string tableName, map<string, string> fieldsMap, shared_ptr<ChangeScript> script)=0L;
-	virtual void clearDatabase(set<string> preservedTables)=0L;
-	virtual set<string> getDependentTables(set<string> tables)=0L;
+	virtual void clearDatabase(ClearOptions clearOptions)=0L;
+//	virtual set<string> getPreservedTables(ClearOptions clearOptions)=0L;
 private:
 	static map<string, shared_ptr<ScriptRunner> > runners;
 };
