@@ -14,24 +14,24 @@ list< shared_ptr<ChangeScript> > DirectoryScanner::getChangeScriptsForDirectory(
 
     list< shared_ptr<ChangeScript> > scripts;
 
-	DIR *dp;
+    DIR *dp;
     struct dirent *ep;
 
     dp = opendir (directory.c_str());
     if (dp == NULL){
-		cerr << "Couldn't open the directory" << endl;
-		return scripts;
-	}
+        cerr << "Couldn't open the directory" << endl;
+        return scripts;
+    }
 
     while (ep = readdir (dp)){
-		if (DT_DIR == ep->d_type){
-			continue;
-		}
+        if (DT_DIR == ep->d_type){
+            continue;
+        }
         int id = atoi(ep->d_name);
 
         shared_ptr<ChangeScript> script(new ChangeScript(id, ep->d_name, directory));
         scripts.push_back(script);
-	}
+    }
 
     closedir(dp);
 

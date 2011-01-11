@@ -48,23 +48,23 @@ void DbDeploy::setDeltaset(string deltaset) {
 }
 
 void DbDeploy::clear(){
-	set<string> preservedTables;
-	ClearOptions clearOptions;
-	shared_ptr<ScriptRunner> runner = initRunner();
-//	set<string> allPreservedTables = runner->getDependentTables(preservedTables);
+    set<string> preservedTables;
+    ClearOptions clearOptions;
+    shared_ptr<ScriptRunner> runner = initRunner();
+//  set<string> allPreservedTables = runner->getDependentTables(preservedTables);
 
-	runner->clearDatabase(clearOptions);
+    runner->clearDatabase(clearOptions);
 }
 
 shared_ptr<ScriptRunner> DbDeploy::initRunner(){
-	ScriptRunner::init();
-	shared_ptr<ScriptRunner> runner = ScriptRunner::getRunner("postgres");
-	runner->setConnectionString("dbname=dbmaintain_test user=postgres");
-	return runner;
+    ScriptRunner::init();
+    shared_ptr<ScriptRunner> runner = ScriptRunner::getRunner("postgres");
+    runner->setConnectionString("dbname=dbmaintain_test user=postgres");
+    return runner;
 }
 
 void DbDeploy::go(){
-	shared_ptr<ScriptRunner> runner = initRunner();
+    shared_ptr<ScriptRunner> runner = initRunner();
 
     cout << getWelcomeString() <<endl;
     string tableName = "script_table";
@@ -77,16 +77,16 @@ void DbDeploy::go(){
     list< shared_ptr<ChangeScript> > scriptsToApply = changeScriptRepository.getScriptsToApply(latestNo);
 
     cout << "Found " << changeScriptRepository.getAvailableChangeScripts().size() << " scripts in file system, "
-    	<< "the latest script no in db is "<< latestNo << ". " << endl
-    	<< "There are " << scriptsToApply.size() << " script(s) need to apply." << endl;
+        << "the latest script no in db is "<< latestNo << ". " << endl
+        << "There are " << scriptsToApply.size() << " script(s) need to apply." << endl;
 
     for (list< shared_ptr<ChangeScript> >::iterator it=scriptsToApply.begin() ; it != scriptsToApply.end(); it++ ){
-		shared_ptr<ChangeScript> script = *it;
-		cout << "  applying " << script->getFilename() <<endl;
-		runner->beginRunScript(tableName, fieldsMap, script);
-		runner->execute(script->getContent());
-		runner->endRunScript(tableName, fieldsMap, script);
-	}
+        shared_ptr<ChangeScript> script = *it;
+        cout << "  applying " << script->getFilename() <<endl;
+        runner->beginRunScript(tableName, fieldsMap, script);
+        runner->execute(script->getContent());
+        runner->endRunScript(tableName, fieldsMap, script);
+    }
 
     cout << "Successed." <<endl;
 }
@@ -97,7 +97,7 @@ int DbDeploy::getLatestVersion(shared_ptr<ScriptRunner> runner, string tableName
 
     int latestNo = 0;
     if(no.get() != NULL){
-    	latestNo = no->asInt();
+        latestNo = no->asInt();
     }
     return latestNo;
 }
@@ -165,5 +165,5 @@ string DbDeploy::getWelcomeString() {
     //     } catch (IOException e) {
     //         return null;
     //     }
-	return "Welcome to use DbDeploy++";
+    return "Welcome to use DbDeploy++";
 }

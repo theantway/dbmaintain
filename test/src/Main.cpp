@@ -49,21 +49,21 @@ int main(int argc, char const *argv[])
 
     TestEnvironment::Instance()->SetExecDirectory(path);
 
-	string outputFileName = path + execName + ".xml";
+    string outputFileName = path + execName + ".xml";
 
-	cout<< "================================" <<endl
+    cout<< "================================" <<endl
         << "Running " << execName <<endl
         << "Saving result file to " << outputFileName <<endl
         << "================================" <<endl;
 
-	std::ofstream f(outputFileName.c_str());
-	UnitXTestReporter unitXReporter(outputFileName, f);
-	StdoutTestReporter stdoutReporter;
+    std::ofstream f(outputFileName.c_str());
+    UnitXTestReporter unitXReporter(outputFileName, f);
+    StdoutTestReporter stdoutReporter;
 
-	CompositeTestReporter reporters;
-	reporters.AddReporter(&unitXReporter);
-	reporters.AddReporter(&stdoutReporter);
+    CompositeTestReporter reporters;
+    reporters.AddReporter(&unitXReporter);
+    reporters.AddReporter(&stdoutReporter);
 
-	TestRunner runner(reporters);
-	return runner.RunTestsIf(Test::GetTestList(), NULL, True(), 0);
+    TestRunner runner(reporters);
+    return runner.RunTestsIf(Test::GetTestList(), NULL, True(), 0);
 }

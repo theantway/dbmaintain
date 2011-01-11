@@ -9,84 +9,84 @@ ClearOptions::~ClearOptions(){
 }
 
 ClearOptions::ClearOptions(const ClearOptions& options){
-	preservedSchemas(options.preservedSchemas());
-	preservedTables(options.preservedTables());
-	preservedViews(options.preservedViews());
-	preservedFunctions(options.preservedFunctions());
-	preservedMaterializedViews(options.preservedMaterializedViews());
-	preservedSynonyms(options.preservedSynonyms());
-	preservedSequences(options.preservedSequences());
+    preservedSchemas(options.preservedSchemas());
+    preservedTables(options.preservedTables());
+    preservedViews(options.preservedViews());
+    preservedFunctions(options.preservedFunctions());
+    preservedMaterializedViews(options.preservedMaterializedViews());
+    preservedSynonyms(options.preservedSynonyms());
+    preservedSequences(options.preservedSequences());
 }
 
 const set<string> ClearOptions::preservedSchemas() const{
-	return m_preservedSchemas;
+    return m_preservedSchemas;
 }
 
 const set<string> ClearOptions::preservedTables() const{
-	return m_preservedTables;
+    return m_preservedTables;
 }
 
 const set<string> ClearOptions::preservedFunctions() const{
-	return m_preservedFunctions;
+    return m_preservedFunctions;
 }
 
 const set<string> ClearOptions::preservedViews() const{
-	return m_preservedViews;
+    return m_preservedViews;
 }
 const set<string> ClearOptions::preservedMaterializedViews() const{
-	return m_preservedMaterializedViews;
+    return m_preservedMaterializedViews;
 }
 const set<string> ClearOptions::preservedSynonyms() const{
-	return m_preservedSynonyms;
+    return m_preservedSynonyms;
 }
 const set<string> ClearOptions::preservedSequences() const{
-	return m_preservedSequences;
+    return m_preservedSequences;
 }
 
 void ClearOptions::preservedSchemas(const set<string> schemas){
-	m_preservedSchemas.insert(schemas.begin(), schemas.end());
+    m_preservedSchemas.insert(schemas.begin(), schemas.end());
 }
 void ClearOptions::preservedTables(const set<string> tables){
-	m_preservedTables.insert(tables.begin(), tables.end());
+    m_preservedTables.insert(tables.begin(), tables.end());
 }
 void ClearOptions::preservedFunctions(const set<string> functions){
-	m_preservedFunctions.insert(functions.begin(), functions.end());
+    m_preservedFunctions.insert(functions.begin(), functions.end());
 }
 void ClearOptions::preservedViews(const set<string> views){
-	m_preservedViews.insert(views.begin(), views.end());
+    m_preservedViews.insert(views.begin(), views.end());
 }
 void ClearOptions::preservedMaterializedViews(const set<string> materializedViews){
-	m_preservedMaterializedViews.insert(materializedViews.begin(), materializedViews.end());
+    m_preservedMaterializedViews.insert(materializedViews.begin(), materializedViews.end());
 }
 void ClearOptions::preservedSynonyms(const set<string> synonyms){
-	m_preservedSynonyms.insert(synonyms.begin(), synonyms.end());
+    m_preservedSynonyms.insert(synonyms.begin(), synonyms.end());
 }
 void ClearOptions::preservedSequences(const set<string> sequences){
-	m_preservedSequences.insert(sequences.begin(), sequences.end());
+    m_preservedSequences.insert(sequences.begin(), sequences.end());
 }
 
 void ClearOptions::preservedSchema(string schema){
-	m_preservedSchemas.insert(schema);
+    m_preservedSchemas.insert(schema);
 }
 void ClearOptions::preservedTable(string table){
-	m_preservedTables.insert(table);
+    m_preservedTables.insert(table);
 }
 void ClearOptions::preservedView(string view){
-	m_preservedViews.insert(view);
+    m_preservedViews.insert(view);
 }
 
 void ClearOptions::preservedFunction(string function){
-	m_preservedFunctions.insert(function);
+    m_preservedFunctions.insert(function);
 }
 void ClearOptions::preservedMaterializedView(string materializedView){
-	m_preservedMaterializedViews.insert(materializedView);
+    m_preservedMaterializedViews.insert(materializedView);
 }
 void ClearOptions::preservedSynonym(string synonym){
-	m_preservedSynonyms.insert(synonym);
+    m_preservedSynonyms.insert(synonym);
 }
 void ClearOptions::preservedSequence(string sequence){
-	m_preservedSequences.insert(sequence);
+    m_preservedSequences.insert(sequence);
 }
 bool ClearOptions::isPreservedTable(string table){
-	return m_preservedTables.find(table) != m_preservedTables.end();
+    return m_preservedTables.find(table) != m_preservedTables.end();
 }

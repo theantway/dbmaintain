@@ -7,5 +7,5 @@ BaseException::~BaseException(){
 }
 
 string BaseException::getMessage(){
-	return m_message;
+    return m_message;
 }

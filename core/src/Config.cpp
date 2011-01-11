@@ -12,7 +12,7 @@ Config::Config(string const& configFile) {
   string inSection;
   int lineNo=0;
   while (file.good() && getline(file,line)) {
-	lineNo ++;
+    lineNo ++;
     if (! line.length()) continue;
 
     line = StringUtil::trim(line, " \t");
@@ -27,9 +27,9 @@ Config::Config(string const& configFile) {
 
     vector<string> pair = StringUtil::split(line, "=", 2);
     if(pair.size() != 2){
-		ostringstream stream;
-		stream << "invalid format for line " << lineNo << " under section " << inSection << ": " << line;
-		throw ConfigException(stream.str());
+        ostringstream stream;
+        stream << "invalid format for line " << lineNo << " under section " << inSection << ": " << line;
+        throw ConfigException(stream.str());
     }
 
     m_settings[inSection + '/' + pair[0] ] = shared_ptr<Value>(new Value(pair[1]));
@@ -42,9 +42,9 @@ shared_ptr<Value> const& Config::get(string const& section, string const& entry)
   map<string, shared_ptr<Value> >::const_iterator it = m_settings.find(section + '/' + entry);
 
   if (it == m_settings.end()) {
-	  ostringstream stream;
-	  stream << "could not find config for " << entry << " in section " << section;
-	  throw ConfigException(stream.str());
+      ostringstream stream;
+      stream << "could not find config for " << entry << " in section " << section;
+      throw ConfigException(stream.str());
   }
 
   return it->second;
@@ -54,7 +54,7 @@ shared_ptr<Value> const& Config::get(string const& section, string const& entry,
   map<string, shared_ptr<Value> >::const_iterator it = m_settings.find(section + '/' + entry);
 
   if (it == m_settings.end()) {
-	  return defaultValue;
+      return defaultValue;
   }
 
   return it->second;

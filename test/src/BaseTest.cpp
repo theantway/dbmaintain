@@ -5,7 +5,7 @@ namespace UnitTest {
 void CheckStringsNotEqual(TestResults& results, char const* expected, char const* actual,
                        TestDetails const& details)
 {
-	using namespace std;
+    using namespace std;
 
     if (!(strcmp(expected, actual)))
     {
@@ -19,24 +19,24 @@ void CheckStringsNotEqual(TestResults& results, char const* expected, char const
 void CheckNotEqual(TestResults& results, char const* expected, char const* actual,
                 TestDetails const& details)
 {
-	CheckStringsNotEqual(results, expected, actual, details);
+    CheckStringsNotEqual(results, expected, actual, details);
 }
 
 void CheckNotEqual(TestResults& results, char* expected, char* actual,
                 TestDetails const& details)
 {
-	CheckStringsNotEqual(results, expected, actual, details);
+    CheckStringsNotEqual(results, expected, actual, details);
 }
 
 void CheckNotEqual(TestResults& results, char* expected, char const* actual,
                 TestDetails const& details)
 {
-	CheckStringsNotEqual(results, expected, actual, details);
+    CheckStringsNotEqual(results, expected, actual, details);
 }
 
 void CheckNotEqual(TestResults& results, char const* expected, char* actual,
                 TestDetails const& details)
 {
-	CheckStringsNotEqual(results, expected, actual, details);
+    CheckStringsNotEqual(results, expected, actual, details);
 }
 }

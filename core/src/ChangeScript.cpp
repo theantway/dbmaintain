@@ -11,7 +11,7 @@
 
 using namespace std;
 ChangeScript::ChangeScript(int id, string filename, string directory):
-	id(id), filename(filename), directory(directory)
+    id(id), filename(filename), directory(directory)
 {
 }
 
@@ -19,19 +19,19 @@ ChangeScript::~ChangeScript() {
 }
 
 string ChangeScript::getFilename() {
-	return filename;
+    return filename;
 }
 
 int ChangeScript::getId() {
-	return id;
+    return id;
 }
 
 string ChangeScript::getDescription() {
-	return description;
+    return description;
 }
 
 int ChangeScript::compare(shared_ptr<ChangeScript> first, shared_ptr<ChangeScript> second) {
-	return first->id < second->id;
+    return first->id < second->id;
 }
 
 string ChangeScript::toString() {
@@ -41,47 +41,47 @@ string ChangeScript::toString() {
 }
 
 string ChangeScript::getContent() {
-	return getFileContents();
+    return getFileContents();
 }
 
 string ChangeScript::getFullPath(){
-	string dir(directory);
-	dir = StringUtil::trimRight(dir, "/\\");
-	return dir + '/' + filename;
+    string dir(directory);
+    dir = StringUtil::trimRight(dir, "/\\");
+    return dir + '/' + filename;
 }
 
 string ChangeScript::getFileContents() {
-	ifstream is;
-	ostringstream oss;
+    ifstream is;
+    ostringstream oss;
 
-	is.open(getFullPath().c_str(), ios::binary);
+    is.open(getFullPath().c_str(), ios::binary);
 
-	if(!is.good()){
-		return oss.str();
-	}
+    if(!is.good()){
+        return oss.str();
+    }
 
-	oss << is.rdbuf();
-	is.close();
+    oss << is.rdbuf();
+    is.close();
 
-	return oss.str();
+    return oss.str();
 }
 
 time_t ChangeScript::getLastModifiedAt(){
-	struct stat pathStat;
-	stat(getFullPath().c_str(), &pathStat);
+    struct stat pathStat;
+    stat(getFullPath().c_str(), &pathStat);
 
-	return pathStat.st_mtime;
+    return pathStat.st_mtime;
 }
 
 string ChangeScript::getCheckSum(){
-	unsigned char result[MD5_DIGEST_LENGTH];
-	string content = getFileContents();
-	MD5((unsigned char*) content.c_str(), content.length(), result);
+    unsigned char result[MD5_DIGEST_LENGTH];
+    string content = getFileContents();
+    MD5((unsigned char*) content.c_str(), content.length(), result);
 
-	ostringstream oss;
-	for(int i=0; i < MD5_DIGEST_LENGTH; i++) {
-		oss << setw( 2 ) << setfill( '0' ) << hex << int(result[i]);
-	}
+    ostringstream oss;
+    for(int i=0; i < MD5_DIGEST_LENGTH; i++) {
+        oss << setw( 2 ) << setfill( '0' ) << hex << int(result[i]);
+    }
 
-	return oss.str();
+    return oss.str();
 }
