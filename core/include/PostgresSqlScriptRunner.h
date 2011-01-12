@@ -1,15 +1,12 @@
 #ifndef POSTGRES_SQL_SCRIPT_RUNNER_H
 #define POSTGRES_SQL_SCRIPT_RUNNER_H
 
-// #include "PostgresSqlScriptRunner.h"
 #include <iostream>
 #include <set>
 #include <deque>
 #include <vector>
-#include "Value.h"
+
 #include "ScriptRunner.h"
-#include "ChangeScript.h"
-#include "ClearOptions.h"
 
 #include "libpq-fe.h"
 #include <string>
@@ -17,6 +14,9 @@
 
 using namespace boost;
 using namespace std;
+
+class Value;
+class ClearOptions;
 
 class PostgresSqlScriptRunner: public SqlScriptRunner {
 public:

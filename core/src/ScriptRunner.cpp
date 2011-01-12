@@ -1,4 +1,8 @@
 #include "ScriptRunner.h"
+#include "Value.h"
+#include "ChangeScript.h"
+#include "ClearOptions.h"
+
 #include <iostream>
 
 map<string, shared_ptr<ScriptRunner> > ScriptRunner::runners;

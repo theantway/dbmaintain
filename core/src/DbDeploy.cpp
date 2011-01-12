@@ -4,9 +4,12 @@
 #include <fstream>
 #include <set>
 
+#include "ChangeScript.h"
 #include "ChangeScriptRepository.h"
 #include "DirectoryScanner.h"
 #include "ScriptRunner.h"
+#include "ClearOptions.h"
+#include "Value.h"
 
 using namespace std;
 

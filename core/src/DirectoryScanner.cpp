@@ -1,4 +1,5 @@
 #include <DirectoryScanner.h>
+#include "ChangeScript.h"
 
 #include <iostream>
 #include <dirent.h>

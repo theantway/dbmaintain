@@ -6,6 +6,7 @@
 #include <iostream>
 #include "ScriptRunner.h"
 #include "ChangeScriptRepository.h"
+#include "ChangeScript.h"
 #include "Value.h"
 #include "ScriptException.h"
 

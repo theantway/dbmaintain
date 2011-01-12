@@ -1,10 +1,6 @@
 #ifndef SCRIPT_RUNNER_H_
 #define SCRIPT_RUNNER_H_
 
-#include "Value.h"
-#include "ChangeScript.h"
-#include "ClearOptions.h"
-
 #include <string>
 #include <list>
 #include <map>
@@ -13,6 +9,10 @@
 
 using namespace boost;
 using namespace std;
+
+class ChangeScript;
+class Value;
+class ClearOptions;
 
 class ScriptRunner {
 public:

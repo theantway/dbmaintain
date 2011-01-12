@@ -3,10 +3,9 @@
 #include <sstream>
 
 #include "DbException.h"
-
 #include "Value.h"
-#include "ScriptRunner.h"
 #include "ChangeScript.h"
+#include "ClearOptions.h"
 
 #include <string>
 #include <boost/shared_ptr.hpp>

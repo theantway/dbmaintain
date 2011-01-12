@@ -6,6 +6,7 @@
 #include <iostream>
 #include "PostgresSqlScriptRunner.h"
 #include "Value.h"
+#include "ClearOptions.h"
 
 using namespace std;
 

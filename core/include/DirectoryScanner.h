@@ -2,11 +2,12 @@
 #define DIRECTORYSCANNER_H_
 
 #include "list"
-#include "ChangeScript.h"
 #include <boost/shared_ptr.hpp>
 
 using namespace boost;
 using namespace std;
+
+class ChangeScript;
 
 class DirectoryScanner {
 public:

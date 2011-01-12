@@ -1,11 +1,13 @@
-#include "config.h"
+#include "FileConfig.h"
 
+#include "Value.h"
 #include "StringUtil.h"
 #include "ConfigException.h"
+
 #include <sstream>
 #include <fstream>
 
-Config::Config(string const& configFile) {
+FileConfig::FileConfig(string const& configFile) {
   ifstream file(configFile.c_str());
 
   string line;
@@ -38,7 +40,7 @@ Config::Config(string const& configFile) {
   file.close();
 }
 
-shared_ptr<Value> const& Config::get(string const& section, string const& entry) const {
+shared_ptr<Value> const& FileConfig::get(string const& section, string const& entry) const {
   map<string, shared_ptr<Value> >::const_iterator it = m_settings.find(section + '/' + entry);
 
   if (it == m_settings.end()) {
@@ -50,7 +52,7 @@ shared_ptr<Value> const& Config::get(string const& section, string const& entry)
   return it->second;
 }
 
-shared_ptr<Value> const& Config::get(string const& section, string const& entry, shared_ptr<Value> const& defaultValue) {
+shared_ptr<Value> const& FileConfig::get(string const& section, string const& entry, shared_ptr<Value> const& defaultValue) {
   map<string, shared_ptr<Value> >::const_iterator it = m_settings.find(section + '/' + entry);
 
   if (it == m_settings.end()) {

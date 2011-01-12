@@ -7,6 +7,8 @@
 
 using namespace std;
 
+class ScriptRunner;
+
 class DbDeploy {
 public:
     DbDeploy();

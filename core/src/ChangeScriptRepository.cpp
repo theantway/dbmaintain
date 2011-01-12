@@ -1,9 +1,9 @@
 #include "ChangeScriptRepository.h"
 #include "ScriptException.h"
+#include "ChangeScript.h"
 
 #include <iostream>
 #include <sstream>
-
 
 ChangeScriptRepository::ChangeScriptRepository(list< shared_ptr<ChangeScript> > scripts) {
     this->scripts = scripts;
