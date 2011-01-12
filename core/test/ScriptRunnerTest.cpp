@@ -26,14 +26,14 @@ public:
     }
     virtual void setConnectionString(string connectionString){
     }
-    virtual void ensureScriptsTableExists(string tableName, map<string, string> fieldsMap){}
+    virtual void ensureScriptsTableExists(string tableName, const map<string, string>& fieldsMap){}
     virtual map<string, shared_ptr<Value> > getLatestVersion(string tableName){
         return map<string, shared_ptr<Value> >();
     }
-    virtual void beginRunScript(string tableName, map<string, string> fieldsMap, shared_ptr<ChangeScript> script){}
-    virtual void endRunScript(string tableName, map<string, string> fieldsMap, shared_ptr<ChangeScript> script){}
-    virtual void clearDatabase(ClearOptions options){}
-    virtual set<string> getPreservedTables(ClearOptions options){return set<string>();}
+    virtual void beginRunScript(string tableName, const map<string, string>& fieldsMap, shared_ptr<ChangeScript> script){}
+    virtual void endRunScript(string tableName, const map<string, string>& fieldsMap, shared_ptr<ChangeScript> script){}
+    virtual void clearDatabase(const ClearOptions& options){}
+    virtual set<string> getPreservedTables(ClearOptions& options){return set<string>();}
 
 };
 
