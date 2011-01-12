@@ -50,7 +50,6 @@ protected:
 	deque<string> getDependentTables(string tableName, const list< map<string, shared_ptr<Value> > >& dependencies);
 
 	bool hasDependency(string tableName, const list< map<string, shared_ptr<Value> > >& dependencies, set<string>& excludeTables);
-	void removeDependenciesOn(string tableName, list< map<string, shared_ptr<Value> > >& dependencies);
 private:
 	PGconn* getConnection();
 	list< map<string, shared_ptr<Value> > > _execute(string script);

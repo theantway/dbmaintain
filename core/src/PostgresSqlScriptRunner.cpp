@@ -44,7 +44,7 @@ PGconn* PostgresSqlScriptRunner::getConnection(){
 
 list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::_execute(string script){
     list< map<string, shared_ptr<Value> > > result;
-    cout << "executing sql: " << script <<endl;
+//    cout << "executing sql: " << script <<endl;
     m_pConn = getConnection();
     PGresult* res = PQexec(m_pConn, script.c_str());
     ExecStatusType status=PQresultStatus(res);
@@ -179,7 +179,7 @@ void PostgresSqlScriptRunner::clearDatabase(const ClearOptions& options){
     ClearOptions fullOptions = extendPreservedObjects(options);
     clearViews(fullOptions.preservedViews());
     clearTables(fullOptions.preservedTables());
-//    clearFunctions(fullOptions.preservedFunction();
+    clearFunctions(fullOptions.preservedFunctions());
 }
 
 list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::getTables(){
@@ -286,7 +286,7 @@ void PostgresSqlScriptRunner::clearTables(const set<string>& preservedObjects){
         }
 
         ostringstream drop;
-        drop << "DROP TABLE \"" << tableName << "\""<<endl;
+        drop << "DROP TABLE \"" << tableName << "\"";
         try{
             cout << drop.str()<<endl;
             _execute(drop.str());
@@ -309,7 +309,7 @@ void PostgresSqlScriptRunner::clearViews(const set<string>& preservedViews){
         }
 
         ostringstream drop;
-        drop << "DROP VIEW \"" << viewName << "\""<<endl;
+        drop << "DROP VIEW \"" << viewName << "\"";
         try{
             cout << drop.str()<<endl;
             _execute(drop.str());
@@ -319,19 +319,24 @@ void PostgresSqlScriptRunner::clearViews(const set<string>& preservedViews){
     }
 }
 
-void PostgresSqlScriptRunner::clearFunctions(const set<string>& preservedObjects){
-    string sql = "SELECT 'DROP FUNCTION ' || ns.nspname || '.' || proname || '(' || oidvectortypes(proargtypes) || ') ' as drop_sql \
-                    FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) \
+void PostgresSqlScriptRunner::clearFunctions(const set<string>& preservedFunctions){
+    string sql = "SELECT 'DROP FUNCTION ' || ns.nspname || '.' || proname || '(' || oidvectortypes(proargtypes) || ') ' as drop_sql, \
+                    proname FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) \
                     WHERE ns.nspname NOT IN ('pg_catalog', 'information_schema') order by proname";
 
     list< map<string, shared_ptr<Value> > > objects = _execute(sql);
 
     for (list< map<string, shared_ptr<Value> > >::iterator it= objects.begin() ; it != objects.end(); it++ ){
-        map<string, shared_ptr<Value> > object = *it;
-//
+        map<string, shared_ptr<Value> > function = *it;
+
+        if(preservedFunctions.find(function["proname"]->asString()) != preservedFunctions.end() ){
+            continue;
+        }
+
+        cout << function["drop_sql"]->asString()<<endl;
 //      ostringstream drop;
 //      drop << "DROP " << object["type"]->asString() << " \"" << object["name"]->asString() << "\""<<endl;
-        _execute(object["drop_sql"]->asString());
+        _execute(function["drop_sql"]->asString());
     }
 
 }
@@ -373,9 +378,7 @@ ClearOptions PostgresSqlScriptRunner::extendPreservedTables(ClearOptions& clearO
     list< map<string, shared_ptr<Value> > > viewDependendedTables = getViewDependencies();
     set<string> views = clearOptions.preservedViews();
     for (set<string>::iterator it= views.begin() ; it != views.end(); it++ ){
-//      deque<string> subs = getDependentTables(*it, viewDependendedTables);
-//      clearOptions.preservedTables(subs.begin(), subs.end());
-        cout << "extend view dependencies "<< *it<<endl;
+//        cout << "extend view dependencies "<< *it<<endl;
         extendViewDependencies(*it, viewDependendedTables, clearOptions);
     }
 
@@ -442,7 +445,7 @@ deque<string> PostgresSqlScriptRunner::getDependentTables(string tableName, cons
 ClearOptions PostgresSqlScriptRunner::extendViewDependencies(string tableName, const list< map<string, shared_ptr<Value> > >& viewDependendedTables, ClearOptions& clearOptions){
     for (list< map<string, shared_ptr<Value> > >::const_iterator it= viewDependendedTables.begin() ; it != viewDependendedTables.end(); it++ ){
         map<string, shared_ptr<Value> > viewDependendedTable = *it;
-        cout << "  compare with "<< viewDependendedTable["table_name"]->asString()<<endl;
+//        cout << "  compare with "<< viewDependendedTable["table_name"]->asString()<<endl;
         if(viewDependendedTable["table_name"]->asString() == tableName && viewDependendedTable["foreign_table_name"]->asString() != tableName){
             if(viewDependendedTable["type"]->asString() == "table"){
                 clearOptions.preservedTable(viewDependendedTable["foreign_table_name"]->asString());
