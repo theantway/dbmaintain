@@ -26,10 +26,6 @@ int main(int argc, char** argv){
 
     CSimpleOpt args(argc, argv, g_rgOptions);
 
-    int i = args.FileCount();
-    while(i> 0){
-        cout << "arg " << args.File(i) <<endl;
-    }
     while (args.Next()) {
         if (args.LastError() == SO_SUCCESS) {
             if (args.OptionId() == OPT_HELP) {
@@ -45,6 +41,11 @@ int main(int argc, char** argv){
             return 1;
         }
     }
+
+    for(int i = 0; i< args.FileCount(); i++){
+        cout << "arg " << args.File(i) <<endl;
+    }
+
 //
 //    DbDeploy deploy;
 //    deploy.setScriptDirectory("/Users/weixu/projects/msx/mobilestorm/schema/src/main/database/scripts/01_v1.0");
