@@ -21,7 +21,7 @@ string StringUtil::escape(string& str)
 }
 
 vector<string> StringUtil::split(const string& str,
-                      const string& delimiters, const int maxParts)
+                      const string& delimiters, const size_t maxParts)
 {
     vector<string> result;
     StringUtil::split(str, delimiters, maxParts, result);
@@ -30,7 +30,7 @@ vector<string> StringUtil::split(const string& str,
 }
 
 vector<string> StringUtil::split(const string& str,
-                      const string& delimiters, const int maxParts,
+                      const string& delimiters, const size_t maxParts,
                       vector<string>& tokens)
 {
     // Skip delimiters at beginning.
