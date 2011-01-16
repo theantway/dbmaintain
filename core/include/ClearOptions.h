@@ -4,16 +4,21 @@
 #include <set>
 #include <string>
 #include <iterator>
+
+#include <boost/shared_ptr.hpp>
+
 using namespace std;
+using namespace boost;
 
 class ClearOptions {
 public:
 	ClearOptions();
-	ClearOptions(const ClearOptions& options);
 
 	virtual ~ClearOptions();
 
-	const set<string> preservedSchemas() const;
+    shared_ptr<ClearOptions> clone() const;
+
+    const set<string> preservedSchemas() const;
 	const set<string> preservedTables() const;
 	const set<string> preservedViews() const;
 	const set<string> preservedFunctions() const;

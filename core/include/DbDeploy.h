@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "ScriptRunner.h"
+#include "Config.h";
 
 using namespace std;
 
@@ -11,65 +11,69 @@ class ScriptRunner;
 
 class DbDeploy {
 public:
-    DbDeploy();
+    DbDeploy(const Config& config);
     virtual ~DbDeploy();
 
-	void setDriver(string driver);
+    void init();
 
-	void setUrl(string url);
+    void setDriver(string driver);
 
-	void setUserid(string userid);
+    void setUrl(string url);
 
-	void setPassword(string password);
+    void setUserid(string userid);
 
-	void setScriptDirectory(string scriptdirectory);
+    void setPassword(string password);
 
-	void setOutputfile(string outputfile);
+    void setScriptDirectory(string scriptdirectory);
 
-	void setDbms(string dbms);
+    void setOutputfile(string outputfile);
 
-	void setLastChangeToApply(int lastChangeToApply);
+    void setDbms(string dbms);
 
-	void setDeltaset(string deltaset);
+    void setLastChangeToApply(int lastChangeToApply);
 
-	void setUndoOutputfile(string undoOutputfile);
+    void setDeltaset(string deltaset);
 
-	void clear();
+    void setUndoOutputfile(string undoOutputfile);
 
-	shared_ptr<ScriptRunner> initRunner();
+    void clear(const Config& config);
 
-	void go();
+    void clean(const Config& config);
 
-	int getLatestVersion(shared_ptr<ScriptRunner> runner, string tableName);
+    shared_ptr<ScriptRunner> initRunner();
 
-	void validate();
+    void update(const Config& config);
 
-	void checkForRequiredParameter(string parameterValue, string parameterName);
+    int getLatestVersion(shared_ptr<SqlScriptRunner> runner, string tableName);
 
-	//PrintStream
-	void createUndoOutputPrintStream(string undoOutputFile);
+    void validate();
 
-	string getUserid();
+    void checkForRequiredParameter(string parameterValue, string parameterName);
 
-	string getUrl();
+    //PrintStream
+    void createUndoOutputPrintStream(string undoOutputFile);
 
-	string getPassword();
+    string getUserid();
 
-	string getScriptDirectory();
+    string getUrl();
 
-	string getOutputfile();
+    string getPassword();
 
-	string getUndoOutputfile();
+    string getScriptDirectory();
 
-	string getDbms();
+    string getOutputfile();
 
-	int getLastChangeToApply();
+    string getUndoOutputfile();
 
-	string getDeltaset();
+    string getDbms();
 
-	string getDriver();
+    int getLastChangeToApply();
 
-	string getWelcomeString();
+    string getDeltaset();
+
+    string getDriver();
+
+    string getWelcomeString();
 
 private:
     string url;
@@ -82,6 +86,7 @@ private:
     int lastChangeToApply;
     string deltaset;
     string driver;
+//    Config m_config;
 
 };
 

@@ -5,12 +5,12 @@
 #include <set>
 #include <deque>
 #include <vector>
-
-#include "ScriptRunner.h"
+#include <string>
 
 #include "libpq-fe.h"
-#include <string>
 #include <boost/shared_ptr.hpp>
+
+#include "ScriptRunner.h"
 
 using namespace boost;
 using namespace std;
@@ -33,15 +33,22 @@ public:
 
 	virtual void beginRunScript(string tableName, const map<string, string>& fieldsMap, shared_ptr<ChangeScript> script);
 	virtual void endRunScript(string tableName, const map<string, string>& fieldsMap, shared_ptr<ChangeScript> script);
-	virtual void clearDatabase(const ClearOptions& clearOptions);
+	virtual void clearDatabase(shared_ptr<Database> database);
+    virtual void cleanDatabase(shared_ptr<Database> database);
 
 	ClearOptions extendPreservedObjects(const ClearOptions& options);
 	ClearOptions extendPreservedTables(ClearOptions& clearOptions);
-	ClearOptions extendPreservedFunctions(ClearOptions& clearOptions);
-	ClearOptions extendViewDependencies(string tableName, const list< map<string, shared_ptr<Value> > >& viewDependendedTables, ClearOptions& clearOptions);
+    ClearOptions extendPreservedFunctions(ClearOptions& clearOptions);
+    ClearOptions extendViewDependencies(string tableName, const list< map<string, shared_ptr<Value> > >& viewDependendedTables, ClearOptions& clearOptions);
+
+	shared_ptr<ClearOptions> extendPreservedObjects(shared_ptr<ClearOptions> options);
+	shared_ptr<ClearOptions> extendPreservedTables(shared_ptr<ClearOptions> clearOptions);
+	shared_ptr<ClearOptions> extendPreservedFunctions(shared_ptr<ClearOptions> clearOptions);
+	shared_ptr<ClearOptions> extendViewDependencies(string tableName, const list< map<string, shared_ptr<Value> > >& viewDependendedTables, shared_ptr<ClearOptions> clearOptions);
 
 	list< map<string, shared_ptr<Value> > > getTables();
 	list< map<string, shared_ptr<Value> > > getViews();
+
 protected:
 	list<string> sortTablesByDependency(list< map<string, shared_ptr<Value> > >& allTables, list< map<string, shared_ptr<Value> > >& dependencies);
 	list< map<string, shared_ptr<Value> > > getTableDependencies();
@@ -54,6 +61,7 @@ private:
 	PGconn* getConnection();
 	list< map<string, shared_ptr<Value> > > _execute(string script);
 	void clearTables(const set<string>& preservedTables);
+	void cleanTables(const set<string>& preservedTables);
 	void clearViews(const set<string>& preservedViews);
 	void clearFunctions(const set<string>& preservedFunctions);
 

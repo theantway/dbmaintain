@@ -1,9 +1,12 @@
 #include "ScriptRunner.h"
+
+#include <iostream>
+
 #include "Value.h"
 #include "ChangeScript.h"
 #include "ClearOptions.h"
 
-#include <iostream>
+#include "PostgresSqlScriptRunner.h"
 
 map<string, shared_ptr<ScriptRunner> > ScriptRunner::runners;
 
@@ -20,8 +23,6 @@ shared_ptr<ScriptRunner> ScriptRunner::getRunner(string dbengine){
 void ScriptRunner::registRunner(string name, shared_ptr<ScriptRunner> runner){
     runners[name] = runner;
 }
-
-#include "PostgresSqlScriptRunner.h"
 
 void ScriptRunner::init(){
     registRunner("postgres", shared_ptr<ScriptRunner>(new PostgresSqlScriptRunner()));

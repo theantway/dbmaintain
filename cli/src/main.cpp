@@ -9,17 +9,31 @@ void usage(){
 }
 
 int main(int argc, char** argv){
-    enum { OPT_CLEAR, OPT_CLEAN, OPT_RESET, OPT_HELP, OPT_FOO, OPT_BAR, OPT_HOGE };
+    enum {
+        OPT_UPDATE,
+        OPT_CLEAR,
+        OPT_CLEAN,
+        OPT_MARK_UPTO_DATE,
+        OPT_RESET,
+        OPT_HELP,
+        OPT_FILE,
+        OPT_SCRIPT_LOCATION,
+
+    };
 
     CSimpleOpt::SOption g_rgOptions[] = {
         // ID       TEXT          TYPE
-        { OPT_FOO,  "-a",     SO_NONE    }, // "-a"
-        { OPT_BAR,  "-b",     SO_NONE    }, // "-b"
-        { OPT_HOGE, "-f",     SO_REQ_SEP }, // "-f ARG"
-        { OPT_HELP, "-?",     SO_NONE    }, // "-?"
-        { OPT_HELP, "--help", SO_NONE    }, // "--help"
+        { OPT_FILE,   "-f",     SO_REQ_SEP }, // "-f ARG"
+        { OPT_SCRIPT_LOCATION, "-s",     SO_REQ_SEP }, // "-s script location"
+        { OPT_HELP,   "-?",     SO_NONE    }, // "-?"
+        { OPT_HELP,   "--help", SO_NONE    }, // "--help"
+        { OPT_UPDATE, "update", SO_NONE    },
+        { OPT_UPDATE, "updateDatabase", SO_NONE    },
         { OPT_CLEAR, "clear", SO_NONE    },
+        { OPT_CLEAR, "clearDatabase", SO_NONE    },
         { OPT_CLEAN, "clean", SO_NONE    },
+        { OPT_CLEAN, "cleanDatabase", SO_NONE    },
+        { OPT_MARK_UPTO_DATE, "markUptoDate", SO_NONE    },
         { OPT_RESET, "reset", SO_NONE    },
         SO_END_OF_OPTIONS                       // END
     };

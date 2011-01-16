@@ -4,6 +4,8 @@
 #include <fstream>
 #include <set>
 
+#include <boost/foreach.hpp>
+
 #include "ChangeScript.h"
 #include "ChangeScriptRepository.h"
 #include "DirectoryScanner.h"
@@ -11,15 +13,22 @@
 #include "ClearOptions.h"
 #include "Value.h"
 
+#include "config/Database.h"
+
 using namespace std;
 
-DbDeploy::DbDeploy() {
+DbDeploy::DbDeploy(const Config& config) {
     lastChangeToApply = 999999;
     deltaset = "Main";
 
+    init();
 }
 
 DbDeploy::~DbDeploy() {
+}
+
+void DbDeploy::init(){
+    ScriptRunner::init();
 }
 
 void DbDeploy::setDriver(string driver) {
@@ -50,24 +59,32 @@ void DbDeploy::setDeltaset(string deltaset) {
     this->deltaset = deltaset;
 }
 
-void DbDeploy::clear(){
-    set<string> preservedTables;
-    ClearOptions clearOptions;
-    shared_ptr<ScriptRunner> runner = initRunner();
-//  set<string> allPreservedTables = runner->getDependentTables(preservedTables);
+void DbDeploy::clear(const Config& config) {
+    const list< shared_ptr<Database> > databases = config.getDatabases();
 
-    runner->clearDatabase(clearOptions);
+    BOOST_FOREACH(shared_ptr<Database> database, databases){
+        const shared_ptr<SqlScriptRunner> scriptRunner = config.getSqlRunner(database);
+        scriptRunner->clearDatabase(database);
+    }
+}
+
+void DbDeploy::clean(const Config& config) {
+    const list< shared_ptr<Database> > databases = config.getDatabases();
+
+    BOOST_FOREACH(shared_ptr<Database> database, databases){
+        const shared_ptr<SqlScriptRunner> scriptRunner = config.getSqlRunner(database);
+        scriptRunner->cleanDatabase(database);
+    }
 }
 
 shared_ptr<ScriptRunner> DbDeploy::initRunner(){
-    ScriptRunner::init();
     shared_ptr<ScriptRunner> runner = ScriptRunner::getRunner("postgres");
-    runner->setConnectionString("dbname=dbmaintain_test user=postgres");
+//    runner->setConnectionString("dbname=dbmaintain_test user=postgres");
     return runner;
 }
 
-void DbDeploy::go(){
-    shared_ptr<ScriptRunner> runner = initRunner();
+void DbDeploy::update(const Config& config){
+    shared_ptr<SqlScriptRunner> runner = config.getDefaultSqlRunner();
 
     cout << getWelcomeString() <<endl;
     string tableName = "script_table";
@@ -94,7 +111,7 @@ void DbDeploy::go(){
     cout << "Successed." <<endl;
 }
 
-int DbDeploy::getLatestVersion(shared_ptr<ScriptRunner> runner, string tableName){
+int DbDeploy::getLatestVersion(shared_ptr<SqlScriptRunner> runner, string tableName){
     map<string, shared_ptr<Value> > latest = runner->getLatestVersion(tableName);
     shared_ptr<Value> no = latest["script_no"];
 

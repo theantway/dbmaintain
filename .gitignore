@@ -20,10 +20,12 @@ ide
 *.lai
 *.orig
 *.cmake
+.settings
 Makefile
 CMakeFiles
 CMakeCache.txt
 bin
+nbproject
 .project
 .cproject
 lib/xmlrpc-c-1.06.35/**/blddir

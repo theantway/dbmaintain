@@ -8,14 +8,18 @@ ClearOptions::~ClearOptions(){
 
 }
 
-ClearOptions::ClearOptions(const ClearOptions& options){
-    preservedSchemas(options.preservedSchemas());
-    preservedTables(options.preservedTables());
-    preservedViews(options.preservedViews());
-    preservedFunctions(options.preservedFunctions());
-    preservedMaterializedViews(options.preservedMaterializedViews());
-    preservedSynonyms(options.preservedSynonyms());
-    preservedSequences(options.preservedSequences());
+shared_ptr<ClearOptions> ClearOptions::clone() const{
+    shared_ptr<ClearOptions> result(new ClearOptions());
+
+    result->preservedSchemas(preservedSchemas());
+    result->preservedTables(preservedTables());
+    result->preservedViews(preservedViews());
+    result->preservedFunctions(preservedFunctions());
+    result->preservedMaterializedViews(preservedMaterializedViews());
+    result->preservedSynonyms(preservedSynonyms());
+    result->preservedSequences(preservedSequences());
+
+    return result;
 }
 
 const set<string> ClearOptions::preservedSchemas() const{

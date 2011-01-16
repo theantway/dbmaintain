@@ -19,3 +19,5 @@ solution "dbmaintain++"
 
 include "core"
 include "cli"
+include "unittest-cpp"
+include "test"

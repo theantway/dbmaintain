@@ -1,13 +1,11 @@
-project "core"
+project "basetest"
   language "C++"
   kind     "StaticLib"
-  files  { "include/**.h", "src/**.cpp" }
-  includedirs { "include", "/opt/local/include/postgresql90/" }
+  files  { "include/*.h", "src/*.cpp" }
+  includedirs { "include", "../unittest-cpp/UnitTest++/src" }
 
   configuration { "Debug*" }
     defines { "_DEBUG", "DEBUG" }
 
   configuration { "Release*" }
     defines { "NDEBUG" }
-
-include "test"

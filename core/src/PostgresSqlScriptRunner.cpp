@@ -1,14 +1,16 @@
 #include "PostgresSqlScriptRunner.h"
+
 #include <iostream>
 #include <sstream>
+#include <string>
+
+#include <boost/shared_ptr.hpp>
 
 #include "DbException.h"
 #include "Value.h"
 #include "ChangeScript.h"
 #include "ClearOptions.h"
-
-#include <string>
-#include <boost/shared_ptr.hpp>
+#include "config/Database.h"
 
 using namespace boost;
 using namespace std;
@@ -166,19 +168,24 @@ void PostgresSqlScriptRunner::endRunScript(string tableName, const map<string, s
     _execute(stream.str());
 }
 
-ClearOptions PostgresSqlScriptRunner::extendPreservedObjects(const ClearOptions& options){
-    ClearOptions result(options);
+shared_ptr<ClearOptions> PostgresSqlScriptRunner::extendPreservedObjects(const shared_ptr<ClearOptions> options){
+    shared_ptr<ClearOptions> result = options->clone();
     extendPreservedTables(result);
     extendPreservedFunctions(result);
 
     return result;
 }
 
-void PostgresSqlScriptRunner::clearDatabase(const ClearOptions& options){
-    ClearOptions fullOptions = extendPreservedObjects(options);
-    clearViews(fullOptions.preservedViews());
-    clearTables(fullOptions.preservedTables());
-    clearFunctions(fullOptions.preservedFunctions());
+void PostgresSqlScriptRunner::clearDatabase(shared_ptr<Database> database){
+    shared_ptr<ClearOptions> fullOptions = extendPreservedObjects(database->getClearOptions());
+    clearViews(fullOptions->preservedViews());
+    clearTables(fullOptions->preservedTables());
+    clearFunctions(fullOptions->preservedFunctions());
+}
+
+void PostgresSqlScriptRunner::cleanDatabase(shared_ptr<Database> database){
+    shared_ptr<ClearOptions> fullOptions = extendPreservedObjects(database->getCleanOptions());
+    cleanTables(fullOptions->preservedTables());
 }
 
 list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::getTables(){
@@ -295,6 +302,29 @@ void PostgresSqlScriptRunner::clearTables(const set<string>& preservedObjects){
     }
 }
 
+void PostgresSqlScriptRunner::cleanTables(const set<string>& preservedObjects){
+    list< map<string, shared_ptr<Value> > > tables =  getTables();
+    list< map<string, shared_ptr<Value> > > dependencies = getTableDependencies();
+
+    list<string> tablesToRemove = sortTablesByDependency(tables, dependencies);
+    for (list<string>::iterator it= tablesToRemove.begin() ; it != tablesToRemove.end(); it++ ){
+        string tableName = *it;
+
+        if(preservedObjects.find(tableName) != preservedObjects.end() ){
+            continue;
+        }
+
+        ostringstream drop;
+        drop << "TRUNCATE TABLE \"" << tableName << "\"";
+        try{
+            cout << drop.str()<<endl;
+            _execute(drop.str());
+        }catch(DbException& e){
+            throw e;
+        }
+    }
+}
+
 void PostgresSqlScriptRunner::clearViews(const set<string>& preservedViews){
     list< map<string, shared_ptr<Value> > > views =  getViews();
     list< map<string, shared_ptr<Value> > > dependencies = getViewDependencies();
@@ -373,38 +403,38 @@ list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::getViewDependen
     return result;
 }
 
-ClearOptions PostgresSqlScriptRunner::extendPreservedTables(ClearOptions& clearOptions){
+shared_ptr<ClearOptions> PostgresSqlScriptRunner::extendPreservedTables(shared_ptr<ClearOptions> clearOptions){
     list< map<string, shared_ptr<Value> > > viewDependendedTables = getViewDependencies();
-    set<string> views = clearOptions.preservedViews();
+    set<string> views = clearOptions->preservedViews();
     for (set<string>::iterator it= views.begin() ; it != views.end(); it++ ){
 //        cout << "extend view dependencies "<< *it<<endl;
         extendViewDependencies(*it, viewDependendedTables, clearOptions);
     }
 
     list< map<string, shared_ptr<Value> > > dependencies = getTableDependencies();
-    set<string> tables = clearOptions.preservedTables();
+    set<string> tables = clearOptions->preservedTables();
     for (set<string>::iterator it= tables.begin() ; it != tables.end(); it++ ){
         deque<string> subs = getDependentTables(*it, dependencies);
-        clearOptions.preservedTables(subs.begin(), subs.end());
+        clearOptions->preservedTables(subs.begin(), subs.end());
     }
 
     return clearOptions;
 }
 
-ClearOptions PostgresSqlScriptRunner::extendPreservedFunctions(ClearOptions& clearOptions){
+shared_ptr<ClearOptions> PostgresSqlScriptRunner::extendPreservedFunctions(shared_ptr<ClearOptions> clearOptions){
     string sql = "SELECT c.relname as table, p.proname as function \
                     FROM pg_depend d, pg_class c, pg_proc p, pg_class c2, pg_index i \
                     WHERE c.oid = i.indrelid AND i.indexrelid = c2.oid AND c2.oid=d.objid AND d.refobjid=p.oid \
                 ";
     list< map<string, shared_ptr<Value> > > tableDependendedFunctions = _execute(sql);
 
-    set<string> preservedTables = clearOptions.preservedTables();
+    set<string> preservedTables = clearOptions->preservedTables();
 
     for (list< map<string, shared_ptr<Value> > >::iterator it= tableDependendedFunctions.begin() ; it != tableDependendedFunctions.end(); it++ ){
         map<string, shared_ptr<Value> > tableDependendedFunction = *it;
 
-        if(clearOptions.isPreservedTable(tableDependendedFunction["table"]->asString())){
-            clearOptions.preservedFunction(tableDependendedFunction["function"]->asString());
+        if(clearOptions->isPreservedTable(tableDependendedFunction["table"]->asString())){
+            clearOptions->preservedFunction(tableDependendedFunction["function"]->asString());
         }
     }
 
@@ -441,15 +471,15 @@ deque<string> PostgresSqlScriptRunner::getDependentTables(string tableName, cons
     return result;
 }
 
-ClearOptions PostgresSqlScriptRunner::extendViewDependencies(string tableName, const list< map<string, shared_ptr<Value> > >& viewDependendedTables, ClearOptions& clearOptions){
+shared_ptr<ClearOptions> PostgresSqlScriptRunner::extendViewDependencies(string tableName, const list< map<string, shared_ptr<Value> > >& viewDependendedTables, shared_ptr<ClearOptions> clearOptions){
     for (list< map<string, shared_ptr<Value> > >::const_iterator it= viewDependendedTables.begin() ; it != viewDependendedTables.end(); it++ ){
         map<string, shared_ptr<Value> > viewDependendedTable = *it;
 //        cout << "  compare with "<< viewDependendedTable["table_name"]->asString()<<endl;
         if(viewDependendedTable["table_name"]->asString() == tableName && viewDependendedTable["foreign_table_name"]->asString() != tableName){
             if(viewDependendedTable["type"]->asString() == "table"){
-                clearOptions.preservedTable(viewDependendedTable["foreign_table_name"]->asString());
+                clearOptions->preservedTable(viewDependendedTable["foreign_table_name"]->asString());
             }else if(viewDependendedTable["type"]->asString() == "view"){
-                clearOptions.preservedView(viewDependendedTable["foreign_table_name"]->asString());
+                clearOptions->preservedView(viewDependendedTable["foreign_table_name"]->asString());
                 extendViewDependencies(viewDependendedTable["foreign_table_name"]->asString(), viewDependendedTables, clearOptions);
             }
         }
