@@ -1,5 +1,5 @@
-#ifndef CORE_CONFIG_H
-#define	CORE_CONFIG_H
+#ifndef CORE_CONFIG_CONFIG_H
+#define	CORE_CONFIG_CONFIG_H
 
 #include <map>
 #include <string>
@@ -33,5 +33,5 @@ private:
 
 };
 
-#endif	/* CORE_CONFIG_H */
+#endif	/* CORE_CONFIG_CONFIG_H */
 

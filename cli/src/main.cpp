@@ -18,13 +18,20 @@ int main(int argc, char** argv){
         OPT_HELP,
         OPT_FILE,
         OPT_SCRIPT_LOCATION,
+        OPT_RUNNER,
+        OPT_DB_URL,
+        OPT_DB_DIALECT,
 
     };
 
     CSimpleOpt::SOption g_rgOptions[] = {
         // ID       TEXT          TYPE
-        { OPT_FILE,   "-f",     SO_REQ_SEP }, // "-f ARG"
+        { OPT_FILE,   "-f",     SO_REQ_SEP }, // "-f config file, default to dbmaintain.config"
         { OPT_SCRIPT_LOCATION, "-s",     SO_REQ_SEP }, // "-s script location"
+        { OPT_RUNNER, "-r",     SO_REQ_SEP }, // "runner"
+        { OPT_RUNNER, "--runner",     SO_REQ_SEP }, // "runner"
+        { OPT_DB_URL, "--db",     SO_REQ_SEP }, // "db url"
+        { OPT_DB_DIALECT, "--type",     SO_REQ_SEP }, // "db url"
         { OPT_HELP,   "-?",     SO_NONE    }, // "-?"
         { OPT_HELP,   "--help", SO_NONE    }, // "--help"
         { OPT_UPDATE, "update", SO_NONE    },
@@ -42,12 +49,22 @@ int main(int argc, char** argv){
 
     while (args.Next()) {
         if (args.LastError() == SO_SUCCESS) {
+            switch (args.OptionId()) {
+            case OPT_HELP:
+                if(argc != 2){
+                    cout << "invalid usage."<<endl;
+                }
+                usage();
+                break;
+            case OPT_FILE:
+                break;
+            }
             if (args.OptionId() == OPT_HELP) {
                 usage();
                 return 0;
             }
 
-            cout << args.OptionId() << " " << args.OptionText()
+            cout << args.OptionId() << " " << args.OptionText() << " "
                  << (args.OptionArg() ? string(args.OptionArg()) : "") << endl;
         }
         else {

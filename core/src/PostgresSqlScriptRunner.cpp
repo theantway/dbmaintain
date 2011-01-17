@@ -9,7 +9,7 @@
 #include "DbException.h"
 #include "Value.h"
 #include "ChangeScript.h"
-#include "ClearOptions.h"
+#include "config/ClearOptions.h"
 #include "config/Database.h"
 
 using namespace boost;

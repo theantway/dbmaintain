@@ -10,9 +10,9 @@
 #include "ChangeScriptRepository.h"
 #include "DirectoryScanner.h"
 #include "ScriptRunner.h"
-#include "ClearOptions.h"
 #include "Value.h"
 
+#include "config/ClearOptions.h"
 #include "config/Database.h"
 
 using namespace std;

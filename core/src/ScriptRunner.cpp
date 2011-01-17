@@ -4,7 +4,7 @@
 
 #include "Value.h"
 #include "ChangeScript.h"
-#include "ClearOptions.h"
+#include "config/ClearOptions.h"
 
 #include "PostgresSqlScriptRunner.h"
 

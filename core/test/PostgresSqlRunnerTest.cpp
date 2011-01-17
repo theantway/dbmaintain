@@ -9,7 +9,7 @@
 
 #include "BaseTest.h"
 #include "Value.h"
-#include "ClearOptions.h"
+#include "config/ClearOptions.h"
 #include "config/Database.h"
 
 using namespace std;

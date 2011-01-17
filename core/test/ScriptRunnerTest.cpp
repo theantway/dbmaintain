@@ -1,11 +1,12 @@
 #include <string>
 #include <list>
 #include <map>
+#include <iostream>
 
 #include "BaseTest.h"
-#include <iostream>
+
 #include "ScriptRunner.h"
-#include "ClearOptions.h"
+#include "config/ClearOptions.h"
 #include "Value.h"
 
 using namespace std;

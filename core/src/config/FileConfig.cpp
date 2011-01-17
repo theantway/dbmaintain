@@ -1,11 +1,11 @@
-#include "FileConfig.h"
-
-#include "Value.h"
-#include "StringUtil.h"
-#include "ConfigException.h"
+#include "config/FileConfig.h"
 
 #include <sstream>
 #include <fstream>
+
+#include "Value.h"
+#include "StringUtil.h"
+#include "config/ConfigException.h"
 
 FileConfig::FileConfig(string const& configFile) {
   ifstream file(configFile.c_str());

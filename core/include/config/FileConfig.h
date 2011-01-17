@@ -1,5 +1,5 @@
-#ifndef CONFIG_H_
-#define CONFIG_H_
+#ifndef CORE_CONFIG_FILECONFIG_H_
+#define CORE_CONFIG_FILECONFIG_H_
 
 #include <string>
 #include <map>
@@ -22,4 +22,4 @@ public:
 };
 
 
-#endif /* CONFIG_H_ */
+#endif /* CORE_CONFIG_FILECONFIG_H_ */

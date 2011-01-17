@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include "Config.h";
+#include "config/Config.h";
 
 using namespace std;
 

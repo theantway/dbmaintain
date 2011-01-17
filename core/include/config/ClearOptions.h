@@ -1,5 +1,5 @@
-#ifndef CLEAROPTIONS_H_
-#define CLEAROPTIONS_H_
+#ifndef CORE_CONFIG_CLEAROPTIONS_H_
+#define CORE_CONFIG_CLEAROPTIONS_H_
 
 #include <set>
 #include <string>
@@ -89,4 +89,4 @@ private:
 	set<string> m_preservedSequences;
 };
 
-#endif /* CLEAROPTIONS_H_ */
+#endif /* CORE_CONFIG_CLEAROPTIONS_H_ */
