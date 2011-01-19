@@ -1,7 +1,10 @@
+#include "Value.h"
+
+#include <stdlib.h>
+
 #include <string>
 #include <sstream>
 
-#include "Value.h"
 
 Value::Value(std::string const& value) {
   m_value=value;

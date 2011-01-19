@@ -13,6 +13,7 @@ namespace UnitTest
 class StdoutTestReporter : public DeferredTestReporter {
 public:
     explicit StdoutTestReporter();
+    virtual ~StdoutTestReporter(){};
 
     virtual void ReportSummary(int totalTestCount, int failedTestCount, int failureCount, float secondsElapsed);
 

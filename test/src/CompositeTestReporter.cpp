@@ -14,10 +14,6 @@ CompositeTestReporter::CompositeTestReporter()
 {
 }
 
-CompositeTestReporter::~CompositeTestReporter()
-{
-}
-
 void CompositeTestReporter::AddReporter(TestReporter* reporter){
     m_reporters.push_back(reporter);
 }

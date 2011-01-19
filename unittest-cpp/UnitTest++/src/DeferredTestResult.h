@@ -11,9 +11,9 @@ namespace UnitTest
 
 struct DeferredTestResult
 {
-	DeferredTestResult();
+    DeferredTestResult();
     DeferredTestResult(char const* suite, char const* test);
-    ~DeferredTestResult();
+    virtual ~DeferredTestResult();
     
     std::string suiteName;
     std::string testName;

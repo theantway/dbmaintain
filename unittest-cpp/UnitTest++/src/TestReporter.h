@@ -8,7 +8,7 @@ class TestDetails;
 class TestReporter
 {
 public:
-    virtual ~TestReporter();
+    virtual ~TestReporter(){};
 
     virtual void ReportTestStart(TestDetails const& test) = 0;
     virtual void ReportFailure(TestDetails const& test, char const* failure) = 0;

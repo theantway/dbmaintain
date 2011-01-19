@@ -13,6 +13,7 @@ namespace UnitTest
 class DeferredTestReporter : public TestReporter
 {
 public:
+    virtual ~DeferredTestReporter(){};
     virtual void ReportTestStart(TestDetails const& details);
     virtual void ReportFailure(TestDetails const& details, char const* failure);
     virtual void ReportTestFinish(TestDetails const& details, float secondsElapsed);

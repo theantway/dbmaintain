@@ -4,7 +4,8 @@ project "unittest"
   files  {  "UnitTest++/src/*.cpp", 
             "UnitTest++/src/*.h",
             "UnitTest++/src/Posix/*.h",
-            "UnitTest++/src/Posix/*.cpp"
+            "UnitTest++/src/Posix/*.cpp",
+            "UnitTest++/src/tests/*.cpp"
          }
 
   configuration { "Debug*" }

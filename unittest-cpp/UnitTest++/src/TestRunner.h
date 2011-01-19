@@ -25,7 +25,7 @@ class TestRunner
 {
 public:
 	explicit TestRunner(TestReporter& reporter);
-	~TestRunner();
+	virtual ~TestRunner();
 
 	template <class Predicate>
 	int RunTestsIf(TestList const& list, char const* suiteName, 

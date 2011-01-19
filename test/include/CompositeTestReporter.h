@@ -16,7 +16,7 @@ class CompositeTestReporter : public DeferredTestReporter
 {
 public:
     CompositeTestReporter();
-    virtual ~CompositeTestReporter();
+    virtual ~CompositeTestReporter(){};
 
     virtual void ReportSummary(int totalTestCount, int failedTestCount, int failureCount, float secondsElapsed);
     virtual void ReportTestStart(TestDetails const& details);

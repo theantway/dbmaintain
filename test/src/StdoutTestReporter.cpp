@@ -31,12 +31,12 @@ void StdoutTestReporter::ReportSummary(int totalTestCount, int failedTestCount,
 
     if (failureCount > 0){
         cout << " " << endl;
-        printf("FAILURE: %d out of %d tests failed (%d failures).\n", failedTestCount, totalTestCount, failureCount);
+        cout << "FAILURE: "<< failedTestCount << " out of " << totalTestCount << " tests failed ("<< failureCount << " failures)." <<endl;
     }else{
-        printf("Success: %d tests passed.\n", totalTestCount);
+        cout << "Success: " << totalTestCount << " tests passed." <<endl;
     }
 
-    printf("Test time: %.2f seconds.\n", secondsElapsed);
+    cout << "Test time: " << secondsElapsed << " seconds." <<endl;
 }
 
 void StdoutTestReporter::BeginTest(std::ostream& os, DeferredTestResult const& result)

@@ -7,7 +7,7 @@
 #include <vector>
 #include <string>
 
-#include "libpq-fe.h"
+#include "postgresql/libpq-fe.h"
 #include <boost/shared_ptr.hpp>
 
 #include "ScriptRunner.h"

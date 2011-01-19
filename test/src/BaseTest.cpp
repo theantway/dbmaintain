@@ -1,5 +1,7 @@
 #include "BaseTest.h"
 
+#include <string.h>
+
 namespace UnitTest {
 
 void CheckStringsNotEqual(TestResults& results, char const* expected, char const* actual,
