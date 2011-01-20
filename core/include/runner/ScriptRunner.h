@@ -21,9 +21,6 @@ public:
     ScriptRunner();
     virtual ~ScriptRunner();
 
-    virtual void beginRunScript(string tableName, const map<string, string>& fieldsMap, shared_ptr<ChangeScript> script) = 0;
-    virtual void endRunScript(string tableName, const map<string, string>& fieldsMap, shared_ptr<ChangeScript> script) = 0;
-
 public:
     static shared_ptr<ScriptRunner> getRunner(string dbengine);
     static void init();
@@ -33,16 +30,13 @@ private:
     static map<string, shared_ptr<ScriptRunner> > runners;
 };
 
-//class ExecutableScriptRunner : public ScriptRunner {
-//public:
-//    ExecutableScriptRunner(string executableName="");
-//    virtual ~ExecutableScriptRunner();
-//}
-
 class SqlScriptRunner : public ScriptRunner {
 public:
     SqlScriptRunner();
     virtual ~SqlScriptRunner();
+
+    virtual void beginRunScript(string tableName, const map<string, string>& fieldsMap, shared_ptr<ChangeScript> script) = 0;
+    virtual void endRunScript(string tableName, const map<string, string>& fieldsMap, shared_ptr<ChangeScript> script) = 0;
 
     virtual void clearDatabase(shared_ptr<Database> database) = 0;
     virtual void cleanDatabase(shared_ptr<Database> database) = 0;

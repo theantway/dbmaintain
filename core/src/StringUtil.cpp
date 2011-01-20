@@ -44,13 +44,19 @@ vector<string> StringUtil::split(const string& str,
         part = trim(part, " \t");
         // Found a token, add it to the vector.
         tokens.push_back(part);
-        if(maxParts > 0 && tokens.size() >= maxParts){
-            break;
-        }
+
         // Skip delimiters.  Note the "not_of"
         lastPos = str.find_first_not_of(delimiters, pos);
         // Find next "non-delimiter"
         pos = str.find_first_of(delimiters, lastPos);
+
+        if((string::npos != pos || string::npos != lastPos) &&
+                maxParts > 0 && tokens.size() >= maxParts - 1){
+            string part = str.substr(lastPos);
+            part = trim(part, " \t");
+            tokens.push_back(part);
+            break;
+        }
     }
 
     if( tokens.size() <=0){

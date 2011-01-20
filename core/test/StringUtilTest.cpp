@@ -166,4 +166,15 @@ SUITE(StringUtilTest){
         CHECK_ARRAY_EQUAL(StringUtil::split("key = value", "=", 2), expected, expected.size());
         CHECK_ARRAY_EQUAL(StringUtil::split(" \tkey \t= \tvalue\t ", "=", 2), expected, expected.size());
     }
+
+    TEST_FIXTURE (StringUtilTest, SplitStringWithMultipleDelimiters)
+    {
+        string str1="key=value=value2";
+        vector<string> expected;
+        expected.push_back("key");
+        expected.push_back("value=value2");
+
+        CHECK_ARRAY_EQUAL(StringUtil::split("key=value=value2", "=", 2), expected, expected.size());
+    }
+
 }

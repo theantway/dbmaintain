@@ -2,11 +2,12 @@
 
 #include <sstream>
 #include <fstream>
+#include <iostream>
 
 #include "Value.h"
 #include "StringUtil.h"
 #include "config/ConfigException.h"
-#include "runner/ScriptRunner.h"
+#include "runner/ExecutableScriptRunner.h"
 
 FileConfig::FileConfig(const string fileName) {
     parse(fileName);
@@ -14,6 +15,7 @@ FileConfig::FileConfig(const string fileName) {
 
 void FileConfig::applyTo(Config& config) {
     applyDatabases(config);
+    applyScripts(config);
 }
 
 Config& FileConfig::applyDatabases(Config& config){
@@ -25,6 +27,7 @@ Config& FileConfig::applyDatabases(Config& config){
         db->setDialect(get(dbName, "dialect", ""));
         db->setUrl(get(dbName, "url", ""));
 
+        cout << "add db type=" << db->getDialect() << " url=" << db->getUrl()<<endl;
         string scriptsSettingName = get(dbName, "scripts_setting", "");
         if(scriptsSettingName != ""){
 
@@ -42,7 +45,7 @@ Config& FileConfig::applyDatabases(Config& config){
 Config& FileConfig::applyScripts(Config& config){
     config.setScriptsLocation(get("scripts", "location", ""));
 
-    string extensionPrefix="/extensions.";
+    string extensionPrefix="scripts/extensions.";
     for (map<string, string>::const_iterator it= m_settings.begin() ; it != m_settings.end(); it++ ){
         if(!StringUtil::startsWith((*it).first, extensionPrefix))
             continue;
@@ -50,6 +53,7 @@ Config& FileConfig::applyScripts(Config& config){
         string extension = (*it).first.substr(extensionPrefix.size());
         string runnerName = (*it).second;
 
+        cout << "add runner " << runnerName << " for " << extension <<endl;
         if(runnerName == ""){ //for database sql script
             config.addSqlScriptExtension(extension);
         }else{
@@ -57,7 +61,7 @@ Config& FileConfig::applyScripts(Config& config){
             if(hasDatabase(runnerName)){
                 config.addSqlScriptExtension(extension, runnerName);
             }else{
-//                config.addRunner(extension, shared_ptr<ScriptRunner>(new ScriptRunner(scriptRunnerExecutable)));
+                config.addRunner(extension, shared_ptr<ExecutableScriptRunner>(new ExecutableScriptRunner(scriptRunnerExecutable)));
             }
         }
 

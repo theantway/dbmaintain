@@ -3,7 +3,9 @@ project "cli"
   kind     "ConsoleApp"
   files  { "include/*.h", "src/*.cpp" }
   includedirs { "include", "../core/include" }
-  links { "core" }
+  
+  libdirs {"/opt/local/lib/postgresql90"}
+  links { "pq", "core", "crypto", "unittest", "basetest" }
 
   configuration { "Debug*" }
     defines { "_DEBUG", "DEBUG" }

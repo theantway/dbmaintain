@@ -20,6 +20,14 @@ shared_ptr<ClearOptions> Database::getCleanOptions(){
     return m_cleanOptions;
 }
 
+string Database::getDialect(){
+    return m_dialect;
+}
+
+string Database::getUrl(){
+    return m_url;
+}
+
 void Database::setDialect(string dialect){
     m_dialect = dialect;
 }
