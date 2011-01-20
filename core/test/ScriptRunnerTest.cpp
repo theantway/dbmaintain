@@ -5,7 +5,7 @@
 
 #include "BaseTest.h"
 
-#include "ScriptRunner.h"
+#include "runner/ScriptRunner.h"
 #include "config/ClearOptions.h"
 #include "Value.h"
 

@@ -6,7 +6,7 @@
 #include "Value.h"
 #include "StringUtil.h"
 #include "config/ConfigException.h"
-#include "ScriptRunner.h"
+#include "runner/ScriptRunner.h"
 
 FileConfig::FileConfig(const string fileName) {
     parse(fileName);

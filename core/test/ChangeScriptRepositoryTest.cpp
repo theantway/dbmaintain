@@ -2,9 +2,10 @@
 #include <list>
 #include <map>
 
-#include "BaseTest.h"
 #include <iostream>
-#include "ScriptRunner.h"
+
+#include "BaseTest.h"
+#include "runner/ScriptRunner.h"
 #include "ChangeScriptRepository.h"
 #include "ChangeScript.h"
 #include "Value.h"

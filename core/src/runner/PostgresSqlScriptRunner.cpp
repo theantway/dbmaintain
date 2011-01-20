@@ -1,4 +1,4 @@
-#include "PostgresSqlScriptRunner.h"
+#include "runner/PostgresSqlScriptRunner.h"
 
 #include <iostream>
 #include <sstream>

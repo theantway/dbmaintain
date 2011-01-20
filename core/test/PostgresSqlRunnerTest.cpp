@@ -5,7 +5,7 @@
 
 #include <boost/foreach.hpp>
 
-#include "PostgresSqlScriptRunner.h"
+#include "runner/PostgresSqlScriptRunner.h"
 
 #include "BaseTest.h"
 #include "Value.h"

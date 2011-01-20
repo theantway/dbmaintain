@@ -9,9 +9,8 @@
 #include "ChangeScript.h"
 #include "ChangeScriptRepository.h"
 #include "DirectoryScanner.h"
-#include "ScriptRunner.h"
 #include "Value.h"
-
+#include "runner/ScriptRunner.h"
 #include "config/ClearOptions.h"
 #include "config/Database.h"
 

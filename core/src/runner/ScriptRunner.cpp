@@ -1,4 +1,4 @@
-#include "ScriptRunner.h"
+#include "runner/ScriptRunner.h"
 
 #include <iostream>
 
@@ -6,7 +6,7 @@
 #include "ChangeScript.h"
 #include "config/ClearOptions.h"
 
-#include "PostgresSqlScriptRunner.h"
+#include "runner/PostgresSqlScriptRunner.h"
 
 map<string, shared_ptr<ScriptRunner> > ScriptRunner::runners;
 
