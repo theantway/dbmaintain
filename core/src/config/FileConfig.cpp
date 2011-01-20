@@ -6,58 +6,149 @@
 #include "Value.h"
 #include "StringUtil.h"
 #include "config/ConfigException.h"
+#include "ScriptRunner.h"
 
-FileConfig::FileConfig(string const& configFile) {
-  ifstream file(configFile.c_str());
+FileConfig::FileConfig(const string fileName) {
+    parse(fileName);
+}
 
-  string line;
-  string inSection;
-  int lineNo=0;
-  while (file.good() && getline(file,line)) {
-    lineNo ++;
-    if (! line.length()) continue;
+void FileConfig::applyTo(Config& config) {
+    applyDatabases(config);
+}
 
-    line = StringUtil::trim(line, " \t");
+Config& FileConfig::applyDatabases(Config& config){
+    vector<string> dbNames = StringUtil::split(get("databases", "names", "database"), ",");
+    for (vector<string>::const_iterator it= dbNames.begin() ; it != dbNames.end(); it++ ){
+        string dbName = *it;
 
-    if (line[0] == '#') continue;
-    if (line[0] == ';') continue;
+        shared_ptr<Database> db(new Database());
+        db->setDialect(get(dbName, "dialect", ""));
+        db->setUrl(get(dbName, "url", ""));
 
-    if (line[0] == '[') {
-      inSection = StringUtil::trim(line, "[]");
-      continue;
+        string scriptsSettingName = get(dbName, "scripts_setting", "");
+        if(scriptsSettingName != ""){
+
+        }
+
+        string preservedObjects = get(dbName, "preserved_objects", "");
+        if(preservedObjects != ""){
+
+        }
     }
 
-    vector<string> pair = StringUtil::split(line, "=", 2);
-    if(pair.size() != 2){
-        ostringstream stream;
-        stream << "invalid format for line " << lineNo << " under section " << inSection << ": " << line;
-        throw ConfigException(stream.str());
+    return config;
+}
+
+Config& FileConfig::applyScripts(Config& config){
+    config.setScriptsLocation(get("scripts", "location", ""));
+
+    string extensionPrefix="/extensions.";
+    for (map<string, string>::const_iterator it= m_settings.begin() ; it != m_settings.end(); it++ ){
+        if(!StringUtil::startsWith((*it).first, extensionPrefix))
+            continue;
+
+        string extension = (*it).first.substr(extensionPrefix.size());
+        string runnerName = (*it).second;
+
+        if(runnerName == ""){ //for database sql script
+            config.addSqlScriptExtension(extension);
+        }else{
+            string scriptRunnerExecutable = get(runnerName+"-runner", "executable", "");
+            if(hasDatabase(runnerName)){
+                config.addSqlScriptExtension(extension, runnerName);
+            }else{
+//                config.addRunner(extension, shared_ptr<ScriptRunner>(new ScriptRunner(scriptRunnerExecutable)));
+            }
+        }
+
     }
 
-    m_settings[inSection + '/' + pair[0] ] = shared_ptr<Value>(new Value(pair[1]));
-  }
-
-  file.close();
+    return config;
 }
 
-shared_ptr<Value> const& FileConfig::get(string const& section, string const& entry) const {
-  map<string, shared_ptr<Value> >::const_iterator it = m_settings.find(section + '/' + entry);
-
-  if (it == m_settings.end()) {
-      ostringstream stream;
-      stream << "could not find config for " << entry << " in section " << section;
-      throw ConfigException(stream.str());
-  }
-
-  return it->second;
+string FileConfig::extendExecutable(string executable){
+    return executable;
 }
 
-shared_ptr<Value> const& FileConfig::get(string const& section, string const& entry, shared_ptr<Value> const& defaultValue) {
-  map<string, shared_ptr<Value> >::const_iterator it = m_settings.find(section + '/' + entry);
+bool FileConfig::hasDatabase(string dbName){
+    vector<string> dbNames = StringUtil::split(get("databases", "names", "database"), ",");
+    for(vector<string>::size_type i=0; i < dbNames.size(); i++){
+        if(dbNames[i] == dbName){
+            return true;
+        }
+    }
 
-  if (it == m_settings.end()) {
-      return defaultValue;
-  }
-
-  return it->second;
+    return false;
 }
+
+void FileConfig::parse(const string& configFile) {
+    ifstream file(configFile.c_str());
+
+    string line;
+    string inSection;
+    int lineNo = 0;
+    while (file.good() && getline(file, line)) {
+        lineNo++;
+        if (!line.length())
+            continue;
+
+        line = StringUtil::trim(line, " \t");
+
+        if (line[0] == '#')
+            continue;
+        if (line[0] == ';')
+            continue;
+
+        if (line[0] == '[') {
+            inSection = StringUtil::trim(line, "[]");
+            continue;
+        }
+
+        vector < string > pair = StringUtil::split(line, "=", 2);
+        if (pair.size() != 2) {
+            ostringstream stream;
+            stream << "invalid format for line " << lineNo << " under section "
+                    << inSection << ": " << line;
+            throw ConfigException(stream.str());
+        }
+
+        m_settings[inSection + '/' + pair[0]] = pair[1];
+    }
+
+    file.close();
+}
+
+const string& FileConfig::get(const string& section, const string& entry, const string& defaultValue) const {
+    map<string, string>::const_iterator it = m_settings.find(section + '/' + entry);
+
+    if (it == m_settings.end()) {
+        return defaultValue;
+    }
+
+    return it->second;
+}
+//
+//shared_ptr<Value> const& FileConfig::get(string const& section, string const& entry) const {
+//    map<string, shared_ptr<Value> >::const_iterator it = m_settings.find(section + '/' + entry);
+//
+//    if (it == m_settings.end()) {
+//        ostringstream stream;
+//        stream << "could not find config for " << entry << " in section "
+//                << section;
+//        throw ConfigException(stream.str());
+//    }
+//
+//    return it->second;
+//}
+//
+//
+//shared_ptr<Value> const& FileConfig::get(string const& section, string const& entry, shared_ptr<Value> const& defaultValue) {
+//    map<string, shared_ptr<Value> >::const_iterator it = m_settings.find(
+//            section + '/' + entry);
+//
+//    if (it == m_settings.end()) {
+//        return defaultValue;
+//    }
+//
+//    return it->second;
+//}

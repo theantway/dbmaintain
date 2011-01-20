@@ -2,7 +2,17 @@
 
 #include <iostream>
 
+#include "config/FileConfig.h"
 #include "SimpleOpt.h"
+
+class CmdOpt{
+public:
+    CmdOpt(int optionId, string optionArg):m_optionId(optionId), m_optionArg(optionArg){}
+    ~CmdOpt(){}
+private:
+    int m_optionId;
+    string m_optionArg;
+};
 
 void usage(){
     cout << "Dbmaintain to update db"<<endl;
@@ -47,6 +57,8 @@ int main(int argc, char** argv){
 
     CSimpleOpt args(argc, argv, g_rgOptions);
 
+    Config config;
+
     while (args.Next()) {
         if (args.LastError() == SO_SUCCESS) {
             switch (args.OptionId()) {
@@ -57,17 +69,13 @@ int main(int argc, char** argv){
                 usage();
                 break;
             case OPT_FILE:
+                FileConfig(args.OptionArg()).applyTo(config);
                 break;
-            }
-            if (args.OptionId() == OPT_HELP) {
-                usage();
-                return 0;
             }
 
             cout << args.OptionId() << " " << args.OptionText() << " "
                  << (args.OptionArg() ? string(args.OptionArg()) : "") << endl;
-        }
-        else {
+        }else{
             cout << "Invalid argument: %s\n" << args.OptionText()<<endl;
             return 1;
         }

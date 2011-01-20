@@ -10,6 +10,10 @@ Config::Config(const Config& orig) {
 Config::~Config() {
 }
 
+void Config::setScriptsLocation(string location){
+
+}
+
 list< shared_ptr<Database> > Config::getDatabases() const{
     return list< shared_ptr<Database> >();
 }
@@ -25,4 +29,12 @@ shared_ptr<SqlScriptRunner> Config::getDefaultSqlRunner() const{
 
 shared_ptr<ScriptRunner> Config::getScriptRunner(string extension){
     return shared_ptr<ScriptRunner>();
+}
+
+void Config::addSqlScriptExtension(const string& extension, const string& runnerName){
+
+}
+
+void Config::addRunner(const string& extension, shared_ptr<ScriptRunner> scriptRunner){
+
 }

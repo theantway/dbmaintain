@@ -6,20 +6,29 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "config/Database.h"
+#include "config/Config.h"
+
 using namespace boost;
 using namespace std;
 
-class Value;
-
 class FileConfig {
-  map<string, shared_ptr<Value> > m_settings;
+    map<string, string > m_settings;
 
 public:
-  FileConfig(string const& configFile);
+    FileConfig(const string fileName);
+    void applyTo(Config& config);
 
-  shared_ptr<Value> const& get(string const& section, string const& entry) const;
-  shared_ptr<Value> const& get(string const& section, string const& entry, shared_ptr<Value> const& defaultValue);
+//    shared_ptr<Value> get(string const& section, string const& entry) const;
+    const string& get(const string& section, const string& entry, const string& defaultValue) const;
+
+private:
+    void parse(const string& configFile);
+    list< shared_ptr<Database> > getDatabases();
+    Config& applyDatabases(Config& config);
+    Config& applyScripts(Config& config);
+    string extendExecutable(string executable);
+    bool hasDatabase(string dbName);
 };
-
 
 #endif /* CORE_CONFIG_FILECONFIG_H_ */

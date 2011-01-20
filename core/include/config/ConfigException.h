@@ -1,8 +1,9 @@
-#ifndef CONFIGEXCEPTION_H_
-#define CONFIGEXCEPTION_H_
+#ifndef CORE_CONFIG_CONFIGEXCEPTION_H_
+#define CORE_CONFIG_CONFIGEXCEPTION_H_
 
 #include "BaseException.h"
 #include <string>
+
 using namespace std;
 
 class ConfigException : public BaseException{
@@ -11,4 +12,4 @@ public:
 	virtual ~ConfigException(){};
 };
 
-#endif /* CONFIGEXCEPTION_H_ */
+#endif /* CORE_CONFIG_CONFIGEXCEPTION_H_ */

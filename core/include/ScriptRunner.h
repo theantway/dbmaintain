@@ -20,16 +20,24 @@ class ScriptRunner {
 public:
     ScriptRunner();
     virtual ~ScriptRunner();
-    static shared_ptr<ScriptRunner> getRunner(string dbengine);
-    static void init();
-    static void registRunner(string name, shared_ptr<ScriptRunner> runner);
 
     virtual void beginRunScript(string tableName, const map<string, string>& fieldsMap, shared_ptr<ChangeScript> script) = 0;
     virtual void endRunScript(string tableName, const map<string, string>& fieldsMap, shared_ptr<ChangeScript> script) = 0;
 
+public:
+    static shared_ptr<ScriptRunner> getRunner(string dbengine);
+    static void init();
+    static void registRunner(string name, shared_ptr<ScriptRunner> runner);
+
 private:
     static map<string, shared_ptr<ScriptRunner> > runners;
 };
+
+//class ExecutableScriptRunner : public ScriptRunner {
+//public:
+//    ExecutableScriptRunner(string executableName="");
+//    virtual ~ExecutableScriptRunner();
+//}
 
 class SqlScriptRunner : public ScriptRunner {
 public:
