@@ -11,7 +11,7 @@ class ScriptRunner;
 
 class DbDeploy {
 public:
-    DbDeploy(const Config& config);
+    DbDeploy();
     virtual ~DbDeploy();
 
     void init();

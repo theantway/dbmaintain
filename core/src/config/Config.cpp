@@ -1,5 +1,7 @@
 #include "config/Config.h"
 
+#include "runner/ScriptRunner.h"
+
 Config::Config() {
 }
 
@@ -24,7 +26,7 @@ shared_ptr<SqlScriptRunner> Config::getSqlRunner(const shared_ptr<Database> data
 
 shared_ptr<SqlScriptRunner> Config::getDefaultSqlRunner() const{
     //if databases size > 1 error
-    return shared_ptr<SqlScriptRunner>();
+    return ScriptRunner::getSqlRunner("postgres");
 }
 
 shared_ptr<ScriptRunner> Config::getScriptRunner(string extension){

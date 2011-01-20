@@ -59,6 +59,7 @@ int main(int argc, char** argv){
 
     Config config;
 
+    DbDeploy deploy;
     while (args.Next()) {
         if (args.LastError() == SO_SUCCESS) {
             switch (args.OptionId()) {
@@ -71,6 +72,15 @@ int main(int argc, char** argv){
             case OPT_FILE:
                 FileConfig(args.OptionArg()).applyTo(config);
                 break;
+            case OPT_UPDATE:
+                deploy.update(config);
+                break;
+            case OPT_CLEAR:
+                deploy.clear(config);
+                break;
+            case OPT_CLEAN:
+                deploy.clean(config);
+                break;
             }
 
             cout << args.OptionId() << " " << args.OptionText() << " "
@@ -81,13 +91,5 @@ int main(int argc, char** argv){
         }
     }
 
-    for(int i = 0; i< args.FileCount(); i++){
-        cout << "arg " << args.File(i) <<endl;
-    }
-
-//
-//    DbDeploy deploy;
-//    deploy.setScriptDirectory("/Users/weixu/projects/msx/mobilestorm/schema/src/main/database/scripts/01_v1.0");
-//    deploy.go();
     return 0;
 }

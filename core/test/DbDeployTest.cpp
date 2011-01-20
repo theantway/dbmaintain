@@ -19,8 +19,8 @@ SUITE(DbDeployTest){
     TEST_FIXTURE (DbDeployTest, ShouldScanScriptFolder)
     {
         Config config;
-        DbDeploy deploy(config);
-        deploy.setScriptDirectory("/Users/weixu/projects/msx/mobilestorm/schema/src/main/database/scripts/01_v1.0");
+        DbDeploy deploy();
+//        deploy.setScriptDirectory("/Users/weixu/projects/msx/mobilestorm/schema/src/main/database/scripts/01_v1.0");
 //        deploy.go();
     }
 }

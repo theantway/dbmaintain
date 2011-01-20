@@ -9,6 +9,7 @@
 #include "runner/PostgresSqlScriptRunner.h"
 
 map<string, shared_ptr<ScriptRunner> > ScriptRunner::runners;
+map<string, shared_ptr<SqlScriptRunner> > ScriptRunner::sqlRunners;
 
 ScriptRunner::ScriptRunner(){
 }
@@ -17,15 +18,22 @@ ScriptRunner::~ScriptRunner(){
 }
 
 shared_ptr<ScriptRunner> ScriptRunner::getRunner(string dbengine){
-    return runners[dbengine];
+    return shared_ptr<ScriptRunner>();
+}
+shared_ptr<SqlScriptRunner> ScriptRunner::getSqlRunner(string dbengine){
+    return sqlRunners[dbengine];
 }
 
 void ScriptRunner::registRunner(string name, shared_ptr<ScriptRunner> runner){
     runners[name] = runner;
 }
 
+void ScriptRunner::registSqlRunner(string name, shared_ptr<SqlScriptRunner> runner){
+    sqlRunners[name] = runner;
+}
+
 void ScriptRunner::init(){
-    registRunner("postgres", shared_ptr<ScriptRunner>(new PostgresSqlScriptRunner()));
+    registSqlRunner("postgres", shared_ptr<SqlScriptRunner>(new PostgresSqlScriptRunner()));
 }
 
 

@@ -16,7 +16,7 @@
 
 using namespace std;
 
-DbDeploy::DbDeploy(const Config& config) {
+DbDeploy::DbDeploy() {
     lastChangeToApply = 999999;
     deltaset = "Main";
 

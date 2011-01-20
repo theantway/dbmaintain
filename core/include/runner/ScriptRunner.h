@@ -15,6 +15,7 @@ class ChangeScript;
 class Value;
 class ClearOptions;
 class Database;
+class SqlScriptRunner;
 
 class ScriptRunner {
 public:
@@ -22,12 +23,15 @@ public:
     virtual ~ScriptRunner();
 
 public:
+    static shared_ptr<SqlScriptRunner> getSqlRunner(string dbengine);
     static shared_ptr<ScriptRunner> getRunner(string dbengine);
     static void init();
     static void registRunner(string name, shared_ptr<ScriptRunner> runner);
+    static void registSqlRunner(string name, shared_ptr<SqlScriptRunner> runner);
 
 private:
     static map<string, shared_ptr<ScriptRunner> > runners;
+    static map<string, shared_ptr<SqlScriptRunner> > sqlRunners;
 };
 
 class SqlScriptRunner : public ScriptRunner {
