@@ -1,5 +1,5 @@
-#ifndef POSTGRES_SQL_SCRIPT_RUNNER_H
-#define POSTGRES_SQL_SCRIPT_RUNNER_H
+#ifndef CORE_RUNNER_POSTGRES_SQL_SCRIPT_RUNNER_H
+#define CORE_RUNNER_POSTGRES_SQL_SCRIPT_RUNNER_H
 
 #include <iostream>
 #include <set>
@@ -7,7 +7,7 @@
 #include <vector>
 #include <string>
 
-#include "postgresql/libpq-fe.h"
+#include "libpq-fe.h"
 #include <boost/shared_ptr.hpp>
 
 #include "ScriptRunner.h"
@@ -49,6 +49,7 @@ public:
 	list< map<string, shared_ptr<Value> > > getTables();
 	list< map<string, shared_ptr<Value> > > getViews();
 
+	static SqlScriptRunner* createInstance();
 protected:
 	list<string> sortTablesByDependency(list< map<string, shared_ptr<Value> > >& allTables, list< map<string, shared_ptr<Value> > >& dependencies);
 	list< map<string, shared_ptr<Value> > > getTableDependencies();
@@ -70,5 +71,4 @@ private:
 	PGresult   *m_pRes;
 	string m_connectionString;
 };
-
-#endif /* POSTGRES_SQL_SCRIPT_RUNNER_H_ */
+#endif /* CORE_RUNNER_POSTGRES_SQL_SCRIPT_RUNNER_H_ */

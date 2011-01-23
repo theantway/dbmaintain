@@ -36,13 +36,13 @@ public:
 
     void setUndoOutputfile(string undoOutputfile);
 
-    void clear(const Config& config);
+    void clear(Config& config);
 
-    void clean(const Config& config);
+    void clean(Config& config);
 
     shared_ptr<ScriptRunner> initRunner();
 
-    void update(const Config& config);
+    void update(Config& config);
 
     int getLatestVersion(shared_ptr<SqlScriptRunner> runner, string tableName);
 

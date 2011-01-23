@@ -58,7 +58,7 @@ void DbDeploy::setDeltaset(string deltaset) {
     this->deltaset = deltaset;
 }
 
-void DbDeploy::clear(const Config& config) {
+void DbDeploy::clear(Config& config) {
     const list< shared_ptr<Database> > databases = config.getDatabases();
 
     BOOST_FOREACH(shared_ptr<Database> database, databases){
@@ -67,7 +67,7 @@ void DbDeploy::clear(const Config& config) {
     }
 }
 
-void DbDeploy::clean(const Config& config) {
+void DbDeploy::clean(Config& config) {
     const list< shared_ptr<Database> > databases = config.getDatabases();
 
     BOOST_FOREACH(shared_ptr<Database> database, databases){
@@ -82,7 +82,7 @@ shared_ptr<ScriptRunner> DbDeploy::initRunner(){
     return runner;
 }
 
-void DbDeploy::update(const Config& config){
+void DbDeploy::update(Config& config){
     shared_ptr<SqlScriptRunner> runner = config.getDefaultSqlRunner();
 
     cout << getWelcomeString() <<endl;
@@ -91,7 +91,7 @@ void DbDeploy::update(const Config& config){
     runner->ensureScriptsTableExists(tableName, fieldsMap);
     int latestNo = getLatestVersion(runner, tableName);
 
-    ChangeScriptRepository changeScriptRepository(DirectoryScanner().getChangeScriptsForDirectory(scriptdirectory));
+    ChangeScriptRepository changeScriptRepository(DirectoryScanner().getChangeScriptsForDirectory(config.getScriptsLocation()));
 
     list< shared_ptr<ChangeScript> > scriptsToApply = changeScriptRepository.getScriptsToApply(latestNo);
 
@@ -102,6 +102,7 @@ void DbDeploy::update(const Config& config){
     for (list< shared_ptr<ChangeScript> >::iterator it=scriptsToApply.begin() ; it != scriptsToApply.end(); it++ ){
         shared_ptr<ChangeScript> script = *it;
         cout << "  applying " << script->getFilename() <<endl;
+        shared_ptr<ScriptRunner> scriptRunner = config.getScriptRunner(script->getFilename());
         runner->beginRunScript(tableName, fieldsMap, script);
         runner->execute(script->getContent());
         runner->endRunScript(tableName, fieldsMap, script);

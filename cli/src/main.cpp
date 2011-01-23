@@ -3,6 +3,8 @@
 #include <iostream>
 
 #include "config/FileConfig.h"
+#include "runner/ScriptRunner.h"
+#include "runner/PostgresSqlScriptRunner.h"
 #include "SimpleOpt.h"
 
 class CmdOpt{
@@ -56,6 +58,8 @@ int main(int argc, char** argv){
     };
 
     CSimpleOpt args(argc, argv, g_rgOptions);
+
+    ScriptRunnerFactory::Register("postgres", &PostgresSqlScriptRunner::createInstance);
 
     Config config;
 

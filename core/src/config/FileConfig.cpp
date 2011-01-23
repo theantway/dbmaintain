@@ -37,6 +37,8 @@ Config& FileConfig::applyDatabases(Config& config){
         if(preservedObjects != ""){
 
         }
+
+        config.addDatabase(dbName, db);
     }
 
     return config;

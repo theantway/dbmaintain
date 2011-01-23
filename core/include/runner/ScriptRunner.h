@@ -1,6 +1,7 @@
 #ifndef SCRIPT_RUNNER_H_
 #define SCRIPT_RUNNER_H_
 
+#include <iostream>
 #include <string>
 #include <list>
 #include <map>
@@ -16,6 +17,27 @@ class Value;
 class ClearOptions;
 class Database;
 class SqlScriptRunner;
+
+typedef SqlScriptRunner *(*FactoryFunction)();
+
+class ScriptRunnerFactory{
+public:
+   static void Register(string name, FactoryFunction instanceFunction){
+       m_FactoryFunctions[name] = instanceFunction;
+   }
+
+   static SqlScriptRunner* getInstance(string name){
+       cout << "get instance for name " << name<<endl;
+       if (m_FactoryFunctions.count(name)){
+           return m_FactoryFunctions[name]();
+       }else{
+           cout << "not found"<<endl;
+           return NULL;
+       }
+   }
+private:
+       static map<string, FactoryFunction> m_FactoryFunctions;
+};
 
 class ScriptRunner {
 public:

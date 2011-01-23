@@ -8,6 +8,8 @@
 
 #include "runner/PostgresSqlScriptRunner.h"
 
+std::map<std::string, FactoryFunction> ScriptRunnerFactory::m_FactoryFunctions;
+
 map<string, shared_ptr<ScriptRunner> > ScriptRunner::runners;
 map<string, shared_ptr<SqlScriptRunner> > ScriptRunner::sqlRunners;
 

@@ -26,6 +26,10 @@ PostgresSqlScriptRunner::~PostgresSqlScriptRunner(){
     }
 }
 
+SqlScriptRunner* PostgresSqlScriptRunner::createInstance(){
+    return new PostgresSqlScriptRunner();
+}
+
 void PostgresSqlScriptRunner::setConnectionString(string connectionString){
     m_connectionString = connectionString;
 }
