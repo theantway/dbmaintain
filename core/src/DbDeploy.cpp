@@ -59,20 +59,20 @@ void DbDeploy::setDeltaset(string deltaset) {
 }
 
 void DbDeploy::clear(Config& config) {
-    const list< shared_ptr<Database> > databases = config.getDatabases();
+    const map<string, shared_ptr<Database> > databases = config.getDatabases();
 
-    BOOST_FOREACH(shared_ptr<Database> database, databases){
-        const shared_ptr<SqlScriptRunner> scriptRunner = config.getSqlRunner(database);
-        scriptRunner->clearDatabase(database);
+    for (map<string, shared_ptr<Database> >::const_iterator it=databases.begin() ; it != databases.end(); it++ ){
+        const shared_ptr<SqlScriptRunner> scriptRunner = config.getSqlRunner((*it).first);
+        scriptRunner->clearDatabase((*it).second);
     }
 }
 
 void DbDeploy::clean(Config& config) {
-    const list< shared_ptr<Database> > databases = config.getDatabases();
+    const map<string, shared_ptr<Database> > databases = config.getDatabases();
 
-    BOOST_FOREACH(shared_ptr<Database> database, databases){
-        const shared_ptr<SqlScriptRunner> scriptRunner = config.getSqlRunner(database);
-        scriptRunner->cleanDatabase(database);
+    for (map<string, shared_ptr<Database> >::const_iterator it=databases.begin() ; it != databases.end(); it++ ){
+        const shared_ptr<SqlScriptRunner> scriptRunner = config.getSqlRunner((*it).first);
+        scriptRunner->cleanDatabase((*it).second);
     }
 }
 

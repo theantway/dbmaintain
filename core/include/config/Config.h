@@ -25,14 +25,14 @@ public:
     shared_ptr<ExecutedScriptsTable> getExecutedScriptsTable();
 
     void addDatabase(const string name, shared_ptr<Database> db);
-    list< shared_ptr<Database> > getDatabases() const;
+    map<string, shared_ptr<Database> > getDatabases() const;
     map<string, string> getScriptsTable();
     string getScriptsLocation();
 
     void setScriptsLocation(string location);
 
     shared_ptr<SqlScriptRunner> getDefaultSqlRunner();
-    shared_ptr<SqlScriptRunner> getSqlRunner(const shared_ptr<Database> database);
+    shared_ptr<SqlScriptRunner> getSqlRunner(const string database);
     shared_ptr<ScriptRunner> getScriptRunner(string extension);
 
     void addSqlScriptExtension(const string& extension, const string& runnerName="");

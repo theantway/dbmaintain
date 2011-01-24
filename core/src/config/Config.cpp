@@ -21,16 +21,25 @@ void Config::setScriptsLocation(string location){
     m_scriptsLocation = location;
 }
 
-list< shared_ptr<Database> > Config::getDatabases() const{
-    return list< shared_ptr<Database> >();
+map<string, shared_ptr<Database> > Config::getDatabases() const{
+    return m_databases;
 }
 
 void Config::addDatabase(const string name, shared_ptr<Database> db){
     m_databases.insert(pair<string, shared_ptr<Database> >(name, db));
 }
 
-shared_ptr<SqlScriptRunner> Config::getSqlRunner(const shared_ptr<Database> database){
-    return shared_ptr<SqlScriptRunner>();
+shared_ptr<SqlScriptRunner> Config::getSqlRunner(const string database){
+    if( !m_sqlRunners.count(database)){
+        shared_ptr<Database> db = m_databases[database];
+        string dialect = db->getDialect();
+        shared_ptr<SqlScriptRunner> runner = shared_ptr<SqlScriptRunner>(ScriptRunnerFactory::getInstance(dialect));
+        runner->setConnectionString(db->getUrl());
+        m_sqlRunners.insert(pair<string, shared_ptr<SqlScriptRunner> >(database, runner));
+    }
+
+    return m_sqlRunners[database];
+
 }
 
 string Config::getDefaultDatabase() const{
@@ -51,16 +60,7 @@ string Config::getDefaultDatabase() const{
 
 shared_ptr<SqlScriptRunner> Config::getDefaultSqlRunner() {
     string database = getDefaultDatabase();
-
-    if( !m_sqlRunners.count(database)){
-        shared_ptr<Database> db = m_databases[database];
-        string dialect = db->getDialect();
-        shared_ptr<SqlScriptRunner> runner = shared_ptr<SqlScriptRunner>(ScriptRunnerFactory::getInstance(dialect));
-        runner->setConnectionString(db->getUrl());
-        m_sqlRunners.insert(pair<string, shared_ptr<SqlScriptRunner> >(database, runner));
-    }
-
-    return m_sqlRunners[database];
+    return getSqlRunner(database);
 }
 
 shared_ptr<ScriptRunner> Config::getScriptRunner(string extension){
