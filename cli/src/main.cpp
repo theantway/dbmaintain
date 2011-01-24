@@ -20,6 +20,16 @@ void usage(){
     cout << "Dbmaintain to update db"<<endl;
 }
 
+string getPath(string& fullpath, string& fileName){
+    string::size_type pos = fullpath.find_last_of("/");
+    if(pos != string::npos) {
+        fileName = fullpath.substr(pos + 1);
+        fullpath.erase(pos + 1);
+    }
+
+    return fullpath;
+}
+
 int main(int argc, char** argv){
     enum {
         OPT_UPDATE,
@@ -56,6 +66,28 @@ int main(int argc, char** argv){
         { OPT_RESET, "reset", SO_NONE    },
         SO_END_OF_OPTIONS                       // END
     };
+
+    string execPath = argv[0];
+    string execName;
+
+    char lbuf[1024] ;
+    if ( getcwd( lbuf , sizeof( lbuf ) ) )
+    {
+        // cout << "===============" <<endl;
+        //        cout << "current dir=" <<lbuf<<endl;
+        //        cout << "exec=" << argv[0]<<endl;
+    }
+
+    string path;
+    if(execPath[0] == '/'){
+        path = execPath;
+    }else{
+        path += lbuf;
+        path += "/";
+        path += execPath;
+    }
+
+    getPath(path, execName);
 
     CSimpleOpt args(argc, argv, g_rgOptions);
 
