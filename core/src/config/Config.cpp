@@ -64,15 +64,15 @@ shared_ptr<SqlScriptRunner> Config::getDefaultSqlRunner() {
 }
 
 shared_ptr<ScriptRunner> Config::getScriptRunner(string extension){
-    return getDefaultSqlRunner();
+    return m_runners[extension];
 }
 
 void Config::addSqlScriptExtension(const string& extension, const string& runnerName){
 
 }
 
-void Config::addRunner(const string& extension, shared_ptr<ScriptRunner> scriptRunner){
-
+void Config::addRunner(string extension, shared_ptr<ScriptRunner> scriptRunner){
+    m_runners[extension]= scriptRunner;
 }
 
 void Config::validate(){

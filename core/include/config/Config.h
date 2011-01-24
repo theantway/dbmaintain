@@ -36,7 +36,7 @@ public:
     shared_ptr<ScriptRunner> getScriptRunner(string extension);
 
     void addSqlScriptExtension(const string& extension, const string& runnerName="");
-    void addRunner(const string& extension, shared_ptr<ScriptRunner> scriptRunner);
+    void addRunner(string extension, shared_ptr<ScriptRunner> scriptRunner);
 
     void validate();
 private:
