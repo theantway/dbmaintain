@@ -63,12 +63,41 @@ shared_ptr<SqlScriptRunner> Config::getDefaultSqlRunner() {
     return getSqlRunner(database);
 }
 
-shared_ptr<ScriptRunner> Config::getScriptRunner(string extension){
-    return m_runners[extension];
+shared_ptr<ScriptRunner> Config::getScriptRunner(string name){
+    if(m_runners.count(name)){
+        return m_runners[name];
+    }
+
+    return getSqlRunner(name);
+}
+
+shared_ptr<ScriptRunner> Config::scriptRunner(string filename){
+    string::size_type pos     = filename.find_first_of(".", string::size_type(0));
+    while (string::npos != pos)
+    {
+        string extension = filename.substr(pos+1);
+
+        cout << "find runner for " << extension<<endl;
+        if(m_extensionRunner.count(extension)){
+            return getScriptRunner(m_extensionRunner[extension]);
+        }
+
+        pos = filename.find_first_of(".", pos + 1);
+    }
+
+    throw ConfigException("Could not find runner for file " + filename);
+}
+
+void Config::addScriptExtension(const string& extension, const string& runnerName){
+    m_extensionRunner.insert(pair<string, string>(extension, runnerName));
 }
 
 void Config::addSqlScriptExtension(const string& extension, const string& runnerName){
 
+}
+
+bool Config::hasRunner(string runnerName){
+    return m_runners.count(runnerName);
 }
 
 void Config::addRunner(string extension, shared_ptr<ScriptRunner> scriptRunner){

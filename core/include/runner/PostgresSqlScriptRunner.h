@@ -23,6 +23,8 @@ public:
 	PostgresSqlScriptRunner();
 	virtual ~PostgresSqlScriptRunner();
 
+	virtual void run(shared_ptr<ChangeScript> script);
+
 	virtual list< map<string, shared_ptr<Value> > > execute(string script);
 	virtual list< map<string, shared_ptr<Value> > > query(string script);
 	virtual map<string, shared_ptr<Value> > get(string script);

@@ -34,10 +34,13 @@ public:
     shared_ptr<SqlScriptRunner> getDefaultSqlRunner();
     shared_ptr<SqlScriptRunner> getSqlRunner(const string database);
     shared_ptr<ScriptRunner> getScriptRunner(string extension);
+    shared_ptr<ScriptRunner> scriptRunner(string extension);
 
     void addSqlScriptExtension(const string& extension, const string& runnerName="");
     void addRunner(string extension, shared_ptr<ScriptRunner> scriptRunner);
+    void addScriptExtension(const string& extension, const string& runnerName);
 
+    bool hasRunner(string runnerName);
     void validate();
 private:
     shared_ptr<ExecutedScriptsTable> m_executedScriptsTable;
@@ -45,6 +48,7 @@ private:
     map<string, shared_ptr<SqlScriptRunner> > m_sqlRunners;
     map<string, shared_ptr<Database> > m_databases;
 
+    map<string, string> m_extensionRunner;
     string m_scriptsLocation;
     string getDefaultDatabase() const;
 };

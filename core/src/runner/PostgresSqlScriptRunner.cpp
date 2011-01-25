@@ -84,6 +84,10 @@ list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::_execute(string
     return result;
 }
 
+void PostgresSqlScriptRunner::run(shared_ptr<ChangeScript> script){
+    execute(script->getContent());
+}
+
 list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::execute(string script){
     return _execute(script);
 }

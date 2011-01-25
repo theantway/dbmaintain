@@ -56,14 +56,14 @@ Config& FileConfig::applyScripts(Config& config){
         string runnerName = (*it).second;
 
         cout << "add runner " << runnerName << " for " << extension <<endl;
-        if(runnerName == ""){ //for database sql script
-            config.addSqlScriptExtension(extension);
+        if(runnerName == ""){
+            config.addScriptExtension(extension, "database");
         }else{
+            config.addScriptExtension(extension, runnerName);
             string scriptRunnerExecutable = get(runnerName+"-runner", "executable", "");
-            if(hasDatabase(runnerName)){
-                config.addSqlScriptExtension(extension, runnerName);
-            }else{
-                config.addRunner(extension, shared_ptr<ExecutableScriptRunner>(new ExecutableScriptRunner(scriptRunnerExecutable)));
+
+            if(!hasDatabase(runnerName) && !config.hasRunner(runnerName)){
+                config.addRunner(runnerName, shared_ptr<ExecutableScriptRunner>(new ExecutableScriptRunner(scriptRunnerExecutable)));
             }
         }
 

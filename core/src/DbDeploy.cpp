@@ -102,9 +102,9 @@ void DbDeploy::update(Config& config){
     for (list< shared_ptr<ChangeScript> >::iterator it=scriptsToApply.begin() ; it != scriptsToApply.end(); it++ ){
         shared_ptr<ChangeScript> script = *it;
         cout << "  applying " << script->getFilename() <<endl;
-        shared_ptr<ScriptRunner> scriptRunner = config.getScriptRunner(script->getFilename());
+        shared_ptr<ScriptRunner> scriptRunner = config.scriptRunner(script->getFilename());
         runner->beginRunScript(tableName, fieldsMap, script);
-        runner->execute(script->getContent());
+        scriptRunner->run(script);
         runner->endRunScript(tableName, fieldsMap, script);
     }
 

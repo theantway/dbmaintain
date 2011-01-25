@@ -13,6 +13,9 @@ using namespace std;
 
 class StubScriptRunner: public SqlScriptRunner{
 public:
+    virtual void run(shared_ptr<ChangeScript> script){
+
+    }
     virtual list< map<string, shared_ptr<Value> > > execute(string script){
         return list< map<string, shared_ptr<Value> > >();
     }

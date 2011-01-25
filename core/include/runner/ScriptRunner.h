@@ -44,6 +44,8 @@ public:
     ScriptRunner();
     virtual ~ScriptRunner();
 
+    virtual void run(shared_ptr<ChangeScript> script) = 0;
+
 public:
     static shared_ptr<SqlScriptRunner> getSqlRunner(string dbengine);
     static shared_ptr<ScriptRunner> getRunner(string dbengine);

@@ -11,5 +11,7 @@ class ExecutableScriptRunner : public ScriptRunner {
 public:
     ExecutableScriptRunner(const string& executableName="");
     virtual ~ExecutableScriptRunner();
+
+    void run(shared_ptr<ChangeScript> script);
 };
 #endif /* CORE_RUNNER_EXECUTABLESCRIPTRUNNER_H_ */
