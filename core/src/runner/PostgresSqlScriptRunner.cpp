@@ -189,6 +189,7 @@ void PostgresSqlScriptRunner::clearDatabase(shared_ptr<Database> database){
     clearViews(fullOptions->preservedViews());
     clearTables(fullOptions->preservedTables());
     clearFunctions(fullOptions->preservedFunctions());
+    clearSequences(fullOptions->preservedSequences());
 }
 
 void PostgresSqlScriptRunner::cleanDatabase(shared_ptr<Database> database){
@@ -221,6 +222,33 @@ list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::getTables(){
 
     return tables;
 }
+
+list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::getSequences(){
+    string sql = " \
+        SELECT n.nspname as schema, \
+          c.relname as name, \
+          CASE c.relkind \
+             WHEN 'r' THEN 'table' \
+             WHEN 'v' THEN 'view' \
+             WHEN 'i' THEN 'index' \
+             WHEN 'S' THEN 'sequence' \
+             WHEN 's' THEN 'special' \
+          END as type, \
+          pg_catalog.pg_get_userbyid(c.relowner) as owner \
+        FROM pg_catalog.pg_class c \
+             LEFT JOIN pg_catalog.pg_namespace n ON n.oid = c.relnamespace \
+        WHERE c.relkind = 'S' \
+              AND n.nspname <> 'pg_catalog' \
+              AND n.nspname <> 'information_schema' \
+              AND n.nspname !~ '^pg_toast' \
+          AND pg_catalog.pg_table_is_visible(c.oid) \
+    ";
+
+    list< map<string, shared_ptr<Value> > > tables = _execute(sql);
+
+    return tables;
+}
+
 
 list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::getViews(){
     string sql = " \
@@ -357,6 +385,27 @@ void PostgresSqlScriptRunner::clearViews(const set<string>& preservedViews){
 
         ostringstream drop;
         drop << "DROP VIEW \"" << viewName << "\"";
+        try{
+            cout << drop.str()<<endl;
+            _execute(drop.str());
+        }catch(DbException& e){
+            throw e;
+        }
+    }
+}
+
+void PostgresSqlScriptRunner::clearSequences(const set<string>& preservedSequences){
+    list< map<string, shared_ptr<Value> > > sequences =  getSequences();
+
+    for (list< map<string, shared_ptr<Value> > >::iterator it= sequences.begin() ; it != sequences.end(); it++ ){
+        string sequence = (*it)["name"]->asString();
+
+        if(preservedSequences.find(sequence) != preservedSequences.end() ){
+            continue;
+        }
+
+        ostringstream drop;
+        drop << "DROP SEQUENCE \"" << sequence << "\"";
         try{
             cout << drop.str()<<endl;
             _execute(drop.str());

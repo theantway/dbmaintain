@@ -49,6 +49,7 @@ public:
 	shared_ptr<ClearOptions> extendViewDependencies(string tableName, const list< map<string, shared_ptr<Value> > >& viewDependendedTables, shared_ptr<ClearOptions> clearOptions);
 
 	list< map<string, shared_ptr<Value> > > getTables();
+	list< map<string, shared_ptr<Value> > > getSequences();
 	list< map<string, shared_ptr<Value> > > getViews();
 
 	static SqlScriptRunner* createInstance();
@@ -66,6 +67,7 @@ private:
 	void clearTables(const set<string>& preservedTables);
 	void cleanTables(const set<string>& preservedTables);
 	void clearViews(const set<string>& preservedViews);
+	void clearSequences(const set<string>& preservedSequences);
 	void clearFunctions(const set<string>& preservedFunctions);
 
 private:

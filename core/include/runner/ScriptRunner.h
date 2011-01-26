@@ -27,11 +27,11 @@ public:
    }
 
    static SqlScriptRunner* getInstance(string name){
-       cout << "get instance for name " << name<<endl;
+//       cout << "get instance for name " << name<<endl;
        if (m_FactoryFunctions.count(name)){
            return m_FactoryFunctions[name]();
        }else{
-           cout << "not found"<<endl;
+           cout << "instance for runner " << name << " not found"<<endl;
            return NULL;
        }
    }

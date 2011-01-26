@@ -119,8 +119,8 @@ int main(int argc, char** argv){
                 break;
             }
 
-            cout << args.OptionId() << " " << args.OptionText() << " "
-                 << (args.OptionArg() ? string(args.OptionArg()) : "") << endl;
+//            cout << args.OptionId() << " " << args.OptionText() << " "
+//                 << (args.OptionArg() ? string(args.OptionArg()) : "") << endl;
         }else{
             cout << "Invalid argument: %s\n" << args.OptionText()<<endl;
             return 1;
