@@ -16,26 +16,6 @@ public:
 
     void init();
 
-    void setDriver(string driver);
-
-    void setUrl(string url);
-
-    void setUserid(string userid);
-
-    void setPassword(string password);
-
-    void setScriptDirectory(string scriptdirectory);
-
-    void setOutputfile(string outputfile);
-
-    void setDbms(string dbms);
-
-    void setLastChangeToApply(int lastChangeToApply);
-
-    void setDeltaset(string deltaset);
-
-    void setUndoOutputfile(string undoOutputfile);
-
     void clear(Config& config);
 
     void clean(Config& config);
@@ -50,44 +30,7 @@ public:
 
     void checkForRequiredParameter(string parameterValue, string parameterName);
 
-    //PrintStream
-    void createUndoOutputPrintStream(string undoOutputFile);
-
-    string getUserid();
-
-    string getUrl();
-
-    string getPassword();
-
-    string getScriptDirectory();
-
-    string getOutputfile();
-
-    string getUndoOutputfile();
-
-    string getDbms();
-
-    int getLastChangeToApply();
-
-    string getDeltaset();
-
-    string getDriver();
-
     string getWelcomeString();
-
-private:
-    string url;
-    string userid;
-    string password;
-    string scriptdirectory;
-    string outputfile;
-    string undoOutputfile;
-    string dbms;
-    int lastChangeToApply;
-    string deltaset;
-    string driver;
-//    Config m_config;
-
 };
 
 #endif /* DBDEPLOY_H_ */

@@ -17,9 +17,6 @@
 using namespace std;
 
 DbDeploy::DbDeploy() {
-    lastChangeToApply = 999999;
-    deltaset = "Main";
-
     init();
 }
 
@@ -28,34 +25,6 @@ DbDeploy::~DbDeploy() {
 
 void DbDeploy::init(){
     ScriptRunner::init();
-}
-
-void DbDeploy::setDriver(string driver) {
-    this->driver = driver;
-}
-
-void DbDeploy::setUrl(string url) {
-    this->url = url;
-}
-
-void DbDeploy::setUserid(string userid) {
-    this->userid = userid;
-}
-
-void DbDeploy::setPassword(string password) {
-    this->password = password;
-}
-
-void DbDeploy::setScriptDirectory(string scriptdirectory) {
-    this->scriptdirectory = scriptdirectory;
-}
-
-void DbDeploy::setLastChangeToApply(int lastChangeToApply) {
-    this->lastChangeToApply = lastChangeToApply;
-}
-
-void DbDeploy::setDeltaset(string deltaset) {
-    this->deltaset = deltaset;
 }
 
 void DbDeploy::clear(Config& config) {
@@ -139,43 +108,6 @@ void DbDeploy::checkForRequiredParameter(string parameterValue, string parameter
     // if (parameterValue == null || parameterValue.length() == 0) {
     //         UsageException.throwForMissingRequiredValue(parameterName);
     //     }
-}
-
-//PrintStream
-void DbDeploy::createUndoOutputPrintStream(string undoOutputFile) {
-    // if (undoOutputstring != null) {
-    //         return new PrintStream(undoOutputFile);
-    //     } else {
-    //         return null;
-    //     }
-}
-
-string DbDeploy::getUserid() {
-    return userid;
-}
-
-string DbDeploy::getUrl() {
-    return url;
-}
-
-string DbDeploy::getPassword() {
-    return password;
-}
-
-string DbDeploy::getScriptDirectory() {
-    return scriptdirectory;
-}
-
-int DbDeploy::getLastChangeToApply() {
-    return lastChangeToApply;
-}
-
-string DbDeploy::getDeltaset() {
-    return deltaset;
-}
-
-string DbDeploy::getDriver() {
-    return driver;
 }
 
 string DbDeploy::getWelcomeString() {
