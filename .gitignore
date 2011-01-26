@@ -21,6 +21,7 @@ ide
 *.orig
 *.cmake
 .settings
+.csettings
 Makefile
 CMakeFiles
 CMakeCache.txt

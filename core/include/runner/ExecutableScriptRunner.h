@@ -13,5 +13,8 @@ public:
     virtual ~ExecutableScriptRunner();
 
     void run(shared_ptr<ChangeScript> script);
+
+private:
+    string m_executable;
 };
 #endif /* CORE_RUNNER_EXECUTABLESCRIPTRUNNER_H_ */

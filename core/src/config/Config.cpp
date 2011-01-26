@@ -77,7 +77,6 @@ shared_ptr<ScriptRunner> Config::scriptRunner(string filename){
     {
         string extension = filename.substr(pos+1);
 
-        cout << "find runner for " << extension<<endl;
         if(m_extensionRunner.count(extension)){
             return getScriptRunner(m_extensionRunner[extension]);
         }
