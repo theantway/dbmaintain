@@ -313,8 +313,12 @@ void PostgresSqlScriptRunner::clearTables(const set<string>& preservedObjects){
 void PostgresSqlScriptRunner::cleanTables(const set<string>& preservedObjects){
     list< map<string, shared_ptr<Value> > > tables =  getTables();
     list< map<string, shared_ptr<Value> > > dependencies = getTableDependencies();
+    ostringstream drop;
+    drop << "TRUNCATE TABLE ";
 
     list<string> tablesToRemove = sortTablesByDependency(tables, dependencies);
+
+    bool hasTablesToTruncate=false;
     for (list<string>::iterator it= tablesToRemove.begin() ; it != tablesToRemove.end(); it++ ){
         string tableName = *it;
 
@@ -322,14 +326,20 @@ void PostgresSqlScriptRunner::cleanTables(const set<string>& preservedObjects){
             continue;
         }
 
-        ostringstream drop;
-        drop << "TRUNCATE TABLE \"" << tableName << "\"";
-        try{
-            cout << drop.str()<<endl;
-            _execute(drop.str());
-        }catch(DbException& e){
-            throw e;
+        if(hasTablesToTruncate){
+            drop << ", ";
         }
+
+        hasTablesToTruncate = true;
+
+        drop << "\"" << tableName << "\"";
+    }
+
+    try{
+        cout << drop.str()<<endl;
+        _execute(drop.str());
+    }catch(DbException& e){
+        throw e;
     }
 }
 
