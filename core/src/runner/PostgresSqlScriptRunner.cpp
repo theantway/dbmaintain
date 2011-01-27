@@ -42,6 +42,22 @@ PGconn* PostgresSqlScriptRunner::getConnection(){
             fprintf(stderr, "Connection to database failed: %s", PQerrorMessage(m_pConn));
             return NULL;
         }
+
+        string script = "set client_min_messages='warning'";
+        PGresult* res = PQexec(m_pConn, script.c_str());
+        ExecStatusType status=PQresultStatus(res);
+
+        if (status != PGRES_TUPLES_OK && status !=PGRES_COMMAND_OK && status != PGRES_EMPTY_QUERY)
+        {
+            ostringstream stream;
+            stream << "could not execute script, message " << PQerrorMessage(m_pConn)
+                    << ". status=" << status
+                    << "\n    script: " << script;
+            cout << stream.str()<<endl;
+
+            PQclear(res);
+            throw DbException(stream.str());
+        }
     }
 
     return m_pConn;
@@ -131,7 +147,7 @@ void PostgresSqlScriptRunner::ensureScriptsTableExists(string tableName, const m
 
     list< map<string, shared_ptr<Value> > > results = _execute(stream.str());
     if(results.size() == size_t(0)){
-        cout << "table not exist, trying to create a new table"<<endl;
+        cout << "script table not exist, trying to create a new table"<<endl;
         ostringstream stream;
         stream << "CREATE TABLE " << tableName <<
         "(\

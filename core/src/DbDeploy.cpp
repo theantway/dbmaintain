@@ -54,7 +54,7 @@ shared_ptr<ScriptRunner> DbDeploy::initRunner(){
 void DbDeploy::update(Config& config){
     shared_ptr<SqlScriptRunner> runner = config.getDefaultSqlRunner();
 
-    cout << getWelcomeString() <<endl;
+//    cout << getWelcomeString() <<endl;
     string tableName = "script_table";
     map<string, string> fieldsMap;
     runner->ensureScriptsTableExists(tableName, fieldsMap);
