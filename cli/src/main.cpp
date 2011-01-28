@@ -67,31 +67,31 @@ int main(int argc, char** argv){
         SO_END_OF_OPTIONS                       // END
     };
 
-    string execPath = argv[0];
-    string execName;
-
-    char lbuf[1024] ;
-    if ( getcwd( lbuf , sizeof( lbuf ) ) )
-    {
-        // cout << "===============" <<endl;
-        //        cout << "current dir=" <<lbuf<<endl;
-        //        cout << "exec=" << argv[0]<<endl;
-    }
-
-    string path;
-    if(execPath[0] == '/'){
-        path = execPath;
-    }else{
-        path += lbuf;
-        path += "/";
-        path += execPath;
-    }
-
-    getPath(path, execName);
+//    string execPath = argv[0];
+//    string execName;
+//
+//    char lbuf[1024] ;
+//    if ( getcwd( lbuf , sizeof( lbuf ) ) )
+//    {
+//        // cout << "===============" <<endl;
+//        //        cout << "current dir=" <<lbuf<<endl;
+//        //        cout << "exec=" << argv[0]<<endl;
+//    }
+//
+//    string path;
+//    if(execPath[0] == '/'){
+//        path = execPath;
+//    }else{
+//        path += lbuf;
+//        path += "/";
+//        path += execPath;
+//    }
+//
+//    getPath(path, execName);
 
     CSimpleOpt args(argc, argv, g_rgOptions);
 
-    ScriptRunnerFactory::Register("postgres", &PostgresSqlScriptRunner::createInstance);
+//    ScriptRunnerFactory::Register("postgres", &PostgresSqlScriptRunner::createInstance);
 
     DbMaintain deploy;
     while (args.Next()) {

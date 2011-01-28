@@ -48,29 +48,25 @@ except AttributeError:
 del types
 
 
-class DbDeploy(_object):
+class DbMaintain(_object):
     __swig_setmethods__ = {}
-    __setattr__ = lambda self, name, value: _swig_setattr(self, DbDeploy, name, value)
+    __setattr__ = lambda self, name, value: _swig_setattr(self, DbMaintain, name, value)
     __swig_getmethods__ = {}
-    __getattr__ = lambda self, name: _swig_getattr(self, DbDeploy, name)
+    __getattr__ = lambda self, name: _swig_getattr(self, DbMaintain, name)
     __repr__ = _swig_repr
     def __init__(self, *args): 
-        this = _dbmaintain.new_DbDeploy(*args)
+        this = _dbmaintain.new_DbMaintain(*args)
         try: self.this.append(this)
         except: self.this = this
-    __swig_destroy__ = _dbmaintain.delete_DbDeploy
+    __swig_destroy__ = _dbmaintain.delete_DbMaintain
     __del__ = lambda self : None;
-    def init(*args): return _dbmaintain.DbDeploy_init(*args)
-    def clear(*args): return _dbmaintain.DbDeploy_clear(*args)
-    def clean(*args): return _dbmaintain.DbDeploy_clean(*args)
-    def initRunner(*args): return _dbmaintain.DbDeploy_initRunner(*args)
-    def update(*args): return _dbmaintain.DbDeploy_update(*args)
-    def getLatestVersion(*args): return _dbmaintain.DbDeploy_getLatestVersion(*args)
-    def validate(*args): return _dbmaintain.DbDeploy_validate(*args)
-    def checkForRequiredParameter(*args): return _dbmaintain.DbDeploy_checkForRequiredParameter(*args)
-    def getWelcomeString(*args): return _dbmaintain.DbDeploy_getWelcomeString(*args)
-DbDeploy_swigregister = _dbmaintain.DbDeploy_swigregister
-DbDeploy_swigregister(DbDeploy)
+    def setConfigFile(*args): return _dbmaintain.DbMaintain_setConfigFile(*args)
+    def validate(*args): return _dbmaintain.DbMaintain_validate(*args)
+    def clear(*args): return _dbmaintain.DbMaintain_clear(*args)
+    def clean(*args): return _dbmaintain.DbMaintain_clean(*args)
+    def update(*args): return _dbmaintain.DbMaintain_update(*args)
+DbMaintain_swigregister = _dbmaintain.DbMaintain_swigregister
+DbMaintain_swigregister(DbMaintain)
 
 
 

@@ -11,30 +11,25 @@ class ScriptRunner;
 
 class DbMaintain {
 public:
-    DbMaintain(string configFile);
     DbMaintain();
+    DbMaintain(string configFile);
     virtual ~DbMaintain();
 
     void setConfigFile(string configFile);
-    void init();
-
-    void clear();
-
-    void clean();
-
-    shared_ptr<ScriptRunner> initRunner();
-
-    void update();
-
-    int getLatestVersion(shared_ptr<SqlScriptRunner> runner, string tableName);
 
     void validate();
+    void clear();
+    void clean();
+    void update();
 
+private:
+    int getLatestVersion(shared_ptr<SqlScriptRunner> runner, string tableName);
+    void init();
     void checkForRequiredParameter(string parameterValue, string parameterName);
 
     string getWelcomeString();
+    shared_ptr<ScriptRunner> initRunner();
 
-private:
     Config m_config;
 };
 

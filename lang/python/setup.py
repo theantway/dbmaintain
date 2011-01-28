@@ -10,7 +10,7 @@ import glob
 
 src_files = glob.glob('../../core/src/*/*.cpp')
 src_files += glob.glob('../../core/src/*.cpp')
-src_files += ['dbmaintain_wrap.cxx']
+src_files += ['dbmaintain_wrap.cpp']
 
 dbmaintain_module = Extension('_dbmaintain',
                            sources=src_files,

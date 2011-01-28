@@ -24,6 +24,7 @@ DbMaintain::DbMaintain(string configFile) {
 }
 
 DbMaintain::DbMaintain() {
+    init();
 }
 
 DbMaintain::~DbMaintain() {
