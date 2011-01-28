@@ -1,4 +1,4 @@
-#include <DbDeploy.h>
+#include <DbMaintain.h>
 
 #include <iostream>
 #include <fstream>
@@ -12,47 +12,56 @@
 #include "Value.h"
 #include "runner/ScriptRunner.h"
 #include "config/ClearOptions.h"
+#include "config/FileConfig.h"
 #include "config/Database.h"
 
 using namespace std;
 
-DbDeploy::DbDeploy() {
+DbMaintain::DbMaintain(string configFile) {
     init();
+
+    setConfigFile(configFile);
 }
 
-DbDeploy::~DbDeploy() {
+DbMaintain::DbMaintain() {
 }
 
-void DbDeploy::init(){
+DbMaintain::~DbMaintain() {
+}
+
+void DbMaintain::setConfigFile(string configFile){
+    FileConfig(configFile).applyTo(m_config);
+}
+void DbMaintain::init(){
     ScriptRunner::init();
 }
 
-void DbDeploy::clear(Config& config) {
-    const map<string, shared_ptr<Database> > databases = config.getDatabases();
+void DbMaintain::clear() {
+    const map<string, shared_ptr<Database> > databases = m_config.getDatabases();
 
     for (map<string, shared_ptr<Database> >::const_iterator it=databases.begin() ; it != databases.end(); it++ ){
-        const shared_ptr<SqlScriptRunner> scriptRunner = config.getSqlRunner((*it).first);
+        const shared_ptr<SqlScriptRunner> scriptRunner = m_config.getSqlRunner((*it).first);
         scriptRunner->clearDatabase((*it).second);
     }
 }
 
-void DbDeploy::clean(Config& config) {
-    const map<string, shared_ptr<Database> > databases = config.getDatabases();
+void DbMaintain::clean() {
+    const map<string, shared_ptr<Database> > databases = m_config.getDatabases();
 
     for (map<string, shared_ptr<Database> >::const_iterator it=databases.begin() ; it != databases.end(); it++ ){
-        const shared_ptr<SqlScriptRunner> scriptRunner = config.getSqlRunner((*it).first);
+        const shared_ptr<SqlScriptRunner> scriptRunner = m_config.getSqlRunner((*it).first);
         scriptRunner->cleanDatabase((*it).second);
     }
 }
 
-shared_ptr<ScriptRunner> DbDeploy::initRunner(){
+shared_ptr<ScriptRunner> DbMaintain::initRunner(){
     shared_ptr<ScriptRunner> runner = ScriptRunner::getRunner("postgres");
 //    runner->setConnectionString("dbname=dbmaintain_test user=postgres");
     return runner;
 }
 
-void DbDeploy::update(Config& config){
-    shared_ptr<SqlScriptRunner> runner = config.getDefaultSqlRunner();
+void DbMaintain::update(){
+    shared_ptr<SqlScriptRunner> runner = m_config.getDefaultSqlRunner();
 
 //    cout << getWelcomeString() <<endl;
     string tableName = "script_table";
@@ -60,7 +69,7 @@ void DbDeploy::update(Config& config){
     runner->ensureScriptsTableExists(tableName, fieldsMap);
     int latestNo = getLatestVersion(runner, tableName);
 
-    ChangeScriptRepository changeScriptRepository(DirectoryScanner().getChangeScriptsForDirectory(config.getScriptsLocation()));
+    ChangeScriptRepository changeScriptRepository(DirectoryScanner().getChangeScriptsForDirectory(m_config.getScriptsLocation()));
 
     list< shared_ptr<ChangeScript> > scriptsToApply = changeScriptRepository.getScriptsToApply(latestNo);
 
@@ -71,7 +80,7 @@ void DbDeploy::update(Config& config){
     for (list< shared_ptr<ChangeScript> >::iterator it=scriptsToApply.begin() ; it != scriptsToApply.end(); it++ ){
         shared_ptr<ChangeScript> script = *it;
         cout << "  applying " << script->getFilename() <<endl;
-        shared_ptr<ScriptRunner> scriptRunner = config.scriptRunner(script->getFilename());
+        shared_ptr<ScriptRunner> scriptRunner = m_config.scriptRunner(script->getFilename());
         runner->beginRunScript(tableName, fieldsMap, script);
         scriptRunner->run(script);
         runner->endRunScript(tableName, fieldsMap, script);
@@ -80,7 +89,7 @@ void DbDeploy::update(Config& config){
     cout << "Successed." <<endl;
 }
 
-int DbDeploy::getLatestVersion(shared_ptr<SqlScriptRunner> runner, string tableName){
+int DbMaintain::getLatestVersion(shared_ptr<SqlScriptRunner> runner, string tableName){
     map<string, shared_ptr<Value> > latest = runner->getLatestVersion(tableName);
     shared_ptr<Value> no = latest["script_no"];
 
@@ -91,7 +100,7 @@ int DbDeploy::getLatestVersion(shared_ptr<SqlScriptRunner> runner, string tableN
     return latestNo;
 }
 
-void DbDeploy::validate() {
+void DbMaintain::validate() {
     // checkForRequiredParameter(userid, "userid");
     //     checkForRequiredParameter(driver, "driver");
     //     checkForRequiredParameter(url, "url");
@@ -104,13 +113,13 @@ void DbDeploy::validate() {
     //     }
 }
 
-void DbDeploy::checkForRequiredParameter(string parameterValue, string parameterName) {
+void DbMaintain::checkForRequiredParameter(string parameterValue, string parameterName) {
     // if (parameterValue == null || parameterValue.length() == 0) {
     //         UsageException.throwForMissingRequiredValue(parameterName);
     //     }
 }
 
-string DbDeploy::getWelcomeString() {
+string DbMaintain::getWelcomeString() {
     // InputStream stream = getClass().getClassLoader().getResourceAsStream("welcome.txt");
     //     try {
     //         return new BufferedReader(new InputStreamReader(stream)).readLine();

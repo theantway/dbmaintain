@@ -1,4 +1,4 @@
-#include "DbDeploy.h"
+#include "DbMaintain.h"
 
 #include <iostream>
 
@@ -93,9 +93,7 @@ int main(int argc, char** argv){
 
     ScriptRunnerFactory::Register("postgres", &PostgresSqlScriptRunner::createInstance);
 
-    Config config;
-
-    DbDeploy deploy;
+    DbMaintain deploy;
     while (args.Next()) {
         if (args.LastError() == SO_SUCCESS) {
             switch (args.OptionId()) {
@@ -106,16 +104,16 @@ int main(int argc, char** argv){
                 usage();
                 break;
             case OPT_FILE:
-                FileConfig(args.OptionArg()).applyTo(config);
+                deploy.setConfigFile(args.OptionArg());
                 break;
             case OPT_UPDATE:
-                deploy.update(config);
+                deploy.update();
                 break;
             case OPT_CLEAR:
-                deploy.clear(config);
+                deploy.clear();
                 break;
             case OPT_CLEAN:
-                deploy.clean(config);
+                deploy.clean();
                 break;
             }
 

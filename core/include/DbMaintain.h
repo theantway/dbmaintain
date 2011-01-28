@@ -1,5 +1,5 @@
-#ifndef DBDEPLOY_H_
-#define DBDEPLOY_H_
+#ifndef CORE_DBMAINTAIN_H_
+#define CORE_DBMAINTAIN_H_
 
 #include <string>
 
@@ -9,20 +9,22 @@ using namespace std;
 
 class ScriptRunner;
 
-class DbDeploy {
+class DbMaintain {
 public:
-    DbDeploy();
-    virtual ~DbDeploy();
+    DbMaintain(string configFile);
+    DbMaintain();
+    virtual ~DbMaintain();
 
+    void setConfigFile(string configFile);
     void init();
 
-    void clear(Config& config);
+    void clear();
 
-    void clean(Config& config);
+    void clean();
 
     shared_ptr<ScriptRunner> initRunner();
 
-    void update(Config& config);
+    void update();
 
     int getLatestVersion(shared_ptr<SqlScriptRunner> runner, string tableName);
 
@@ -31,6 +33,9 @@ public:
     void checkForRequiredParameter(string parameterValue, string parameterName);
 
     string getWelcomeString();
+
+private:
+    Config m_config;
 };
 
-#endif /* DBDEPLOY_H_ */
+#endif /* CORE_DBMAINTAIN_H_ */

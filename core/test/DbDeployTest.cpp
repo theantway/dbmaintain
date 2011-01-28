@@ -1,7 +1,7 @@
 #include <string>
 #include "BaseTest.h"
 
-#include "DbDeploy.h"
+#include "DbMaintain.h"
 
 using namespace std;
 SUITE(DbDeployTest){
@@ -19,7 +19,7 @@ SUITE(DbDeployTest){
     TEST_FIXTURE (DbDeployTest, ShouldScanScriptFolder)
     {
         Config config;
-        DbDeploy deploy();
+        DbMaintain deploy();
 //        deploy.setScriptDirectory("/Users/weixu/projects/msx/mobilestorm/schema/src/main/database/scripts/01_v1.0");
 //        deploy.go();
     }

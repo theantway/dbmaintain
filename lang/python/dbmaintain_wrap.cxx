@@ -2579,10 +2579,10 @@ extern "C" {
 #endif
 SWIGINTERN PyObject *_wrap_new_DbDeploy(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  DbDeploy *result = 0 ;
+  DbMaintain *result = 0 ;
   
   if (!PyArg_ParseTuple(args,(char *)":new_DbDeploy")) SWIG_fail;
-  result = (DbDeploy *)new DbDeploy();
+  result = (DbMaintain *)new DbMaintain();
   resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_DbDeploy, SWIG_POINTER_NEW |  0 );
   return resultobj;
 fail:
@@ -2592,7 +2592,7 @@ fail:
 
 SWIGINTERN PyObject *_wrap_delete_DbDeploy(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  DbDeploy *arg1 = (DbDeploy *) 0 ;
+  DbMaintain *arg1 = (DbMaintain *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
@@ -2602,7 +2602,7 @@ SWIGINTERN PyObject *_wrap_delete_DbDeploy(PyObject *SWIGUNUSEDPARM(self), PyObj
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "delete_DbDeploy" "', argument " "1"" of type '" "DbDeploy *""'"); 
   }
-  arg1 = reinterpret_cast< DbDeploy * >(argp1);
+  arg1 = reinterpret_cast< DbMaintain * >(argp1);
   delete arg1;
   
   resultobj = SWIG_Py_Void();
@@ -2614,7 +2614,7 @@ fail:
 
 SWIGINTERN PyObject *_wrap_DbDeploy_init(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  DbDeploy *arg1 = (DbDeploy *) 0 ;
+  DbMaintain *arg1 = (DbMaintain *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
@@ -2624,7 +2624,7 @@ SWIGINTERN PyObject *_wrap_DbDeploy_init(PyObject *SWIGUNUSEDPARM(self), PyObjec
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DbDeploy_init" "', argument " "1"" of type '" "DbDeploy *""'"); 
   }
-  arg1 = reinterpret_cast< DbDeploy * >(argp1);
+  arg1 = reinterpret_cast< DbMaintain * >(argp1);
   (arg1)->init();
   resultobj = SWIG_Py_Void();
   return resultobj;
@@ -2635,7 +2635,7 @@ fail:
 
 SWIGINTERN PyObject *_wrap_DbDeploy_clear(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  DbDeploy *arg1 = (DbDeploy *) 0 ;
+  DbMaintain *arg1 = (DbMaintain *) 0 ;
   Config *arg2 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -2649,7 +2649,7 @@ SWIGINTERN PyObject *_wrap_DbDeploy_clear(PyObject *SWIGUNUSEDPARM(self), PyObje
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DbDeploy_clear" "', argument " "1"" of type '" "DbDeploy *""'"); 
   }
-  arg1 = reinterpret_cast< DbDeploy * >(argp1);
+  arg1 = reinterpret_cast< DbMaintain * >(argp1);
   res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_Config,  0 );
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "DbDeploy_clear" "', argument " "2"" of type '" "Config &""'"); 
@@ -2668,7 +2668,7 @@ fail:
 
 SWIGINTERN PyObject *_wrap_DbDeploy_clean(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  DbDeploy *arg1 = (DbDeploy *) 0 ;
+  DbMaintain *arg1 = (DbMaintain *) 0 ;
   Config *arg2 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -2682,7 +2682,7 @@ SWIGINTERN PyObject *_wrap_DbDeploy_clean(PyObject *SWIGUNUSEDPARM(self), PyObje
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DbDeploy_clean" "', argument " "1"" of type '" "DbDeploy *""'"); 
   }
-  arg1 = reinterpret_cast< DbDeploy * >(argp1);
+  arg1 = reinterpret_cast< DbMaintain * >(argp1);
   res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_Config,  0 );
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "DbDeploy_clean" "', argument " "2"" of type '" "Config &""'"); 
@@ -2701,7 +2701,7 @@ fail:
 
 SWIGINTERN PyObject *_wrap_DbDeploy_initRunner(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  DbDeploy *arg1 = (DbDeploy *) 0 ;
+  DbMaintain *arg1 = (DbMaintain *) 0 ;
   shared_ptr<ScriptRunner > result;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -2712,7 +2712,7 @@ SWIGINTERN PyObject *_wrap_DbDeploy_initRunner(PyObject *SWIGUNUSEDPARM(self), P
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DbDeploy_initRunner" "', argument " "1"" of type '" "DbDeploy *""'"); 
   }
-  arg1 = reinterpret_cast< DbDeploy * >(argp1);
+  arg1 = reinterpret_cast< DbMaintain * >(argp1);
   result = (arg1)->initRunner();
   resultobj = SWIG_NewPointerObj((new shared_ptr<ScriptRunner >(static_cast< const shared_ptr<ScriptRunner >& >(result))), SWIGTYPE_p_shared_ptrTScriptRunner_t, SWIG_POINTER_OWN |  0 );
   return resultobj;
@@ -2723,7 +2723,7 @@ fail:
 
 SWIGINTERN PyObject *_wrap_DbDeploy_update(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  DbDeploy *arg1 = (DbDeploy *) 0 ;
+  DbMaintain *arg1 = (DbMaintain *) 0 ;
   Config *arg2 = 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -2737,7 +2737,7 @@ SWIGINTERN PyObject *_wrap_DbDeploy_update(PyObject *SWIGUNUSEDPARM(self), PyObj
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DbDeploy_update" "', argument " "1"" of type '" "DbDeploy *""'"); 
   }
-  arg1 = reinterpret_cast< DbDeploy * >(argp1);
+  arg1 = reinterpret_cast< DbMaintain * >(argp1);
   res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_Config,  0 );
   if (!SWIG_IsOK(res2)) {
     SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "DbDeploy_update" "', argument " "2"" of type '" "Config &""'"); 
@@ -2756,7 +2756,7 @@ fail:
 
 SWIGINTERN PyObject *_wrap_DbDeploy_getLatestVersion(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  DbDeploy *arg1 = (DbDeploy *) 0 ;
+  DbMaintain *arg1 = (DbMaintain *) 0 ;
   shared_ptr<SqlScriptRunner > arg2 ;
   string arg3 ;
   int result;
@@ -2775,7 +2775,7 @@ SWIGINTERN PyObject *_wrap_DbDeploy_getLatestVersion(PyObject *SWIGUNUSEDPARM(se
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DbDeploy_getLatestVersion" "', argument " "1"" of type '" "DbDeploy *""'"); 
   }
-  arg1 = reinterpret_cast< DbDeploy * >(argp1);
+  arg1 = reinterpret_cast< DbMaintain * >(argp1);
   {
     res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_shared_ptrTSqlScriptRunner_t,  0  | 0);
     if (!SWIG_IsOK(res2)) {
@@ -2812,7 +2812,7 @@ fail:
 
 SWIGINTERN PyObject *_wrap_DbDeploy_validate(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  DbDeploy *arg1 = (DbDeploy *) 0 ;
+  DbMaintain *arg1 = (DbMaintain *) 0 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
@@ -2822,7 +2822,7 @@ SWIGINTERN PyObject *_wrap_DbDeploy_validate(PyObject *SWIGUNUSEDPARM(self), PyO
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DbDeploy_validate" "', argument " "1"" of type '" "DbDeploy *""'"); 
   }
-  arg1 = reinterpret_cast< DbDeploy * >(argp1);
+  arg1 = reinterpret_cast< DbMaintain * >(argp1);
   (arg1)->validate();
   resultobj = SWIG_Py_Void();
   return resultobj;
@@ -2833,7 +2833,7 @@ fail:
 
 SWIGINTERN PyObject *_wrap_DbDeploy_checkForRequiredParameter(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  DbDeploy *arg1 = (DbDeploy *) 0 ;
+  DbMaintain *arg1 = (DbMaintain *) 0 ;
   string arg2 ;
   string arg3 ;
   void *argp1 = 0 ;
@@ -2851,7 +2851,7 @@ SWIGINTERN PyObject *_wrap_DbDeploy_checkForRequiredParameter(PyObject *SWIGUNUS
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DbDeploy_checkForRequiredParameter" "', argument " "1"" of type '" "DbDeploy *""'"); 
   }
-  arg1 = reinterpret_cast< DbDeploy * >(argp1);
+  arg1 = reinterpret_cast< DbMaintain * >(argp1);
   {
     res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_string,  0  | 0);
     if (!SWIG_IsOK(res2)) {
@@ -2888,7 +2888,7 @@ fail:
 
 SWIGINTERN PyObject *_wrap_DbDeploy_getWelcomeString(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
-  DbDeploy *arg1 = (DbDeploy *) 0 ;
+  DbMaintain *arg1 = (DbMaintain *) 0 ;
   string result;
   void *argp1 = 0 ;
   int res1 = 0 ;
@@ -2899,7 +2899,7 @@ SWIGINTERN PyObject *_wrap_DbDeploy_getWelcomeString(PyObject *SWIGUNUSEDPARM(se
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "DbDeploy_getWelcomeString" "', argument " "1"" of type '" "DbDeploy *""'"); 
   }
-  arg1 = reinterpret_cast< DbDeploy * >(argp1);
+  arg1 = reinterpret_cast< DbMaintain * >(argp1);
   result = (arg1)->getWelcomeString();
   resultobj = SWIG_NewPointerObj((new string(static_cast< const string& >(result))), SWIGTYPE_p_string, SWIG_POINTER_OWN |  0 );
   return resultobj;
