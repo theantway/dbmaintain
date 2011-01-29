@@ -4,8 +4,6 @@
 #include <fstream>
 #include <set>
 
-#include <boost/foreach.hpp>
-
 #include "ChangeScript.h"
 #include "ChangeScriptRepository.h"
 #include "DirectoryScanner.h"
@@ -55,12 +53,6 @@ void DbMaintain::clean() {
     }
 }
 
-shared_ptr<ScriptRunner> DbMaintain::initRunner(){
-    shared_ptr<ScriptRunner> runner = ScriptRunner::getRunner("postgres");
-//    runner->setConnectionString("dbname=dbmaintain_test user=postgres");
-    return runner;
-}
-
 void DbMaintain::update(){
     shared_ptr<SqlScriptRunner> runner = m_config.getDefaultSqlRunner();
 
@@ -68,7 +60,7 @@ void DbMaintain::update(){
     string tableName = "script_table";
     map<string, string> fieldsMap;
     runner->ensureScriptsTableExists(tableName, fieldsMap);
-    int latestNo = getLatestVersion(runner, tableName);
+    int latestNo = getLatestVersion(*runner.get(), tableName);
 
     ChangeScriptRepository changeScriptRepository(DirectoryScanner().getChangeScriptsForDirectory(m_config.getScriptsLocation()));
 
@@ -90,8 +82,8 @@ void DbMaintain::update(){
     cout << "Successed." <<endl;
 }
 
-int DbMaintain::getLatestVersion(shared_ptr<SqlScriptRunner> runner, string tableName){
-    map<string, shared_ptr<Value> > latest = runner->getLatestVersion(tableName);
+int DbMaintain::getLatestVersion(SqlScriptRunner& runner, string tableName){
+    map<string, shared_ptr<Value> > latest = runner.getLatestVersion(tableName);
     shared_ptr<Value> no = latest["script_no"];
 
     int latestNo = 0;

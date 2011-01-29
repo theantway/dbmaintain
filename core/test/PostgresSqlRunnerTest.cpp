@@ -3,8 +3,6 @@
 #include <map>
 #include <iostream>
 
-#include <boost/foreach.hpp>
-
 #include "runner/PostgresSqlScriptRunner.h"
 
 #include "BaseTest.h"
@@ -126,8 +124,8 @@ SUITE(PostgresSqlScriptRunnerTest){
         list< map<string, shared_ptr<Value> > > tables = runner->getTables();
         ASSERT_EQUAL(tables.size(), size_t(3));
 
-        typedef map<string, shared_ptr<Value> > record;
-        BOOST_FOREACH( record table, tables){
+        for (list< map<string, shared_ptr<Value> > >::const_iterator it=tables.begin() ; it != tables.end(); it++ ){
+            map<string, shared_ptr<Value> > table = *it;
             ASSERT_EQUAL(expectedTables.find(table["name"]->asString()) != expectedTables.end(), true);
         }
     }

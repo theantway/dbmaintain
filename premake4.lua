@@ -1,6 +1,6 @@
 solution "dbmaintain++"
   configurations { "debug", "release" }
-  includedirs { "/usr/local/boost_1_44_0" }
+  includedirs { "lib/boost" }
   
   output_path = "ide/" .. _ACTION .. "/"
   location (output_path)
