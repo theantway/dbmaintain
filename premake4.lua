@@ -5,6 +5,7 @@ solution "dbmaintain++"
   output_path = "ide/" .. _ACTION .. "/"
   location (output_path)
 
+  links { "stdc++"}
   configuration { "debug" }
     targetdir (output_path .. "bin/debug")
     flags {"Symbols"}

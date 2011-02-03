@@ -20,6 +20,7 @@ SUITE(PostgresSqlScriptRunnerTest){
 
     public:
         PostgresSqlScriptRunnerTest() {
+            cout << "=====" << endl;
             runner = shared_ptr<PostgresSqlScriptRunner>(new PostgresSqlScriptRunner());
             runner->setConnectionString("dbname=db3 user=postgres");
 

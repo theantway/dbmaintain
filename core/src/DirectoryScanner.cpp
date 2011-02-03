@@ -24,7 +24,7 @@ list< shared_ptr<ChangeScript> > DirectoryScanner::getChangeScriptsForDirectory(
         return scripts;
     }
 
-    while (ep = readdir (dp)){
+    while ((ep=readdir (dp))){
         if (DT_DIR == ep->d_type){
             continue;
         }

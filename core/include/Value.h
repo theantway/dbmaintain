@@ -28,4 +28,4 @@ private:
   std::string m_value;
 };
 
-#endif VALUE_H__
+#endif //VALUE_H__

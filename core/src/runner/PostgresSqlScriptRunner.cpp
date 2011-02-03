@@ -202,6 +202,8 @@ shared_ptr<ClearOptions> PostgresSqlScriptRunner::extendPreservedObjects(const s
 
 void PostgresSqlScriptRunner::clearDatabase(shared_ptr<Database> database){
     shared_ptr<ClearOptions> fullOptions = extendPreservedObjects(database->getClearOptions());
+
+    cout << "preserved objects to clear: " << endl << fullOptions->describe();
     clearViews(fullOptions->preservedViews());
     clearTables(fullOptions->preservedTables());
     clearFunctions(fullOptions->preservedFunctions());
@@ -468,6 +470,18 @@ list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::getTableDepende
     return result;
 }
 
+list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::getSequenceDependencies(){
+    string sql="SELECT o.relname as sequence_name, ref.relname as table_name \
+                FROM pg_class o, pg_depend d, pg_class ref, pg_namespace n \
+                WHERE o.oid=d.objid AND d.refobjid=ref.oid AND ref.relnamespace=n.oid \
+                    AND deptype='a' AND ref.relkind='r' AND o.relkind='S' \
+                    AND n.nspname NOT IN ('pg_catalog', 'information_schema') \
+                ";
+    list< map<string, shared_ptr<Value> > > result = _execute(sql);
+
+    return result;
+}
+
 list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::getViewDependencies(){
     string sql="SELECT DISTINCT cl_d.relname as foreign_table_name, cl_r.relname as table_name, \
                     CASE cl_d.relkind \
@@ -490,15 +504,24 @@ shared_ptr<ClearOptions> PostgresSqlScriptRunner::extendPreservedTables(shared_p
     list< map<string, shared_ptr<Value> > > viewDependendedTables = getViewDependencies();
     set<string> views = clearOptions->preservedViews();
     for (set<string>::iterator it= views.begin() ; it != views.end(); it++ ){
-//        cout << "extend view dependencies "<< *it<<endl;
         extendViewDependencies(*it, viewDependendedTables, clearOptions);
     }
 
-    list< map<string, shared_ptr<Value> > > dependencies = getTableDependencies();
     set<string> tables = clearOptions->preservedTables();
+
+    list< map<string, shared_ptr<Value> > > dependencies = getTableDependencies();
     for (set<string>::iterator it= tables.begin() ; it != tables.end(); it++ ){
         deque<string> subs = getDependentTables(*it, dependencies);
         clearOptions->preservedTables(subs.begin(), subs.end());
+    }
+
+    list< map<string, shared_ptr<Value> > > sequenceDependencies = getSequenceDependencies();
+    tables = clearOptions->preservedTables();
+    for (list< map<string, shared_ptr<Value> > >::iterator it= sequenceDependencies.begin() ; it != sequenceDependencies.end(); it++ ){
+        int idx = tables.count((*it)["table_name"]->asString());
+        if(idx > 0){
+            clearOptions->preservedSequence((*it)["sequence_name"]->asString());
+        }
     }
 
     return clearOptions;
@@ -525,6 +548,7 @@ shared_ptr<ClearOptions> PostgresSqlScriptRunner::extendPreservedFunctions(share
 }
 
 list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::getDependentFunctions(string tableName){
+    //TODO: check this method, not implemented yet
     string sql="select c.relname, p.proname \
                 from pg_depend d, pg_class c, pg_proc p \
                 where d.objid=c.oid AND p.oid = d.refobjid \

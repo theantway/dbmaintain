@@ -56,6 +56,7 @@ public:
 protected:
 	list<string> sortTablesByDependency(list< map<string, shared_ptr<Value> > >& allTables, list< map<string, shared_ptr<Value> > >& dependencies);
 	list< map<string, shared_ptr<Value> > > getTableDependencies();
+	list< map<string, shared_ptr<Value> > > getSequenceDependencies();
 	list< map<string, shared_ptr<Value> > > getViewDependencies();
 	list< map<string, shared_ptr<Value> > > getDependentFunctions(string tableName);
 	deque<string> getDependentTables(string tableName, const list< map<string, shared_ptr<Value> > >& dependencies);

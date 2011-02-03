@@ -15,12 +15,15 @@ using namespace std;
 
 class ScriptRunner;
 class SqlScriptRunner;
+class FileConfig;
 
 class Config {
 public:
     Config();
     Config(const Config& orig);
     virtual ~Config();
+
+    void readFile(string configFile);
 
     shared_ptr<ExecutedScriptsTable> getExecutedScriptsTable();
 
@@ -51,6 +54,9 @@ private:
     map<string, string> m_extensionRunner;
     string m_scriptsLocation;
     string getDefaultDatabase() const;
+
+    void applyDatabases(FileConfig& fileConfig);
+    void applyScripts(FileConfig& fileConfig);
 };
 
 #endif	/* CORE_CONFIG_CONFIG_H */

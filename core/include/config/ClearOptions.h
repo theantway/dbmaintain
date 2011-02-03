@@ -18,13 +18,14 @@ public:
 
     shared_ptr<ClearOptions> clone() const;
 
-    const set<string> preservedSchemas() const;
-	const set<string> preservedTables() const;
-	const set<string> preservedViews() const;
-	const set<string> preservedFunctions() const;
-	const set<string> preservedMaterializedViews() const;
-	const set<string> preservedSynonyms() const;
-	const set<string> preservedSequences() const;
+    string describe() const;
+    const set<string>& preservedSchemas() const;
+	const set<string>& preservedTables() const;
+	const set<string>& preservedViews() const;
+	const set<string>& preservedFunctions() const;
+	const set<string>& preservedMaterializedViews() const;
+	const set<string>& preservedSynonyms() const;
+	const set<string>& preservedSequences() const;
 
 	void preservedSchemas(const set<string> schemas);
 	void preservedTables(const set<string> tables);
@@ -80,6 +81,8 @@ public:
 	bool isPreservedTable(string table);
 
 private:
+	const string describe(string name, const set<string>& options) const;
+
 	set<string> m_preservedSchemas;
 	set<string> m_preservedTables;
 	set<string> m_preservedViews;

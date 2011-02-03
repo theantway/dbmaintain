@@ -1,11 +1,38 @@
 #include "config/ClearOptions.h"
 
+#include <sstream>
+
 ClearOptions::ClearOptions(){
 
 }
 
 ClearOptions::~ClearOptions(){
 
+}
+
+const string ClearOptions::describe(string name, const set<string>& options) const{
+    ostringstream oss;
+    oss << "preserved " << name << ":" <<endl;
+    for (set<string>::iterator it= options.begin() ; it != options.end(); it++ ){
+        oss << "  " << (*it) << endl;
+    }
+
+    return oss.str();
+}
+
+string ClearOptions::describe() const{
+    ostringstream oss;
+
+    oss << describe("schemas", m_preservedSchemas)
+        << describe("tables", m_preservedTables)
+        << describe("views", m_preservedViews)
+        << describe("functions", m_preservedFunctions)
+        << describe("materialized views", m_preservedMaterializedViews)
+        << describe("synonyms", m_preservedSynonyms)
+        << describe("sequences", m_preservedSequences)
+    ;
+
+    return oss.str();
 }
 
 shared_ptr<ClearOptions> ClearOptions::clone() const{
@@ -22,28 +49,28 @@ shared_ptr<ClearOptions> ClearOptions::clone() const{
     return result;
 }
 
-const set<string> ClearOptions::preservedSchemas() const{
+const set<string>& ClearOptions::preservedSchemas() const{
     return m_preservedSchemas;
 }
 
-const set<string> ClearOptions::preservedTables() const{
+const set<string>& ClearOptions::preservedTables() const{
     return m_preservedTables;
 }
 
-const set<string> ClearOptions::preservedFunctions() const{
+const set<string>& ClearOptions::preservedFunctions() const{
     return m_preservedFunctions;
 }
 
-const set<string> ClearOptions::preservedViews() const{
+const set<string>& ClearOptions::preservedViews() const{
     return m_preservedViews;
 }
-const set<string> ClearOptions::preservedMaterializedViews() const{
+const set<string>& ClearOptions::preservedMaterializedViews() const{
     return m_preservedMaterializedViews;
 }
-const set<string> ClearOptions::preservedSynonyms() const{
+const set<string>& ClearOptions::preservedSynonyms() const{
     return m_preservedSynonyms;
 }
-const set<string> ClearOptions::preservedSequences() const{
+const set<string>& ClearOptions::preservedSequences() const{
     return m_preservedSequences;
 }
 

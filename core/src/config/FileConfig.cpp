@@ -13,6 +13,10 @@ FileConfig::FileConfig(const string fileName) {
     parse(fileName);
 }
 
+const map<string, string >& FileConfig::getSettings() const{
+    return m_settings;
+}
+
 void FileConfig::applyTo(Config& config) {
     applyDatabases(config);
     applyScripts(config);
@@ -72,10 +76,6 @@ Config& FileConfig::applyScripts(Config& config){
     return config;
 }
 
-string FileConfig::extendExecutable(string executable){
-    return executable;
-}
-
 bool FileConfig::hasDatabase(string dbName){
     vector<string> dbNames = StringUtil::split(get("databases", "names", "database"), ",");
     for(vector<string>::size_type i=0; i < dbNames.size(); i++){
@@ -124,6 +124,35 @@ void FileConfig::parse(const string& configFile) {
     file.close();
 }
 
+map<string, string > FileConfig::getScriptExtensions() const{
+    string extensionPrefix="scripts/extensions.";
+    map<string, string > result;
+
+    for (map<string, string>::const_iterator it= m_settings.begin() ; it != m_settings.end(); it++ ){
+        if(!StringUtil::startsWith((*it).first, extensionPrefix))
+            continue;
+
+        string extension = (*it).first.substr(extensionPrefix.size());
+        string runnerName = (*it).second;
+
+        result[extension] = runnerName;
+//
+//        cout << "add runner " << runnerName << " for " << extension <<endl;
+//        if(runnerName == ""){
+//            config.addScriptExtension(extension, "database");
+//        }else{
+//            config.addScriptExtension(extension, runnerName);
+//            string scriptRunnerExecutable = get(runnerName+"-runner", "executable", "");
+//
+//            if(!hasDatabase(runnerName) && !config.hasRunner(runnerName)){
+//                config.addRunner(runnerName, shared_ptr<ExecutableScriptRunner>(new ExecutableScriptRunner(scriptRunnerExecutable)));
+//            }
+//        }
+    }
+
+    return result;
+}
+
 const string& FileConfig::get(const string& section, const string& entry, const string& defaultValue) const {
     map<string, string>::const_iterator it = m_settings.find(section + '/' + entry);
 
@@ -133,6 +162,7 @@ const string& FileConfig::get(const string& section, const string& entry, const 
 
     return it->second;
 }
+
 //
 //shared_ptr<Value> const& FileConfig::get(string const& section, string const& entry) const {
 //    map<string, shared_ptr<Value> >::const_iterator it = m_settings.find(section + '/' + entry);

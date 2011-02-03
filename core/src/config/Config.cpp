@@ -1,7 +1,12 @@
 #include "config/Config.h"
 
+#include <vector>
+
+#include "config/FileConfig.h"
 #include "config/ConfigException.h"
 #include "runner/ScriptRunner.h"
+
+#include "StringUtil.h"
 
 Config::Config() {
 }
@@ -12,6 +17,73 @@ Config::Config(const Config& orig) {
 
 Config::~Config() {
 }
+
+void Config::readFile(string configFile){
+    FileConfig fileConfig(configFile);
+//    map<string, string> settings = fileConfig.getSettings();
+
+    applyDatabases(fileConfig);
+    applyScripts(fileConfig);
+
+}
+
+void Config::applyDatabases(FileConfig& fileConfig){
+    vector<string> dbNames = StringUtil::split(fileConfig.get("databases", "names", "database"), ",");
+    for (vector<string>::const_iterator it= dbNames.begin() ; it != dbNames.end(); it++ ){
+        string dbName = *it;
+
+        shared_ptr<Database> db(new Database());
+        db->setDialect(fileConfig.get(dbName, "dialect", ""));
+        db->setUrl(fileConfig.get(dbName, "url", ""));
+
+        cout << "add db type=" << db->getDialect() << " url=" << db->getUrl()<<endl;
+        string scriptsSettingName = fileConfig.get(dbName, "scripts_setting", "");
+        if(scriptsSettingName != ""){
+
+        }
+
+        string preservedObjects = fileConfig.get(dbName, "preserved_objects", "");
+        if(preservedObjects != ""){
+
+        }
+
+        addDatabase(dbName, db);
+    }
+}
+
+void Config::applyScripts(FileConfig& fileConfig){
+    setScriptsLocation(fileConfig.get("scripts", "location", ""));
+
+    map<string, string> scriptExtensions = fileConfig.getScriptExtensions();
+    for (map<string, string>::const_iterator it= scriptExtensions.begin() ; it != scriptExtensions.end(); it++ ){
+        string extension = (*it).first;
+        string runnerName = (*it).second;
+
+        cout << "add runner " << runnerName << " for " << extension <<endl;
+        if(runnerName == ""){
+            addScriptExtension(extension, "database");
+        }else{
+            addScriptExtension(extension, runnerName);
+//            string scriptRunnerExecutable = fileConfig.get(runnerName+"-runner", "executable", "");
+
+//            if(!hasDatabase(runnerName) && !hasRunner(runnerName)){
+//                addRunner(runnerName, shared_ptr<ExecutableScriptRunner>(new ExecutableScriptRunner(scriptRunnerExecutable)));
+//            }
+        }
+
+    }
+}
+//
+//bool Config::hasDatabase(string dbName){
+//    vector<string> dbNames = StringUtil::split(get("databases", "names", "database"), ",");
+//    for(vector<string>::size_type i=0; i < dbNames.size(); i++){
+//        if(dbNames[i] == dbName){
+//            return true;
+//        }
+//    }
+//
+//    return false;
+//}
 
 string Config::getScriptsLocation(){
     return m_scriptsLocation;
