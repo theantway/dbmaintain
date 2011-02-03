@@ -15,7 +15,7 @@ public:
     ChangeScriptRepository(list< shared_ptr<ChangeScript> > scripts);
     virtual ~ChangeScriptRepository();
 
-	void validateScripts(list< shared_ptr<ChangeScript> >);
+	void validateScripts();
 
 	list< shared_ptr<ChangeScript> > getScriptsToApply(int latestNo);
 

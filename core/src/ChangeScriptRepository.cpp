@@ -1,22 +1,23 @@
 #include "ChangeScriptRepository.h"
-#include "ScriptException.h"
-#include "ChangeScript.h"
 
 #include <iostream>
 #include <sstream>
+
+#include "ScriptException.h"
+#include "ChangeScript.h"
 
 ChangeScriptRepository::ChangeScriptRepository(list< shared_ptr<ChangeScript> > scripts) {
     this->scripts = scripts;
 
     this->scripts.sort(ChangeScript::compare);
 
-    validateScripts(this->scripts);
+    validateScripts();
 }
 
 ChangeScriptRepository::~ChangeScriptRepository() {
 }
 
-void ChangeScriptRepository::validateScripts(list< shared_ptr<ChangeScript> > scripts) {
+void ChangeScriptRepository::validateScripts() {
     int lastId = 0;
 
     for (list< shared_ptr<ChangeScript> >::iterator it=scripts.begin() ; it != scripts.end(); it++ ){

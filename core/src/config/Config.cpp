@@ -2,11 +2,11 @@
 
 #include <vector>
 
+#include "StringUtil.h"
 #include "config/FileConfig.h"
 #include "config/ConfigException.h"
 #include "runner/ScriptRunner.h"
-
-#include "StringUtil.h"
+#include "runner/ExecutableScriptRunner.h"
 
 Config::Config() {
 }
@@ -18,9 +18,8 @@ Config::Config(const Config& orig) {
 Config::~Config() {
 }
 
-void Config::readFile(string configFile){
+void Config::applyFromFile(string configFile){
     FileConfig fileConfig(configFile);
-//    map<string, string> settings = fileConfig.getSettings();
 
     applyDatabases(fileConfig);
     applyScripts(fileConfig);
@@ -64,26 +63,19 @@ void Config::applyScripts(FileConfig& fileConfig){
             addScriptExtension(extension, "database");
         }else{
             addScriptExtension(extension, runnerName);
-//            string scriptRunnerExecutable = fileConfig.get(runnerName+"-runner", "executable", "");
+            string scriptRunnerExecutable = fileConfig.get(runnerName + "-runner", "executable", "");
 
-//            if(!hasDatabase(runnerName) && !hasRunner(runnerName)){
-//                addRunner(runnerName, shared_ptr<ExecutableScriptRunner>(new ExecutableScriptRunner(scriptRunnerExecutable)));
-//            }
+            if(!hasDatabase(runnerName) && !hasRunner(runnerName)){
+                addRunner(runnerName, shared_ptr<ExecutableScriptRunner>(new ExecutableScriptRunner(scriptRunnerExecutable)));
+            }
         }
 
     }
 }
-//
-//bool Config::hasDatabase(string dbName){
-//    vector<string> dbNames = StringUtil::split(get("databases", "names", "database"), ",");
-//    for(vector<string>::size_type i=0; i < dbNames.size(); i++){
-//        if(dbNames[i] == dbName){
-//            return true;
-//        }
-//    }
-//
-//    return false;
-//}
+
+bool Config::hasDatabase(string dbName) const{
+    return m_databases.count(dbName) > 0;
+}
 
 string Config::getScriptsLocation(){
     return m_scriptsLocation;
@@ -167,7 +159,7 @@ void Config::addSqlScriptExtension(const string& extension, const string& runner
 
 }
 
-bool Config::hasRunner(string runnerName){
+bool Config::hasRunner(string runnerName) const{
     return m_runners.count(runnerName);
 }
 

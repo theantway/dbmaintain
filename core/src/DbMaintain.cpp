@@ -29,7 +29,7 @@ DbMaintain::~DbMaintain() {
 }
 
 void DbMaintain::setConfigFile(string configFile){
-    FileConfig(configFile).applyTo(m_config);
+    m_config.applyFromFile(configFile);
 }
 void DbMaintain::init(){
     ScriptRunner::init();

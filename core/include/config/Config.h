@@ -23,7 +23,7 @@ public:
     Config(const Config& orig);
     virtual ~Config();
 
-    void readFile(string configFile);
+    void applyFromFile(string configFile);
 
     shared_ptr<ExecutedScriptsTable> getExecutedScriptsTable();
 
@@ -43,7 +43,6 @@ public:
     void addRunner(string extension, shared_ptr<ScriptRunner> scriptRunner);
     void addScriptExtension(const string& extension, const string& runnerName);
 
-    bool hasRunner(string runnerName);
     void validate();
 private:
     shared_ptr<ExecutedScriptsTable> m_executedScriptsTable;
@@ -57,6 +56,9 @@ private:
 
     void applyDatabases(FileConfig& fileConfig);
     void applyScripts(FileConfig& fileConfig);
+
+    bool hasRunner(string runnerName) const;
+    bool hasDatabase(string dbName) const;
 };
 
 #endif	/* CORE_CONFIG_CONFIG_H */

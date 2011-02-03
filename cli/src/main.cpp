@@ -91,8 +91,6 @@ int main(int argc, char** argv){
 
     CSimpleOpt args(argc, argv, g_rgOptions);
 
-//    ScriptRunnerFactory::Register("postgres", &PostgresSqlScriptRunner::createInstance);
-
     DbMaintain deploy;
     while (args.Next()) {
         if (args.LastError() == SO_SUCCESS) {
@@ -120,7 +118,7 @@ int main(int argc, char** argv){
 //            cout << args.OptionId() << " " << args.OptionText() << " "
 //                 << (args.OptionArg() ? string(args.OptionArg()) : "") << endl;
         }else{
-            cout << "Invalid argument: %s\n" << args.OptionText()<<endl;
+            cout << "Invalid argument: " << args.OptionText()<<endl;
             return 1;
         }
     }
