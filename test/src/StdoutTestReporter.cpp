@@ -6,6 +6,8 @@
 #include <sstream>
 #include <string>
 
+#include "TestDetails.h"
+
 using std::string;
 using std::ostringstream;
 using std::ostream;
@@ -14,6 +16,18 @@ namespace UnitTest {
 
 StdoutTestReporter::StdoutTestReporter()
 {
+}
+
+void StdoutTestReporter::ReportTestStart(TestDetails const& test){
+    cout << test.testName << "...";
+}
+
+void StdoutTestReporter::ReportFailure(TestDetails const& test, char const* failure){
+    cout << "Failed" <<endl;
+}
+
+void StdoutTestReporter::ReportTestFinish(TestDetails const& test, float secondsElapsed){
+    cout << "OK" <<endl;
 }
 
 void StdoutTestReporter::ReportSummary(int totalTestCount, int failedTestCount,

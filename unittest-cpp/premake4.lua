@@ -8,6 +8,10 @@ project "unittest"
             "UnitTest++/src/tests/*.cpp"
          }
 
+  excludes{
+	  "UnitTest++/src/tests/Main.cpp"
+  }
+
   configuration { "Debug*" }
     defines { "_DEBUG", "DEBUG" }
 
