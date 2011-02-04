@@ -9,6 +9,7 @@
 #include "Value.h"
 #include "config/ClearOptions.h"
 #include "config/Database.h"
+#include "config/ExecutedScripts.h"
 
 using namespace std;
 using namespace boost;
@@ -54,17 +55,18 @@ SUITE(PostgresSqlScriptRunnerTest){
 
     TEST_FIXTURE (PostgresSqlScriptRunnerTest, should_ensure_script_table_exists)
     {
+        ExecutedScripts executedScripts;
         map<string, string> fieldsMap;
-        runner->execute("DROP TABLE IF EXISTS dbscripts");
-        runner->ensureScriptsTableExists("dbscripts", fieldsMap);
-        ASSERT_EQUAL(runner->scalar("SELECT relname FROM pg_class WHERE relname = 'dbscripts'")->asString(), "dbscripts");
+        runner->execute("DROP TABLE IF EXISTS " + executedScripts.getTableName());
+        runner->ensureScriptsTableExists(executedScripts);
+        ASSERT_EQUAL(runner->scalar("SELECT relname FROM pg_class WHERE relname = 'dbmaintain_scripts'")->asString(), executedScripts.getTableName());
 
-        runner->execute("INSERT INTO dbscripts(file_name) values('test')");
-        ASSERT_EQUAL(runner->scalar("SELECT id FROM dbscripts LIMIT 1")->asInt(), 1);
+        runner->execute("INSERT INTO dbmaintain_scripts(file_name) values('test')");
+        ASSERT_EQUAL(runner->scalar("SELECT id FROM dbmaintain_scripts LIMIT 1")->asInt(), 1);
 
-        runner->ensureScriptsTableExists("dbscripts", fieldsMap);
-        ASSERT_EQUAL(runner->scalar("SELECT relname FROM pg_class WHERE relname = 'dbscripts'")->asString(), "dbscripts");
-        ASSERT_EQUAL(runner->scalar("SELECT id FROM dbscripts LIMIT 1")->asInt(), 1);
+        runner->ensureScriptsTableExists(executedScripts);
+        ASSERT_EQUAL(runner->scalar("SELECT relname FROM pg_class WHERE relname = 'dbmaintain_scripts'")->asString(), executedScripts.getTableName());
+        ASSERT_EQUAL(runner->scalar("SELECT id FROM dbmaintain_scripts LIMIT 1")->asInt(), 1);
     }
 
     TEST_FIXTURE (PostgresSqlScriptRunnerTest, clean_tables_should_ignore_preserved_tables)

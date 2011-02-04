@@ -7,8 +7,7 @@ using namespace std;
 
 class DbException : public BaseException {
 public:
-	DbException(string message): BaseException(message){};
-	virtual ~DbException(){};
+	DbException(string message) throw(): BaseException(message){};
 };
 
 #endif /* DBEXCEPTION_H_ */

@@ -17,6 +17,7 @@ using namespace std;
 
 class Value;
 class ClearOptions;
+class ExecutedScripts;
 
 class PostgresSqlScriptRunner: public SqlScriptRunner {
 public:
@@ -30,7 +31,7 @@ public:
 	virtual map<string, shared_ptr<Value> > get(string script);
 	virtual shared_ptr<Value> scalar(string script);
 	virtual void setConnectionString(string connectionString);
-	virtual void ensureScriptsTableExists(string tableName, const map<string, string>& fieldsMap);
+	virtual void ensureScriptsTableExists(ExecutedScripts& scripts);
 	virtual map<string, shared_ptr<Value> > getLatestVersion(string tableName);
 
 	virtual void beginRunScript(string tableName, const map<string, string>& fieldsMap, shared_ptr<ChangeScript> script);

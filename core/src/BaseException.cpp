@@ -1,11 +1,11 @@
 #include "BaseException.h"
 
-BaseException::BaseException(string message):m_message(message){
+BaseException::BaseException(string message) throw():m_message(message){
 }
 
-BaseException::~BaseException(){
+BaseException::~BaseException() throw(){
 }
 
-string BaseException::getMessage(){
-    return m_message;
+const char* BaseException::what() const throw(){
+    return m_message.c_str();
 }

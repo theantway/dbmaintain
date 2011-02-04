@@ -6,7 +6,7 @@
 #include "ScriptException.h"
 #include "ChangeScript.h"
 
-ChangeScriptRepository::ChangeScriptRepository(list< shared_ptr<ChangeScript> > scripts) {
+ChangeScriptRepository::ChangeScriptRepository(list< shared_ptr<ChangeScript> > scripts) throw (ScriptException){
     this->scripts = scripts;
 
     this->scripts.sort(ChangeScript::compare);
@@ -17,7 +17,7 @@ ChangeScriptRepository::ChangeScriptRepository(list< shared_ptr<ChangeScript> > 
 ChangeScriptRepository::~ChangeScriptRepository() {
 }
 
-void ChangeScriptRepository::validateScripts() {
+void ChangeScriptRepository::validateScripts() throw (ScriptException){
     int lastId = 0;
 
     for (list< shared_ptr<ChangeScript> >::iterator it=scripts.begin() ; it != scripts.end(); it++ ){
@@ -30,7 +30,7 @@ void ChangeScriptRepository::validateScripts() {
 
         if (script->getId() != lastId + 1) {
             ostringstream oss;
-            oss << "Script with number " << (lastId + 1) << " not found, but found " << script->getId();
+            oss << "Script with number " << (lastId + 1) << " not found, but found " << script->getFilename();
             throw ScriptException(oss.str());
         }
 

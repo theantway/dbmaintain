@@ -30,7 +30,7 @@ public:
     }
     virtual void setConnectionString(string connectionString){
     }
-    virtual void ensureScriptsTableExists(string tableName, const map<string, string>& fieldsMap){}
+    virtual void ensureScriptsTableExists(ExecutedScripts& executedScripts){}
     virtual map<string, shared_ptr<Value> > getLatestVersion(string tableName){
         return map<string, shared_ptr<Value> >();
     }

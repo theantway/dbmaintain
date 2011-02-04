@@ -8,8 +8,7 @@ using namespace std;
 
 class ScriptException : public BaseException {
 public:
-	ScriptException(string message) : BaseException(message){};
-	virtual ~ScriptException(){};
+	ScriptException(string message) throw(): BaseException(message){};
 };
 
 #endif /* SCRIPTEXCEPTION_H_ */

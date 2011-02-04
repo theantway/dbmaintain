@@ -5,6 +5,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include "ScriptException.h"
+
 using namespace boost;
 using namespace std;
 
@@ -12,10 +14,10 @@ class ChangeScript;
 
 class ChangeScriptRepository {
 public:
-    ChangeScriptRepository(list< shared_ptr<ChangeScript> > scripts);
+    ChangeScriptRepository(list< shared_ptr<ChangeScript> > scripts) throw (ScriptException);
     virtual ~ChangeScriptRepository();
 
-	void validateScripts();
+	void validateScripts() throw (ScriptException);
 
 	list< shared_ptr<ChangeScript> > getScriptsToApply(int latestNo);
 

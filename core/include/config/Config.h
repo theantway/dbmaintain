@@ -8,7 +8,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "config/Database.h"
-#include "config/ExecutedScriptsTable.h"
+#include "config/ExecutedScripts.h"
 
 using namespace boost;
 using namespace std;
@@ -25,7 +25,7 @@ public:
 
     void applyFromFile(string configFile);
 
-    shared_ptr<ExecutedScriptsTable> getExecutedScriptsTable();
+    ExecutedScripts& getExecutedScriptsSettings();
 
     void addDatabase(const string name, shared_ptr<Database> db);
     map<string, shared_ptr<Database> > getDatabases() const;
@@ -45,13 +45,13 @@ public:
 
     void validate();
 private:
-    shared_ptr<ExecutedScriptsTable> m_executedScriptsTable;
     map<string, shared_ptr<ScriptRunner> > m_runners;
     map<string, shared_ptr<SqlScriptRunner> > m_sqlRunners;
     map<string, shared_ptr<Database> > m_databases;
 
     map<string, string> m_extensionRunner;
     string m_scriptsLocation;
+    ExecutedScripts m_executedScriptsSettings;
     string getDefaultDatabase() const;
 
     void applyDatabases(FileConfig& fileConfig);

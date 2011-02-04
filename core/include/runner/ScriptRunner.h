@@ -9,6 +9,8 @@
 
 #include <boost/shared_ptr.hpp>
 
+//#include "config/ExecutedScripts.h"
+
 using namespace boost;
 using namespace std;
 
@@ -17,6 +19,7 @@ class Value;
 class ClearOptions;
 class Database;
 class SqlScriptRunner;
+class ExecutedScripts;
 
 typedef SqlScriptRunner *(*FactoryFunction)();
 
@@ -73,7 +76,7 @@ public:
     virtual map<string, shared_ptr<Value> > get(string script) = 0;
     virtual shared_ptr<Value> scalar(string script) = 0;
     virtual void setConnectionString(string connectionString) = 0;
-    virtual void ensureScriptsTableExists(string tableName, const map<string, string>& fieldsMap) = 0;
+    virtual void ensureScriptsTableExists(ExecutedScripts& scripts) = 0;
     virtual map<string, shared_ptr<Value> > getLatestVersion(string tableName) = 0;
 };
 

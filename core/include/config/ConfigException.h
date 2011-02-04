@@ -8,8 +8,7 @@ using namespace std;
 
 class ConfigException : public BaseException{
 public:
-	ConfigException(string message): BaseException(message){};
-	virtual ~ConfigException(){};
+	ConfigException(string message) throw(): BaseException(message){};
 };
 
 #endif /* CORE_CONFIG_CONFIGEXCEPTION_H_ */

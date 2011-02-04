@@ -18,6 +18,10 @@ Config::Config(const Config& orig) {
 Config::~Config() {
 }
 
+ExecutedScripts& Config::getExecutedScriptsSettings(){
+    return m_executedScriptsSettings;
+}
+
 void Config::applyFromFile(string configFile){
     FileConfig fileConfig(configFile);
 
@@ -115,8 +119,9 @@ string Config::getDefaultDatabase() const{
         return (*(m_databases.begin())).first;
     }
 
-    if(m_executedScriptsTable){
-        return m_executedScriptsTable->getDatabase();
+    const string executedScriptsDatabase = m_executedScriptsSettings.getDatabaseName();
+    if(m_databases.count(executedScriptsDatabase) > 0){
+        return executedScriptsDatabase;
     }
 
     throw ConfigException("multiple databases defined, but database for executedScriptsTable is not defined");

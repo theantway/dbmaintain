@@ -49,7 +49,9 @@ SUITE(ChangeScriptRepositoryTest){
             ChangeScriptRepository repository(scripts);
             FAIL("should throw exception when 02 script not found");
         }catch(ScriptException& e){
-            ASSERT_EQUAL(e.getMessage(), "Script with number 2 not found, but found 3");
+            ASSERT_EQUAL(e.what(), "Script with number 2 not found, but found 03_some_change.sql");
+        }catch(...){
+            cout << "catch other exception" <<endl;
         }
     }
 
@@ -64,7 +66,7 @@ SUITE(ChangeScriptRepositoryTest){
             ChangeScriptRepository repository(scripts);
             FAIL("should throw exception when 02 script not found");
         }catch(ScriptException& e){
-            ASSERT_EQUAL(e.getMessage(), "There is more than one change script with number 2");
+            ASSERT_EQUAL(e.what(), "There is more than one change script with number 2");
         }
     }
 }

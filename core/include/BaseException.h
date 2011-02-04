@@ -2,14 +2,15 @@
 #define BASEEXCEPTION_H_
 
 #include <string>
+#include <exception>
 using namespace std;
 
-class BaseException {
+class BaseException : public std::exception {
 public:
-	BaseException(string message);
-	virtual ~BaseException();
+	BaseException(string message) throw();
+	virtual ~BaseException() throw();
 
-	string getMessage();
+	virtual const char* what() const throw();
 private:
 	string m_message;
 };

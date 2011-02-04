@@ -11,6 +11,7 @@
 #include "ChangeScript.h"
 #include "config/ClearOptions.h"
 #include "config/Database.h"
+#include "config/ExecutedScripts.h"
 
 using namespace boost;
 using namespace std;
@@ -141,15 +142,15 @@ shared_ptr<Value> PostgresSqlScriptRunner::scalar(string script){
     return shared_ptr<Value>();
 }
 
-void PostgresSqlScriptRunner::ensureScriptsTableExists(string tableName, const map<string, string>& fieldsMap){
+void PostgresSqlScriptRunner::ensureScriptsTableExists(ExecutedScripts& scripts){
     ostringstream stream;
-    stream << "SELECT relname FROM pg_class WHERE relname = '" << tableName<<"'";
+    stream << "SELECT relname FROM pg_class WHERE relname = '" << scripts.getTableName() <<"'";
 
     list< map<string, shared_ptr<Value> > > results = _execute(stream.str());
     if(results.size() == size_t(0)){
         cout << "script table not exist, trying to create a new table"<<endl;
         ostringstream stream;
-        stream << "CREATE TABLE " << tableName <<
+        stream << "CREATE TABLE " << scripts.getTableName() <<
         "(\
           id BIGSERIAL PRIMARY KEY,\
           script_no             integer, \

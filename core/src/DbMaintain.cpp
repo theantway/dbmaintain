@@ -59,7 +59,7 @@ void DbMaintain::update(){
 //    cout << getWelcomeString() <<endl;
     string tableName = "script_table";
     map<string, string> fieldsMap;
-    runner->ensureScriptsTableExists(tableName, fieldsMap);
+    runner->ensureScriptsTableExists(m_config.getExecutedScriptsSettings());
     int latestNo = getLatestVersion(*runner.get(), tableName);
 
     ChangeScriptRepository changeScriptRepository(DirectoryScanner().getChangeScriptsForDirectory(m_config.getScriptsLocation()));

@@ -7,7 +7,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "config/ClearOptions.h"
-#include "config/ExecutedScriptsTable.h"
+#include "config/ExecutedScripts.h"
 
 
 using namespace boost;
@@ -27,12 +27,9 @@ public:
     void setUrl(string url);
     void setClearOptions(shared_ptr<ClearOptions> options);
     void setCleanOptions(shared_ptr<ClearOptions> options);
-    void setExecutedScriptsTable(shared_ptr<ExecutedScriptsTable> table);
-    shared_ptr<ExecutedScriptsTable> getExecutedScriptsTable();
 private:
     string m_dialect;
     string m_url;
-    shared_ptr<ExecutedScriptsTable> m_table;
     shared_ptr<ClearOptions> m_clearOptions;
     shared_ptr<ClearOptions> m_cleanOptions;
 };
