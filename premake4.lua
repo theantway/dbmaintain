@@ -2,14 +2,18 @@ solution "dbmaintain++"
   configurations { "debug", "release" }
   includedirs { "lib/boost" }
   
-  output_path = "ide/" .. _ACTION .. "/"
+  output_path = "ide/"
+  if _ACTION ~= nil then 
+  	output_path = "ide/" .. _ACTION .. "/"
+  end
+  
   location (output_path)
 
   links { "stdc++"}
   configuration { "debug" }
     targetdir (output_path .. "bin/debug")
     flags {"Symbols"}
-    buildoptions { "-g -fno-inline -Wall -O0 -D_UNICODE -DUNICODE -D_LIB" }
+    buildoptions { "-fno-inline -Wall -O0 -D_UNICODE -DUNICODE -D_LIB" }
  
   configuration { "release" }
     targetdir (output_path .. "bin/release")
