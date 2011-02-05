@@ -19,7 +19,7 @@ SUITE(ExecutedScriptsTest){
     {
         ExecutedScripts settings;
         settings.setDatabaseName("new-db-name");
-        ASSERT_EQUAL(settings.getDatabaseName(), "new-db-name1");
+        ASSERT_EQUAL(settings.getDatabaseName(), "new-db-name");
 
         settings.setDatabaseName("");
         ASSERT_EQUAL(settings.getDatabaseName(), "new-db-name");

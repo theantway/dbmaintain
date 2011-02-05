@@ -7,6 +7,8 @@
 #include <string>
 #include <vector>
 
+#include "TestFailureDetails.h"
+
 using namespace std;
 
 namespace UnitTest
@@ -28,7 +30,7 @@ private:
     void AddFailure(std::ostream& os, DeferredTestResult const& result);
     void EndTest(std::ostream& os, DeferredTestResult const& result);
 
-    vector<TestDetails> m_failedTests;
+    vector<TestFailureDetails> m_failedTests;
 };
 
 }

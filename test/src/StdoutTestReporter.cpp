@@ -23,22 +23,30 @@ void StdoutTestReporter::ReportTestStart(TestDetails const& test){
 }
 
 void StdoutTestReporter::ReportFailure(TestDetails const& test, char const* failure){
-//    TestDetails failedTest(test);
-//    m_failedTests.push_back(failedTest);
-    cout << endl << "  Failed: " << failure <<endl;
+    TestFailureDetails failureDetails(test, failure);
+    m_failedTests.push_back(failureDetails);
 }
 
 void StdoutTestReporter::ReportTestFinish(TestDetails const& test, float secondsElapsed){
-//    TestDetails& lastFailed = m_failedTests.back();
-//    if(lastFailed.suiteName == test.suiteName &&
-//            lastFailed.testName == test.testName &&
-//            lastFailed.filename == test.filename &&
-//            lastFailed.lineNumber == test.lineNumber
-//            ){
-//        cout << "Failed"<<endl;
-//    }
+    bool result=true;
 
-    cout << "OK" <<endl;
+    string lastFailureMessage;
+    if(m_failedTests.size() > 0){
+        TestFailureDetails& lastFailed = m_failedTests.back();
+        if(lastFailed.suiteName == test.suiteName &&
+                lastFailed.testName == test.testName &&
+                lastFailed.filename == test.filename
+                ){
+            result = false;
+            lastFailureMessage = lastFailed.failure;
+        }
+    }
+
+    if(result){
+        cout << "OK" <<endl;
+    }else{
+        cout << endl << "  Failed: " << lastFailureMessage <<endl;
+    }
 }
 
 void StdoutTestReporter::ReportSummary(int totalTestCount, int failedTestCount,
@@ -57,6 +65,12 @@ void StdoutTestReporter::ReportSummary(int totalTestCount, int failedTestCount,
     if (failureCount > 0){
         cout << " " << endl;
         cout << "FAILURE: "<< failedTestCount << " out of " << totalTestCount << " tests failed ("<< failureCount << " failures)." <<endl;
+
+        for(vector<TestFailureDetails>::const_iterator it = m_failedTests.begin(); it != m_failedTests.end(); ++it){
+            const TestFailureDetails& detail = *it;
+            cout << "  " << detail.filename << "(" << detail.lineNumber << ") "
+                    << detail.suiteName << "::" << detail.testName  << ": " << detail.failure<<endl;
+        }
     }else{
         cout << "Success: " << totalTestCount << " tests passed." <<endl;
     }
