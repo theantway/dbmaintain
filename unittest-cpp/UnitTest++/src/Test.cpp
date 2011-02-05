@@ -18,7 +18,7 @@ TestList& Test::GetTestList()
     return s_list;
 }
 
-Test::Test(char const* testName, char const* suiteName, char const* filename, int lineNumber)
+Test::Test(const string testName, const string suiteName, const string filename, int lineNumber)
     : m_details(testName, suiteName, filename, lineNumber)
     , next(0)
     , m_timeConstraintExempt(false)

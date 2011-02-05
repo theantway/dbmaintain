@@ -5,7 +5,6 @@ project "unittest"
             "UnitTest++/src/*.h",
             "UnitTest++/src/Posix/*.h",
             "UnitTest++/src/Posix/*.cpp",
-            "UnitTest++/src/tests/*.cpp"
          }
 
   excludes{
@@ -17,3 +16,6 @@ project "unittest"
 
   configuration { "Release*" }
     defines { "NDEBUG" }
+
+
+include "UnitTest++/src/tests"

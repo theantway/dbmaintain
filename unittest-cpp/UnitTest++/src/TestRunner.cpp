@@ -6,7 +6,8 @@
 #include "MemoryOutStream.h"
 
 #include <cstring>
-
+#include <iostream>
+using namespace std;
 
 namespace UnitTest {
 
@@ -46,7 +47,8 @@ int TestRunner::Finish() const
 bool TestRunner::IsTestInSuite(const Test* const curTest, char const* suiteName) const
 {
     using namespace std;
-    return (suiteName == NULL) || !strcmp(curTest->m_details.suiteName, suiteName);
+
+    return (suiteName == NULL) || !curTest->m_details.suiteName.compare(suiteName);
 }
 
 void TestRunner::RunTest(TestResults* const result, Test* const curTest, int const maxTestTimeInMs) const

@@ -45,9 +45,9 @@ TEST(TimeConstraintFailureIncludesCorrectData)
 
     using namespace std;
 
-    CHECK(strstr(reporter.lastFailedFile, "filename"));
+    CHECK(reporter.lastFailedFile.find("filename") != reporter.lastFailedFile.npos);
     CHECK_EQUAL(10, reporter.lastFailedLine);
-    CHECK(strstr(reporter.lastFailedTest, "testname"));
+    CHECK(reporter.lastFailedTest.find("testname") != reporter.lastFailedTest.npos);
 }
 
 TEST(TimeConstraintFailureIncludesTimeoutInformation)
@@ -62,8 +62,8 @@ TEST(TimeConstraintFailureIncludesTimeoutInformation)
 
     using namespace std;
 
-    CHECK(strstr(reporter.lastFailedMessage, "ime constraint"));
-    CHECK(strstr(reporter.lastFailedMessage, "under 10ms"));
+    CHECK(reporter.lastFailedMessage.find("ime constraint") != reporter.lastFailedMessage.npos);
+    CHECK(reporter.lastFailedMessage.find("under 10ms") != reporter.lastFailedMessage.npos);
 }
 
 }

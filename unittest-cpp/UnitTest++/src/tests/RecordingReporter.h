@@ -14,23 +14,24 @@ private:
 public:
     RecordingReporter()
         : testRunCount(0)
+        , lastStartedSuite("")
+        , lastStartedTest("")
         , testFailedCount(0)
+        , lastFailedFile("")
         , lastFailedLine(0)
+        , lastFailedSuite("")
+        , lastFailedTest("")
+        , lastFailedMessage("")
         , testFinishedCount(0)
+        , lastFinishedSuite("")
+        , lastFinishedTest("")
         , lastFinishedTestTime(0)
         , summaryTotalTestCount(0)
         , summaryFailedTestCount(0)
         , summaryFailureCount(0)
         , summarySecondsElapsed(0)
+
     {
-        lastStartedSuite[0] = '\0';
-        lastStartedTest[0] = '\0';
-        lastFailedFile[0] = '\0';
-        lastFailedSuite[0] = '\0';
-        lastFailedTest[0] = '\0';
-        lastFailedMessage[0] = '\0';
-        lastFinishedSuite[0] = '\0';
-        lastFinishedTest[0] = '\0';
     }
 
     virtual void ReportTestStart(UnitTest::TestDetails const& test)
@@ -38,8 +39,8 @@ public:
 		using namespace std;
 
         ++testRunCount;
-        strcpy(lastStartedSuite, test.suiteName);
-        strcpy(lastStartedTest, test.testName);
+        lastStartedSuite = test.suiteName;
+        lastStartedTest = test.testName;
     }
 
     virtual void ReportFailure(UnitTest::TestDetails const& test, char const* failure)
@@ -47,11 +48,11 @@ public:
 		using namespace std;
 
 		++testFailedCount;
-        strcpy(lastFailedFile, test.filename);
+        lastFailedFile = test.filename;
         lastFailedLine = test.lineNumber;
-        strcpy(lastFailedSuite, test.suiteName);
-        strcpy(lastFailedTest, test.testName);
-        strcpy(lastFailedMessage, failure);
+        lastFailedSuite = test.suiteName;
+        lastFailedTest = test.testName;
+        lastFailedMessage = failure;
     }
 
     virtual void ReportTestFinish(UnitTest::TestDetails const& test, float testDuration)
@@ -59,8 +60,8 @@ public:
 		using namespace std;
 
 		++testFinishedCount;
-        strcpy(lastFinishedSuite, test.suiteName);
-        strcpy(lastFinishedTest, test.testName);
+        lastFinishedSuite = test.suiteName;
+        lastFinishedTest = test.testName;
         lastFinishedTestTime = testDuration;
     }
 
@@ -73,19 +74,19 @@ public:
     }
 
     int testRunCount;
-    char lastStartedSuite[kMaxStringLength];
-    char lastStartedTest[kMaxStringLength];
+    string lastStartedSuite;
+    string lastStartedTest;
 
     int testFailedCount;
-    char lastFailedFile[kMaxStringLength];
+    string lastFailedFile;
     int lastFailedLine;
-    char lastFailedSuite[kMaxStringLength];
-    char lastFailedTest[kMaxStringLength];
-    char lastFailedMessage[kMaxStringLength];
+    string lastFailedSuite;
+    string lastFailedTest;
+    string lastFailedMessage;
 
     int testFinishedCount;
-    char lastFinishedSuite[kMaxStringLength];
-    char lastFinishedTest[kMaxStringLength];
+    string lastFinishedSuite;
+    string lastFinishedTest;
     float lastFinishedTestTime;
 
     int summaryTotalTestCount;

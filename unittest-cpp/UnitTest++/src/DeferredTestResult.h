@@ -5,6 +5,7 @@
 
 #include <string>
 #include <vector>
+using namespace std;
 
 namespace UnitTest
 {
@@ -12,7 +13,7 @@ namespace UnitTest
 struct DeferredTestResult
 {
     DeferredTestResult();
-    DeferredTestResult(char const* suite, char const* test);
+    DeferredTestResult(const string suite, const string test);
     virtual ~DeferredTestResult();
     
     std::string suiteName;

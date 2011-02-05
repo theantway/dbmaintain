@@ -13,7 +13,7 @@ DeferredTestResult::DeferredTestResult()
 {
 }
 
-DeferredTestResult::DeferredTestResult(char const* suite, char const* test)
+DeferredTestResult::DeferredTestResult(const string suite, const string test)
     : suiteName(suite)
     , testName(test)
     , failureFile("")

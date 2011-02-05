@@ -2,7 +2,7 @@
 #include "../CurrentTest.h"
 #include "RecordingReporter.h"
 #include "ScopedCurrentTest.h"
-
+#include <iostream>
 using namespace std;
 
 namespace {
@@ -59,7 +59,7 @@ TEST(CheckFailureIncludesCheckContents)
         CHECK(yaddayadda);
     }
 
-    CHECK(strstr(reporter.lastFailedMessage, "yaddayadda"));
+    CHECK(reporter.lastFailedMessage.find("yaddayadda") != reporter.lastFailedMessage.npos);
 }
 
 int ThrowingFunction()
@@ -90,7 +90,7 @@ TEST(CheckFailureBecauseOfExceptionIncludesCheckContents)
         CHECK(ThrowingFunction() == 1);
     }
 
-    CHECK(strstr(reporter.lastFailedMessage, "ThrowingFunction() == 1"));
+    CHECK(reporter.lastFailedMessage.find("ThrowingFunction() == 1"));
 }
 
 TEST(CheckEqualSucceedsOnEqual)
@@ -180,8 +180,8 @@ TEST(CheckEqualFailureBecauseOfExceptionIncludesCheckContents)
         CHECK_EQUAL(ThrowingFunction(), 123);
     }
 
-    CHECK(strstr(reporter.lastFailedMessage, "ThrowingFunction()"));
-    CHECK(strstr(reporter.lastFailedMessage, "123"));
+    CHECK(reporter.lastFailedMessage.find("ThrowingFunction()"));
+    CHECK(reporter.lastFailedMessage.find("123"));
 }
 
 int g_sideEffect = 0;
@@ -300,8 +300,8 @@ TEST(CheckCloseFailureBecauseOfExceptionIncludesCheckContents)
         CHECK_CLOSE ((float)ThrowingFunction(), 1.0001f, 0.1f);
     }
 
-    CHECK(strstr(reporter.lastFailedMessage, "(float)ThrowingFunction()"));
-    CHECK(strstr(reporter.lastFailedMessage, "1.0001f"));
+    CHECK(reporter.lastFailedMessage.find("(float)ThrowingFunction()"));
+    CHECK(reporter.lastFailedMessage.find("1.0001f"));
 }
 
 TEST(CheckCloseDoesNotHaveSideEffectsWhenPassing)
@@ -382,8 +382,8 @@ TEST(CheckArrayCloseFailureIncludesCheckExpectedAndActual)
         CHECK_ARRAY_CLOSE (data1, data2, 4, 0.01f);
     }
 
-    CHECK(strstr(reporter.lastFailedMessage, "xpected [ 0 1 2 3 ]"));
-    CHECK(strstr(reporter.lastFailedMessage, "was [ 0 1 3 3 ]"));
+    CHECK(reporter.lastFailedMessage.find("xpected [ 0 1 2 3 ]"));
+    CHECK(reporter.lastFailedMessage.find("was [ 0 1 3 3 ]"));
 }
 
 TEST(CheckArrayCloseFailureContainsCorrectDetails)
@@ -437,7 +437,7 @@ TEST(CheckArrayCloseFailureIncludesTolerance)
         CHECK_ARRAY_CLOSE (data1, data2, 4, 0.01f);
     }
 
-    CHECK(strstr(reporter.lastFailedMessage, "0.01"));
+    CHECK(reporter.lastFailedMessage.find("0.01"));
 }
 
 
@@ -471,8 +471,8 @@ TEST(CheckArrayCloseFailureOnExceptionIncludesCheckContents)
         CHECK_ARRAY_CLOSE (data, obj, 3, 0.01f);
     }
 
-    CHECK(strstr(reporter.lastFailedMessage, "data"));
-    CHECK(strstr(reporter.lastFailedMessage, "obj"));
+    CHECK(reporter.lastFailedMessage.find("data"));
+    CHECK(reporter.lastFailedMessage.find("obj"));
 }
 
 
@@ -523,8 +523,8 @@ TEST(CheckArrayEqualFailureIncludesCheckExpectedAndActual)
         CHECK_ARRAY_EQUAL (data1, data2, 4);
     }
 
-    CHECK(strstr(reporter.lastFailedMessage, "xpected [ 0 1 2 3 ]"));
-    CHECK(strstr(reporter.lastFailedMessage, "was [ 0 1 3 3 ]"));
+    CHECK(reporter.lastFailedMessage.find("xpected [ 0 1 2 3 ]"));
+    CHECK(reporter.lastFailedMessage.find("was [ 0 1 3 3 ]"));
 }
 
 TEST(CheckArrayEqualFailureContainsCorrectInfo)
@@ -575,8 +575,8 @@ TEST(CheckArrayEqualFailureOnExceptionIncludesCheckContents)
         CHECK_ARRAY_EQUAL (data, obj, 3);
     }
 
-    CHECK(strstr(reporter.lastFailedMessage, "data"));
-    CHECK(strstr(reporter.lastFailedMessage, "obj"));
+    CHECK(reporter.lastFailedMessage.find("data"));
+    CHECK(reporter.lastFailedMessage.find("obj"));
 }
 
 float const* FunctionWithSideEffects2()
@@ -671,8 +671,8 @@ TEST(CheckArray2DCloseFailureIncludesCheckExpectedAndActual)
         CHECK_ARRAY2D_CLOSE (data1, data2, 2, 2, 0.01f);
     }
 
-    CHECK(strstr(reporter.lastFailedMessage, "xpected [ [ 0 1 ] [ 2 3 ] ]"));
-    CHECK(strstr(reporter.lastFailedMessage, "was [ [ 0 1 ] [ 3 3 ] ]"));
+    CHECK(reporter.lastFailedMessage.find("xpected [ [ 0 1 ] [ 2 3 ] ]"));
+    CHECK(reporter.lastFailedMessage.find("was [ [ 0 1 ] [ 3 3 ] ]"));
 }
 
 TEST(CheckArray2DCloseFailureContainsCorrectDetails)
@@ -726,7 +726,7 @@ TEST(CheckArray2DCloseFailureIncludesTolerance)
         CHECK_ARRAY2D_CLOSE (data1, data2, 2, 2, 0.01f);
     }
 
-    CHECK(strstr(reporter.lastFailedMessage, "0.01"));
+    CHECK(reporter.lastFailedMessage.find("0.01"));
 }
 
 TEST(CheckArray2DCloseFailsOnException)
@@ -759,8 +759,8 @@ TEST(CheckArray2DCloseFailureOnExceptionIncludesCheckContents)
         CHECK_ARRAY2D_CLOSE (data, obj, 2, 2, 0.01f);
     }
 
-    CHECK(strstr(reporter.lastFailedMessage, "data"));
-    CHECK(strstr(reporter.lastFailedMessage, "obj"));
+    CHECK(reporter.lastFailedMessage.find("data"));
+    CHECK(reporter.lastFailedMessage.find("obj"));
 }
 
 float const* const* FunctionWithSideEffects3()

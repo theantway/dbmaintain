@@ -78,8 +78,8 @@ TEST(CheckEqualFailureIncludesCheckExpectedAndActual)
     CheckEqual(results, 1, something, TestDetails("", "", "", 0));
 
     using namespace std;
-    CHECK(strstr(reporter.lastFailedMessage, "xpected 1"));
-    CHECK(strstr(reporter.lastFailedMessage, "was 2"));
+    CHECK(reporter.lastFailedMessage.find("xpected 1"));
+    CHECK(reporter.lastFailedMessage.find("was 2"));
 }
 
 TEST(CheckEqualFailureIncludesDetails)
@@ -152,8 +152,8 @@ TEST(CheckCloseFailureIncludesCheckExpectedAndActual)
     CheckClose(results, expected, actual, 0.01f, TestDetails("", "", "", 0));
 
     using namespace std;
-    CHECK(strstr(reporter.lastFailedMessage, "xpected 0.9"));
-    CHECK(strstr(reporter.lastFailedMessage, "was 1.1"));
+    CHECK(reporter.lastFailedMessage.find("xpected 0.9"));
+    CHECK(reporter.lastFailedMessage.find("was 1.1"));
 }
 
 TEST(CheckCloseFailureIncludesTolerance)
@@ -163,7 +163,7 @@ TEST(CheckCloseFailureIncludesTolerance)
     CheckClose(results, 2, 3, 0.01f, TestDetails("", "", "", 0));
 
     using namespace std;
-    CHECK(strstr(reporter.lastFailedMessage, "0.01"));
+    CHECK(reporter.lastFailedMessage.find("0.01"));
 }
 
 TEST(CheckCloseFailureIncludesDetails)

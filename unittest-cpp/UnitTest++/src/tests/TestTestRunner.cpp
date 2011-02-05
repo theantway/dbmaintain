@@ -4,6 +4,8 @@
 #include "../TestList.h"
 #include "../TimeHelpers.h"
 #include "../TimeConstraint.h"
+#include <iostream>
+using namespace std;
 
 using namespace UnitTest;
 
@@ -185,11 +187,11 @@ TEST_FIXTURE(TestRunnerFixture, SlowTestHasCorrectFailureInformation)
     using namespace std;
 
     CHECK_EQUAL(test.m_details.testName, reporter.lastFailedTest);
-    CHECK(strstr(test.m_details.filename, reporter.lastFailedFile));
+    CHECK(test.m_details.filename.find(reporter.lastFailedFile));
     CHECK_EQUAL(test.m_details.lineNumber, reporter.lastFailedLine);
 
-    CHECK(strstr(reporter.lastFailedMessage, "Global time constraint failed"));
-    CHECK(strstr(reporter.lastFailedMessage, "3ms"));
+    CHECK(reporter.lastFailedMessage.find("Global time constraint failed") != reporter.lastFailedMessage.npos);
+    CHECK(reporter.lastFailedMessage.find("3ms") != reporter.lastFailedMessage.npos);
 }
 
 TEST_FIXTURE(TestRunnerFixture, SlowTestWithTimeExemptionPasses)
@@ -197,14 +199,13 @@ TEST_FIXTURE(TestRunnerFixture, SlowTestWithTimeExemptionPasses)
     class SlowExemptedTest : public Test
     {
     public:
-        SlowExemptedTest() : Test("slowexempted", "", 0) {}
+        SlowExemptedTest() : Test("slowexempted", "", "", 0) {}
         virtual void RunImpl(TestResults&) const
         {
             UNITTEST_TIME_CONSTRAINT_EXEMPT();
             TimeHelpers::SleepMs(20);
         }
     };
-
     SlowExemptedTest test;
     list.Add(&test);
 
@@ -255,7 +256,7 @@ struct RunTestIfNameIs
     bool operator()(const Test* const test) const
     {
         using namespace std;
-        return (0 == strcmp(test->m_details.testName, name));
+        return (0 == test->m_details.testName.compare(name));
     }
     
     char const* name;

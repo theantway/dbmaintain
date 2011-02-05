@@ -28,9 +28,9 @@ TEST(TimeConstraintMacroUsesCorrectInfo)
     using namespace std;
 
     CHECK_EQUAL(1, reporter.testFailedCount);
-    CHECK(strstr(reporter.lastFailedFile, __FILE__));
+    CHECK(reporter.lastFailedFile.find(__FILE__) != reporter.lastFailedFile.npos);
     CHECK_EQUAL(testLine, reporter.lastFailedLine);
-    CHECK(strstr(reporter.lastFailedTest, "TimeConstraintMacroUsesCorrectInfo"));
+    CHECK(reporter.lastFailedTest.find("TimeConstraintMacroUsesCorrectInfo") != reporter.lastFailedTest.npos);
 }
 
 TEST(TimeConstraintMacroComparesAgainstPreciseActual)
@@ -57,9 +57,9 @@ TEST(TimeConstraintMacroComparesAgainstPreciseActual)
     using namespace std;
 
     CHECK_EQUAL(1, reporter.testFailedCount);
-    CHECK(strstr(reporter.lastFailedFile, __FILE__));
+    CHECK(reporter.lastFailedFile.find(__FILE__) != reporter.lastFailedFile.npos);
     CHECK_EQUAL(testLine, reporter.lastFailedLine);
-    CHECK(strstr(reporter.lastFailedTest, "TimeConstraintMacroComparesAgainstPreciseActual"));
+    CHECK(reporter.lastFailedTest.find("TimeConstraintMacroComparesAgainstPreciseActual") != reporter.lastFailedTest.npos);
 }
 
 }

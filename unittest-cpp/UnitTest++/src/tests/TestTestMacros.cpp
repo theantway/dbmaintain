@@ -47,9 +47,9 @@ TEST (ExceptionsInFixtureAreReportedAsHappeningInTheFixture)
         list2.GetHead()->Run();
     }
 
-    CHECK(strstr(reporter.lastFailedMessage, "xception"));
-    CHECK(strstr(reporter.lastFailedMessage, "fixture"));
-    CHECK(strstr(reporter.lastFailedMessage, "ThrowingThingie"));
+    CHECK(reporter.lastFailedMessage.find("xception"));
+    CHECK(reporter.lastFailedMessage.find("fixture"));
+    CHECK(reporter.lastFailedMessage.find("ThrowingThingie"));
 }
 
 struct DummyFixture
@@ -126,7 +126,7 @@ TEST(FixturesWithThrowingCtorsAreFailures)
 
     int const failureCount = result.GetFailedTestCount();
     CHECK_EQUAL(1, failureCount);
-    CHECK(strstr(reporter.lastFailedMessage, "while constructing fixture"));
+    CHECK(reporter.lastFailedMessage.find("while constructing fixture"));
 }
 
 struct FixtureDtorThrows
@@ -152,7 +152,7 @@ TEST(FixturesWithThrowingDtorsAreFailures)
 
     int const failureCount = result.GetFailedTestCount();
     CHECK_EQUAL(1, failureCount);
-    CHECK(strstr(reporter.lastFailedMessage, "while destroying fixture"));
+    CHECK(reporter.lastFailedMessage.find("while destroying fixture"));
 }
 
 const int FailingLine = 123;
@@ -182,7 +182,7 @@ TEST(CorrectlyReportsFixturesWithCtorsThatAssert)
     const int failureCount = result.GetFailedTestCount();
     CHECK_EQUAL(1, failureCount);
     CHECK_EQUAL(FailingLine, reporter.lastFailedLine);
-    CHECK(strstr(reporter.lastFailedMessage, "assert failure"));
+    CHECK(reporter.lastFailedMessage.find("assert failure") != reporter.lastFailedMessage.npos);
 }
 
 }
