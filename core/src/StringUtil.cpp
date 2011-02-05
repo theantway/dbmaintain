@@ -144,3 +144,12 @@ string StringUtil::trimRight(string &str, string toTrimString, bool trimAll)
 
     return str;
 }
+
+inline bool StringUtil::charEqualsIgnoreCase(char c1, char c2){
+    return toupper(c1) == toupper(c2);
+}
+
+bool StringUtil::equalsIgnoreCase(const string& str1, const string& str2){
+    return str1.size() == str2.size() &&
+            equal(str1.begin(), str1.end(), str2.begin(), StringUtil::charEqualsIgnoreCase);
+}

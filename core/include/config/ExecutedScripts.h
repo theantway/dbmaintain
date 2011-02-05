@@ -10,6 +10,8 @@ public:
     ExecutedScripts();
     virtual ~ExecutedScripts();
 
+    void set(string& field, string value);
+
     string getDatabaseName() const;
     void setDatabaseName(string name);
 

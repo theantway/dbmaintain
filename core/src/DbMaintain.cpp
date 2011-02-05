@@ -57,10 +57,9 @@ void DbMaintain::update(){
     shared_ptr<SqlScriptRunner> runner = m_config.getDefaultSqlRunner();
 
 //    cout << getWelcomeString() <<endl;
-    string tableName = "script_table";
-    map<string, string> fieldsMap;
-    runner->ensureScriptsTableExists(m_config.getExecutedScriptsSettings());
-    int latestNo = getLatestVersion(*runner.get(), tableName);
+    ExecutedScripts& executedScriptsSettings = m_config.getExecutedScriptsSettings();
+    runner->ensureScriptsTableExists(executedScriptsSettings);
+    int latestNo = getLatestVersion(*runner.get(), executedScriptsSettings);
 
     ChangeScriptRepository changeScriptRepository(DirectoryScanner().getChangeScriptsForDirectory(m_config.getScriptsLocation()));
 
@@ -74,16 +73,16 @@ void DbMaintain::update(){
         shared_ptr<ChangeScript> script = *it;
         cout << "  applying " << script->getFilename() <<endl;
         shared_ptr<ScriptRunner> scriptRunner = m_config.scriptRunner(script->getFilename());
-        runner->beginRunScript(tableName, fieldsMap, script);
+        runner->beginRunScript(executedScriptsSettings, script);
         scriptRunner->run(script);
-        runner->endRunScript(tableName, fieldsMap, script);
+        runner->endRunScript(executedScriptsSettings, script);
     }
 
     cout << "Successed." <<endl;
 }
 
-int DbMaintain::getLatestVersion(SqlScriptRunner& runner, string tableName){
-    map<string, shared_ptr<Value> > latest = runner.getLatestVersion(tableName);
+int DbMaintain::getLatestVersion(SqlScriptRunner& runner, ExecutedScripts& executedScriptsSettings){
+    map<string, shared_ptr<Value> > latest = runner.getLatestVersion(executedScriptsSettings);
     shared_ptr<Value> no = latest["script_no"];
 
     int latestNo = 0;

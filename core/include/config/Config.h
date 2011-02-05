@@ -56,6 +56,7 @@ private:
 
     void applyDatabases(FileConfig& fileConfig);
     void applyScripts(FileConfig& fileConfig);
+    void applyExecutedScriptsSettings(FileConfig& fileConfig);
 
     bool hasRunner(string runnerName) const;
     bool hasDatabase(string dbName) const;

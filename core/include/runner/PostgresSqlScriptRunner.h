@@ -32,10 +32,10 @@ public:
 	virtual shared_ptr<Value> scalar(string script);
 	virtual void setConnectionString(string connectionString);
 	virtual void ensureScriptsTableExists(ExecutedScripts& scripts);
-	virtual map<string, shared_ptr<Value> > getLatestVersion(string tableName);
+	virtual map<string, shared_ptr<Value> > getLatestVersion(ExecutedScripts& executedScriptsSettings);
 
-	virtual void beginRunScript(string tableName, const map<string, string>& fieldsMap, shared_ptr<ChangeScript> script);
-	virtual void endRunScript(string tableName, const map<string, string>& fieldsMap, shared_ptr<ChangeScript> script);
+	virtual void beginRunScript(ExecutedScripts& executedScriptsSettings, shared_ptr<ChangeScript> script);
+	virtual void endRunScript(ExecutedScripts& executedScriptsSettings, shared_ptr<ChangeScript> script);
 	virtual void clearDatabase(shared_ptr<Database> database);
     virtual void cleanDatabase(shared_ptr<Database> database);
 

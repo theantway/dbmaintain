@@ -18,5 +18,7 @@ class StringUtil{
 		static string trimLeft(string& str, string toTrimString=" \t", bool trimAll = true);
 		static string trimRight(string& str, string toTrimString=" \t", bool trimAll = true);
 		static bool contains(const string str, const string containsStr);
+		static bool equalsIgnoreCase(const string& str1, const string& str2);
+		static inline bool charEqualsIgnoreCase(char c1, char c2);
 };
 #endif //_STRINGUTIL_H

@@ -77,6 +77,19 @@ void Config::applyScripts(FileConfig& fileConfig){
     }
 }
 
+void Config::applyExecutedScriptsSettings(FileConfig& fileConfig){
+    m_executedScriptsSettings.setDatabaseName(fileConfig.get("executedScripts", "databaseName", ""));
+    m_executedScriptsSettings.setTableName(fileConfig.get("executedScripts", "tableName", ""));
+    m_executedScriptsSettings.setAutoCreateTable(fileConfig.getBool("executedScripts", "autoCreateTable", true));
+    m_executedScriptsSettings.setScriptNoColumnName(fileConfig.get("executedScripts", "scriptNoColumn", "script_no"));
+    m_executedScriptsSettings.setScriptNameColumnName(fileConfig.get("executedScripts", "databaseName", "script_name"));
+    m_executedScriptsSettings.setScriptNameColumnSize(fileConfig.getInt("executedScripts", "databaseName", 512));
+    m_executedScriptsSettings.setLastModifiedColumnName(fileConfig.get("executedScripts", "databaseName", "file_last_modified_at"));
+    m_executedScriptsSettings.setChecksumColumnName(fileConfig.get("executedScripts", "databaseName", "checksum"));
+    m_executedScriptsSettings.setExecutedAtColumnName(fileConfig.get("executedScripts", "databaseName", "executed_at"));
+    m_executedScriptsSettings.setExecutedStatusColumnName(fileConfig.get("executedScripts", "databaseName", "status"));
+}
+
 bool Config::hasDatabase(string dbName) const{
     return m_databases.count(dbName) > 0;
 }

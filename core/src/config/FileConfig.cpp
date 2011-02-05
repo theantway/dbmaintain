@@ -75,3 +75,31 @@ const string FileConfig::get(const string& section, const string& entry, const s
 
     return it->second;
 }
+
+const bool FileConfig::getBool(const string& section, const string& entry, const bool defaultValue) const {
+    map<string, string>::const_iterator it = m_settings.find(section + '/' + entry);
+
+    if (it == m_settings.end()) {
+        return defaultValue;
+    }
+
+    string val = it->second;
+    if (StringUtil::equalsIgnoreCase(val, "TRUE") ||
+            StringUtil::equalsIgnoreCase(val, "T") ||
+            StringUtil::equalsIgnoreCase(val, "1")
+    ){
+        return true;
+    }
+
+    return false;
+}
+
+const int FileConfig::getInt(const string& section, const string& entry, const int defaultValue) const {
+    map<string, string>::const_iterator it = m_settings.find(section + '/' + entry);
+
+    if (it == m_settings.end()) {
+        return defaultValue;
+    }
+
+    return atoi(it->second.c_str());
+}

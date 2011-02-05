@@ -5,6 +5,7 @@
 
 #include <iosfwd>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -26,6 +27,8 @@ private:
     void BeginTest(std::ostream& os, DeferredTestResult const& result);
     void AddFailure(std::ostream& os, DeferredTestResult const& result);
     void EndTest(std::ostream& os, DeferredTestResult const& result);
+
+    vector<TestDetails> m_failedTests;
 };
 
 }

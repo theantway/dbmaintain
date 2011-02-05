@@ -18,6 +18,8 @@ public:
 
     map<string, string > getScriptExtensions() const;
     const string get(const string& section, const string& entry, const string& defaultValue) const;
+    const bool getBool(const string& section, const string& entry, const bool defaultValue) const;
+    const int getInt(const string& section, const string& entry, const int defaultValue) const;
 
 private:
     map<string, string > m_settings;

@@ -21,7 +21,6 @@ SUITE(PostgresSqlScriptRunnerTest){
 
     public:
         PostgresSqlScriptRunnerTest() {
-            cout << "=====" << endl;
             runner = shared_ptr<PostgresSqlScriptRunner>(new PostgresSqlScriptRunner());
             runner->setConnectionString("dbname=db3 user=postgres");
 
@@ -61,7 +60,7 @@ SUITE(PostgresSqlScriptRunnerTest){
         runner->ensureScriptsTableExists(executedScripts);
         ASSERT_EQUAL(runner->scalar("SELECT relname FROM pg_class WHERE relname = 'dbmaintain_scripts'")->asString(), executedScripts.getTableName());
 
-        runner->execute("INSERT INTO dbmaintain_scripts(file_name) values('test')");
+        runner->execute("INSERT INTO dbmaintain_scripts(script_name) values('test')");
         ASSERT_EQUAL(runner->scalar("SELECT id FROM dbmaintain_scripts LIMIT 1")->asInt(), 1);
 
         runner->ensureScriptsTableExists(executedScripts);

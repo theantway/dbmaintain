@@ -142,31 +142,31 @@ shared_ptr<Value> PostgresSqlScriptRunner::scalar(string script){
     return shared_ptr<Value>();
 }
 
-void PostgresSqlScriptRunner::ensureScriptsTableExists(ExecutedScripts& scripts){
+void PostgresSqlScriptRunner::ensureScriptsTableExists(ExecutedScripts& settings){
     ostringstream stream;
-    stream << "SELECT relname FROM pg_class WHERE relname = '" << scripts.getTableName() <<"'";
+    stream << "SELECT relname FROM pg_class WHERE relname = '" << settings.getTableName() <<"'";
 
     list< map<string, shared_ptr<Value> > > results = _execute(stream.str());
     if(results.size() == size_t(0)){
         cout << "script table not exist, trying to create a new table"<<endl;
         ostringstream stream;
-        stream << "CREATE TABLE " << scripts.getTableName() <<
-        "(\
-          id BIGSERIAL PRIMARY KEY,\
-          script_no             integer, \
-          file_name             varchar(150), \
-          file_last_modified_at bigint, \
-          checksum              varchar(50), \
-          executed_at           varchar(32), \
-          succeeded             boolean)  ";
+        stream << "CREATE TABLE " << settings.getTableName() <<
+        "(id BIGSERIAL PRIMARY KEY," <<
+          settings.getScriptNoColumnName() << "       integer, " <<
+          settings.getScriptNameColumnName() << "     varchar(" << settings.getScriptNameColumnSize() << "), " <<
+          settings.getLastModifiedColumnName() << "   bigint, " <<
+          settings.getChecksumColumnName() << "       varchar(50), " <<
+          settings.getExecutedAtColumnName() << "     varchar(32), " <<
+          settings.getExecutedStatusColumnName() << " boolean) ";
 
         _execute(stream.str());
     }
 }
 
-map<string, shared_ptr<Value> > PostgresSqlScriptRunner::getLatestVersion(string tableName){
+map<string, shared_ptr<Value> > PostgresSqlScriptRunner::getLatestVersion(ExecutedScripts& settings){
     ostringstream stream;
-    stream << "SELECT * FROM " << tableName << " ORDER BY "<< "script_no" << " DESC LIMIT 1";
+    stream  << "SELECT * FROM " << settings.getTableName()
+            << "  ORDER BY "<< settings.getScriptNoColumnName() << " DESC LIMIT 1";
     list< map<string, shared_ptr<Value> > > results = _execute(stream.str());
     if(results.size() > size_t(0)){
         return results.front();
@@ -175,20 +175,28 @@ map<string, shared_ptr<Value> > PostgresSqlScriptRunner::getLatestVersion(string
     }
 }
 
-void PostgresSqlScriptRunner::beginRunScript(string tableName, const map<string, string>& fieldsMap, shared_ptr<ChangeScript> script){
+void PostgresSqlScriptRunner::beginRunScript(ExecutedScripts& settings, shared_ptr<ChangeScript> script){
     ostringstream stream;
-    stream << "INSERT INTO " << tableName << " (script_no, file_name, file_last_modified_at, checksum, executed_at, succeeded)"
-            << " VALUES("<<script->getId()<< ", '"
-            << script->getFilename() <<"', '"
-            << script->getLastModifiedAt() << "', '"
-            << script->getCheckSum() << "', CURRENT_TIMESTAMP, false"
-            << ")";
+    stream << "INSERT INTO " << settings.getTableName() << " (" <<
+            settings.getScriptNoColumnName() << ", " <<
+            settings.getScriptNameColumnName() << ", " <<
+            settings.getLastModifiedColumnName() << ", " <<
+            settings.getChecksumColumnName() << ", " <<
+            settings.getExecutedAtColumnName() << ", " <<
+            settings.getExecutedStatusColumnName() << ") " <<
+            " VALUES("<<
+            script->getId() << ", '" <<
+            script->getFilename() <<"', '" <<
+            script->getLastModifiedAt() << "', '" <<
+            script->getCheckSum() << "', CURRENT_TIMESTAMP, false" <<
+            ")";
     _execute(stream.str());
 }
 
-void PostgresSqlScriptRunner::endRunScript(string tableName, const map<string, string>& fieldsMap, shared_ptr<ChangeScript> script){
+void PostgresSqlScriptRunner::endRunScript(ExecutedScripts& settings, shared_ptr<ChangeScript> script){
     ostringstream stream;
-    stream << "UPDATE " << tableName << " SET succeeded=true WHERE script_no="
+    stream << "UPDATE " << settings.getTableName() << " SET " <<
+            settings.getExecutedStatusColumnName() << "=true WHERE " << settings.getScriptNoColumnName() << "="
             << script->getId();
     _execute(stream.str());
 }

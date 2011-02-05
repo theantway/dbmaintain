@@ -13,7 +13,7 @@ SUITE(StringUtilTest){
         };
     };
 
-    TEST_FIXTURE (StringUtilTest, ReplaceAll)
+    TEST_FIXTURE (StringUtilTest, should_replace_all_sub_strings)
     {
         string str="//localhost/test/another.java";
 
@@ -28,7 +28,7 @@ SUITE(StringUtilTest){
         CHECK_EQUAL("E:\\localhost\\testdest\\another.java", result);
     }
 
-    TEST_FIXTURE (StringUtilTest, Escape)
+    TEST_FIXTURE (StringUtilTest, should_escape_quotes_in_string)
     {
         string str="it's impossible\". the end.";
 
@@ -36,7 +36,7 @@ SUITE(StringUtilTest){
         CHECK_EQUAL("it\\\'s impossible\\\". the end.", result);
     }
 
-    TEST_FIXTURE (StringUtilTest, TrimSpace)
+    TEST_FIXTURE (StringUtilTest, should_trim_string_from_both_side)
     {
         string str1="the word ";
         string str2=" the word";
@@ -52,7 +52,7 @@ SUITE(StringUtilTest){
         CHECK_EQUAL("the word", result);
     }
 
-    TEST_FIXTURE (StringUtilTest, LeftTrimSpace)
+    TEST_FIXTURE (StringUtilTest, should_trim_space_of_string_from_left)
     {
         string str1="the word ";
         string str2=" the word";
@@ -68,7 +68,7 @@ SUITE(StringUtilTest){
         CHECK_EQUAL("the word ", result);
     }
 
-    TEST_FIXTURE (StringUtilTest, RightTrimSpace)
+    TEST_FIXTURE (StringUtilTest, should_trim_space_of_string_from_right)
     {
         string str1="the word ";
         string str2=" the word";
@@ -79,7 +79,7 @@ SUITE(StringUtilTest){
         CHECK_EQUAL(" the word", StringUtil::trimRight(str3, " "));
     }
 
-    TEST_FIXTURE (StringUtilTest, TrimMultipleChars)
+    TEST_FIXTURE (StringUtilTest, should_trim_all_specified_characters_from_both_side)
     {
         string str1="\tthe word \n ";
         string str2="\n the word \n ";
@@ -95,7 +95,7 @@ SUITE(StringUtilTest){
         CHECK_EQUAL("the word", result);
     }
 
-    TEST_FIXTURE (StringUtilTest, TrimLeftMultipleChars)
+    TEST_FIXTURE (StringUtilTest, should_trim_all_specified_characters_from_left)
     {
         string str1="\tthe word \n ";
         string str2="\n the word \n ";
@@ -111,7 +111,7 @@ SUITE(StringUtilTest){
         CHECK_EQUAL("the word \n", result);
     }
 
-    TEST_FIXTURE (StringUtilTest, TrimLeftFirstMultipleChars)
+    TEST_FIXTURE (StringUtilTest, should_trim_the_first_specified_characters_from_left)
     {
         string str1="\tthe word \n ";
         string str2="\n the word \n ";
@@ -127,7 +127,7 @@ SUITE(StringUtilTest){
         CHECK_EQUAL(" the word \n", result);
     }
 
-    TEST_FIXTURE (StringUtilTest, StartWithString)
+    TEST_FIXTURE (StringUtilTest, should_check_if_a_string_starts_with_another)
     {
         string str1="the word a";
 
@@ -137,7 +137,7 @@ SUITE(StringUtilTest){
         CHECK(!StringUtil::startsWith(str1, "the word b"));
     }
 
-    TEST_FIXTURE (StringUtilTest, EndWithString)
+    TEST_FIXTURE (StringUtilTest, should_check_if_a_string_ends_with_another)
     {
         string str1="the word";
 
@@ -147,7 +147,7 @@ SUITE(StringUtilTest){
         CHECK(!StringUtil::endsWith(str1, "a word"));
     }
 
-    TEST_FIXTURE (StringUtilTest, ContainsString)
+    TEST_FIXTURE (StringUtilTest, should_check_if_a_string_contains_with_another)
     {
         string str1="the word a";
 
@@ -155,7 +155,7 @@ SUITE(StringUtilTest){
         CHECK( ! StringUtil::contains(str1, "word-not-exist"));
     }
 
-    TEST_FIXTURE (StringUtilTest, SplitString)
+    TEST_FIXTURE (StringUtilTest, should_split_string_by_delimiter)
     {
         string str1="key=value";
         vector<string> expected;
@@ -167,7 +167,7 @@ SUITE(StringUtilTest){
         CHECK_ARRAY_EQUAL(StringUtil::split(" \tkey \t= \tvalue\t ", "=", 2), expected, expected.size());
     }
 
-    TEST_FIXTURE (StringUtilTest, SplitStringWithMultipleDelimiters)
+    TEST_FIXTURE (StringUtilTest, should_split_string_up_to_specified_parts_by_delimiter)
     {
         string str1="key=value=value2";
         vector<string> expected;
@@ -175,6 +175,13 @@ SUITE(StringUtilTest){
         expected.push_back("value=value2");
 
         CHECK_ARRAY_EQUAL(StringUtil::split("key=value=value2", "=", 2), expected, expected.size());
+    }
+
+    TEST_FIXTURE (StringUtilTest, should_check_strings_case_insensitive_equals)
+    {
+        string str1="key=Value";
+        CHECK(StringUtil::equalsIgnoreCase("Key=Value", "KEY=VALue"));
+        CHECK(!StringUtil::equalsIgnoreCase("Key=Value", "KEY=VALue1"));
     }
 
 }

@@ -31,11 +31,11 @@ public:
     virtual void setConnectionString(string connectionString){
     }
     virtual void ensureScriptsTableExists(ExecutedScripts& executedScripts){}
-    virtual map<string, shared_ptr<Value> > getLatestVersion(string tableName){
+    virtual map<string, shared_ptr<Value> > getLatestVersion(ExecutedScripts& executedScriptsSettings){
         return map<string, shared_ptr<Value> >();
     }
-    virtual void beginRunScript(string tableName, const map<string, string>& fieldsMap, shared_ptr<ChangeScript> script){}
-    virtual void endRunScript(string tableName, const map<string, string>& fieldsMap, shared_ptr<ChangeScript> script){}
+    virtual void beginRunScript(ExecutedScripts& executedScriptsSettings, shared_ptr<ChangeScript> script){}
+    virtual void endRunScript(ExecutedScripts& executedScriptsSettings, shared_ptr<ChangeScript> script){}
     virtual void clearDatabase(shared_ptr<Database> database){}
     virtual void cleanDatabase(shared_ptr<Database> database){}
     virtual set<string> getPreservedTables(ClearOptions& options){return set<string>();}

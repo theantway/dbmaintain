@@ -8,6 +8,7 @@
 using namespace std;
 
 class ScriptRunner;
+class ExecutedScripts;
 
 class DbMaintain {
 public:
@@ -23,7 +24,7 @@ public:
     void update();
 
 private:
-    int getLatestVersion(SqlScriptRunner& runner, string tableName);
+    int getLatestVersion(SqlScriptRunner& runner, ExecutedScripts& executedScriptsSettings);
     void init();
     void checkForRequiredParameter(string parameterValue, string parameterName);
 

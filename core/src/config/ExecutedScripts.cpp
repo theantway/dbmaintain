@@ -17,12 +17,18 @@ ExecutedScripts::ExecutedScripts():
 ExecutedScripts::~ExecutedScripts() {
 }
 
+void ExecutedScripts::set(string& field, string value){
+    if(value != ""){
+        field = value;
+    }
+}
+
 string ExecutedScripts::getDatabaseName() const{
     return m_databaseName;
 }
 
 void ExecutedScripts::setDatabaseName(string name){
-    m_databaseName = name;
+    set(m_databaseName, name);
 }
 
 string ExecutedScripts::getTableName() const{

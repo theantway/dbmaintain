@@ -19,14 +19,25 @@ StdoutTestReporter::StdoutTestReporter()
 }
 
 void StdoutTestReporter::ReportTestStart(TestDetails const& test){
-    cout << test.testName << "...";
+    cout << test.suiteName << "::" << test.testName << "...";
 }
 
 void StdoutTestReporter::ReportFailure(TestDetails const& test, char const* failure){
-    cout << "Failed" <<endl;
+//    TestDetails failedTest(test);
+//    m_failedTests.push_back(failedTest);
+    cout << endl << "  Failed: " << failure <<endl;
 }
 
 void StdoutTestReporter::ReportTestFinish(TestDetails const& test, float secondsElapsed){
+//    TestDetails& lastFailed = m_failedTests.back();
+//    if(lastFailed.suiteName == test.suiteName &&
+//            lastFailed.testName == test.testName &&
+//            lastFailed.filename == test.filename &&
+//            lastFailed.lineNumber == test.lineNumber
+//            ){
+//        cout << "Failed"<<endl;
+//    }
+
     cout << "OK" <<endl;
 }
 

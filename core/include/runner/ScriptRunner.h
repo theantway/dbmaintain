@@ -66,8 +66,8 @@ public:
     SqlScriptRunner();
     virtual ~SqlScriptRunner();
 
-    virtual void beginRunScript(string tableName, const map<string, string>& fieldsMap, shared_ptr<ChangeScript> script) = 0;
-    virtual void endRunScript(string tableName, const map<string, string>& fieldsMap, shared_ptr<ChangeScript> script) = 0;
+    virtual void beginRunScript(ExecutedScripts& executedScriptsSettings, shared_ptr<ChangeScript> script) = 0;
+    virtual void endRunScript(ExecutedScripts& executedScriptsSettings, shared_ptr<ChangeScript> script) = 0;
 
     virtual void clearDatabase(shared_ptr<Database> database) = 0;
     virtual void cleanDatabase(shared_ptr<Database> database) = 0;
@@ -77,7 +77,7 @@ public:
     virtual shared_ptr<Value> scalar(string script) = 0;
     virtual void setConnectionString(string connectionString) = 0;
     virtual void ensureScriptsTableExists(ExecutedScripts& scripts) = 0;
-    virtual map<string, shared_ptr<Value> > getLatestVersion(string tableName) = 0;
+    virtual map<string, shared_ptr<Value> > getLatestVersion(ExecutedScripts& executedScriptsSettings) = 0;
 };
 
 class RunnerAdder {
