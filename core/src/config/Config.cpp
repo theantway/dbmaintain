@@ -27,6 +27,7 @@ void Config::applyFromFile(string configFile){
 
     applyDatabases(fileConfig);
     applyScripts(fileConfig);
+    applyExecutedScriptsSettings(fileConfig);
 
 }
 
@@ -80,14 +81,14 @@ void Config::applyScripts(FileConfig& fileConfig){
 void Config::applyExecutedScriptsSettings(FileConfig& fileConfig){
     m_executedScriptsSettings.setDatabaseName(fileConfig.get("executedScripts", "databaseName", ""));
     m_executedScriptsSettings.setTableName(fileConfig.get("executedScripts", "tableName", ""));
-    m_executedScriptsSettings.setAutoCreateTable(fileConfig.getBool("executedScripts", "autoCreateTable", true));
-    m_executedScriptsSettings.setScriptNoColumnName(fileConfig.get("executedScripts", "scriptNoColumn", "script_no"));
-    m_executedScriptsSettings.setScriptNameColumnName(fileConfig.get("executedScripts", "databaseName", "script_name"));
-    m_executedScriptsSettings.setScriptNameColumnSize(fileConfig.getInt("executedScripts", "databaseName", 512));
-    m_executedScriptsSettings.setLastModifiedColumnName(fileConfig.get("executedScripts", "databaseName", "file_last_modified_at"));
-    m_executedScriptsSettings.setChecksumColumnName(fileConfig.get("executedScripts", "databaseName", "checksum"));
-    m_executedScriptsSettings.setExecutedAtColumnName(fileConfig.get("executedScripts", "databaseName", "executed_at"));
-    m_executedScriptsSettings.setExecutedStatusColumnName(fileConfig.get("executedScripts", "databaseName", "status"));
+    m_executedScriptsSettings.setAutoCreateTable(fileConfig.getBool("executedScripts", "autoCreateTable", m_executedScriptsSettings.isAutoCreateTable()));
+    m_executedScriptsSettings.setScriptNoColumnName(fileConfig.get("executedScripts", "scriptNoColumn", ""));
+    m_executedScriptsSettings.setScriptNameColumnName(fileConfig.get("executedScripts", "scriptNameColumn", ""));
+    m_executedScriptsSettings.setScriptNameColumnSize(fileConfig.getInt("executedScripts", "scriptNameColumnSize", 0));
+    m_executedScriptsSettings.setLastModifiedColumnName(fileConfig.get("executedScripts", "lastModifiedColumn", ""));
+    m_executedScriptsSettings.setChecksumColumnName(fileConfig.get("executedScripts", "checksumColumn", ""));
+    m_executedScriptsSettings.setExecutedAtColumnName(fileConfig.get("executedScripts", "executedAtColumn", ""));
+    m_executedScriptsSettings.setExecutedStatusColumnName(fileConfig.get("executedScripts", "executedStatusColumn", ""));
 }
 
 bool Config::hasDatabase(string dbName) const{

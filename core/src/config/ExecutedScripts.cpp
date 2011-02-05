@@ -1,4 +1,6 @@
 #include "config/ExecutedScripts.h"
+#include <iostream>
+using namespace std;
 
 ExecutedScripts::ExecutedScripts():
     m_databaseName("database"),
@@ -36,7 +38,7 @@ string ExecutedScripts::getTableName() const{
 }
 
 void ExecutedScripts::setTableName(string name){
-    m_tableName = name;
+    set(m_tableName, name);
 }
 
 bool ExecutedScripts::isAutoCreateTable() const{
@@ -52,7 +54,7 @@ string ExecutedScripts::getScriptNoColumnName() const{
 }
 
 void ExecutedScripts::setScriptNoColumnName(string name){
-    m_scriptNoColumnName = name;
+    set(m_scriptNoColumnName, name);
 }
 
 string ExecutedScripts::getScriptNameColumnName() const{
@@ -60,7 +62,7 @@ string ExecutedScripts::getScriptNameColumnName() const{
 }
 
 void ExecutedScripts::setScriptNameColumnName(string name){
-    m_scriptNameColumnName = name;
+    set(m_scriptNameColumnName, name);
 }
 
 int ExecutedScripts::getScriptNameColumnSize() const{
@@ -68,7 +70,9 @@ int ExecutedScripts::getScriptNameColumnSize() const{
 }
 
 void ExecutedScripts::setScriptNameColumnSize(int size){
-    m_scriptNameColumnSize = size;
+    if(size > 0){
+        m_scriptNameColumnSize = size;
+    }
 }
 
 string ExecutedScripts::getLastModifiedColumnName() const{
@@ -76,7 +80,7 @@ string ExecutedScripts::getLastModifiedColumnName() const{
 }
 
 void ExecutedScripts::setLastModifiedColumnName(string name){
-    m_lastModifiedColumnName = name;
+    set(m_lastModifiedColumnName, name);
 }
 
 string ExecutedScripts::getChecksumColumnName() const{
@@ -84,7 +88,7 @@ string ExecutedScripts::getChecksumColumnName() const{
 }
 
 void ExecutedScripts::setChecksumColumnName(string name){
-    m_checksumColumnName = name;
+    set(m_checksumColumnName, name);
 }
 
 string ExecutedScripts::getExecutedAtColumnName() const{
@@ -92,7 +96,7 @@ string ExecutedScripts::getExecutedAtColumnName() const{
 }
 
 void ExecutedScripts::setExecutedAtColumnName(string name){
-    m_executedAtColumnName = name;
+    set(m_executedAtColumnName, name);
 }
 
 string ExecutedScripts::getExecutedStatusColumnName() const{
@@ -100,5 +104,5 @@ string ExecutedScripts::getExecutedStatusColumnName() const{
 }
 
 void ExecutedScripts::setExecutedStatusColumnName(string name){
-    m_executedStatusColumnName = name;
+    set(m_executedStatusColumnName, name);
 }

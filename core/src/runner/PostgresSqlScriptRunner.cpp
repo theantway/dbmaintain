@@ -9,6 +9,7 @@
 #include "DbException.h"
 #include "Value.h"
 #include "ChangeScript.h"
+#include "ScriptException.h"
 #include "config/ClearOptions.h"
 #include "config/Database.h"
 #include "config/ExecutedScripts.h"
@@ -148,16 +149,22 @@ void PostgresSqlScriptRunner::ensureScriptsTableExists(ExecutedScripts& settings
 
     list< map<string, shared_ptr<Value> > > results = _execute(stream.str());
     if(results.size() == size_t(0)){
-        cout << "script table not exist, trying to create a new table"<<endl;
         ostringstream stream;
-        stream << "CREATE TABLE " << settings.getTableName() <<
-        "(id BIGSERIAL PRIMARY KEY," <<
-          settings.getScriptNoColumnName() << "       integer, " <<
-          settings.getScriptNameColumnName() << "     varchar(" << settings.getScriptNameColumnSize() << "), " <<
-          settings.getLastModifiedColumnName() << "   bigint, " <<
-          settings.getChecksumColumnName() << "       varchar(50), " <<
-          settings.getExecutedAtColumnName() << "     varchar(32), " <<
-          settings.getExecutedStatusColumnName() << " boolean) ";
+        stream << "CREATE TABLE " << settings.getTableName() << "(" << endl << " " <<
+                "id BIGSERIAL PRIMARY KEY," << endl << " " <<
+                  settings.getScriptNoColumnName() << " integer, " << endl << " " <<
+                  settings.getScriptNameColumnName() << " varchar(" << settings.getScriptNameColumnSize() << "), " << endl << " " <<
+                  settings.getLastModifiedColumnName() << " bigint, " << endl << " " <<
+                  settings.getChecksumColumnName() << " varchar(50), " << endl << " " <<
+                  settings.getExecutedAtColumnName() << " varchar(32), " << endl << " " <<
+                  settings.getExecutedStatusColumnName() << " boolean " << endl <<
+               ")";
+
+        if(!settings.isAutoCreateTable()){
+            throw ScriptException("script table not exist, and autoCreateTable is disabled, enable autoCreateTable or create table using the following sql: \n" + stream.str());
+        }
+
+        cout << "script table not exist, trying to create a new table"<<endl;
 
         _execute(stream.str());
     }
