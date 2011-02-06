@@ -92,16 +92,9 @@ int DbMaintain::getLatestVersion(SqlScriptRunner& runner, ExecutedScripts& execu
 }
 
 void DbMaintain::validate() {
-    // checkForRequiredParameter(userid, "userid");
-    //     checkForRequiredParameter(driver, "driver");
-    //     checkForRequiredParameter(url, "url");
-    //     checkForRequiredParameter(dbms, "dbms");
-    //     checkForRequiredParameter(outputfile, "outputfile");
-    //     checkForRequiredParameter(scriptdirectory, "dir");
-    //
-    //     if (scriptdirectory == null || !scriptdirectory.isDirectory()) {
-    //         throw new UsageException("Script directory must point to a valid directory");
-    //     }
+    //check required parameter: db dialect, url
+    //check script directory
+    //check preserved objects
 }
 
 void DbMaintain::checkForRequiredParameter(string parameterValue, string parameterName) {

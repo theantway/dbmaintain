@@ -36,14 +36,17 @@ void FileConfig::parse(const string& configFile) {
         }
 
         vector < string > pair = StringUtil::split(line, "=", 2);
+//        if (pair.size() != 2) {
+//            ostringstream stream;
+//            stream << "invalid format for line " << lineNo << " under section "
+//                    << inSection << ": " << line;
+//            throw ConfigException(stream.str());
+//        }
         if (pair.size() != 2) {
-            ostringstream stream;
-            stream << "invalid format for line " << lineNo << " under section "
-                    << inSection << ": " << line;
-            throw ConfigException(stream.str());
+            m_settings[inSection + '/' + pair[0]] = "";
+        }else{
+            m_settings[inSection + '/' + pair[0]] = pair[1];
         }
-
-        m_settings[inSection + '/' + pair[0]] = pair[1];
     }
 
     file.close();
