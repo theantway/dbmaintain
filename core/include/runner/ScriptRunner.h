@@ -71,13 +71,13 @@ public:
 
     virtual void clearDatabase(shared_ptr<Database> database) = 0;
     virtual void cleanDatabase(shared_ptr<Database> database) = 0;
-    virtual list< map<string, shared_ptr<Value> > > execute(string script) = 0;
-    virtual list< map<string, shared_ptr<Value> > > query(string script) = 0;
-    virtual map<string, shared_ptr<Value> > get(string script) = 0;
-    virtual shared_ptr<Value> scalar(string script) = 0;
+    virtual list< map<string, string> > execute(string script) = 0;
+    virtual list< map<string, string> > query(string script) = 0;
+    virtual map<string, string> get(string script) = 0;
+    virtual string scalar(string script) = 0;
     virtual void setConnectionString(string connectionString) = 0;
     virtual void ensureScriptsTableExists(ExecutedScripts& scripts) = 0;
-    virtual map<string, shared_ptr<Value> > getLatestVersion(ExecutedScripts& executedScriptsSettings) = 0;
+    virtual map<string, string> getLatestVersion(ExecutedScripts& executedScriptsSettings) = 0;
 };
 
 class RunnerAdder {

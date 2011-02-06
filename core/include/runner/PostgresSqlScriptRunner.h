@@ -26,13 +26,13 @@ public:
 
 	virtual void run(shared_ptr<ChangeScript> script);
 
-	virtual list< map<string, shared_ptr<Value> > > execute(string script);
-	virtual list< map<string, shared_ptr<Value> > > query(string script);
-	virtual map<string, shared_ptr<Value> > get(string script);
-	virtual shared_ptr<Value> scalar(string script);
+	virtual list< map<string, string> > execute(string script);
+	virtual list< map<string, string> > query(string script);
+	virtual map<string, string> get(string script);
+	virtual string scalar(string script);
 	virtual void setConnectionString(string connectionString);
 	virtual void ensureScriptsTableExists(ExecutedScripts& scripts);
-	virtual map<string, shared_ptr<Value> > getLatestVersion(ExecutedScripts& executedScriptsSettings);
+	virtual map<string, string> getLatestVersion(ExecutedScripts& executedScriptsSettings);
 
 	virtual void beginRunScript(ExecutedScripts& executedScriptsSettings, shared_ptr<ChangeScript> script);
 	virtual void endRunScript(ExecutedScripts& executedScriptsSettings, shared_ptr<ChangeScript> script);
@@ -42,25 +42,25 @@ public:
 	ClearOptions& extendPreservedObjects(ClearOptions& options);
 	ClearOptions& extendPreservedTables(ClearOptions& clearOptions);
     ClearOptions& extendPreservedFunctions(ClearOptions& clearOptions);
-    ClearOptions& extendViewDependencies(string tableName, const list< map<string, shared_ptr<Value> > >& viewDependendedTables, ClearOptions& clearOptions);
+    ClearOptions& extendViewDependencies(string tableName, const list< map<string, string> >& viewDependendedTables, ClearOptions& clearOptions);
 
-	list< map<string, shared_ptr<Value> > > getTables();
-	list< map<string, shared_ptr<Value> > > getSequences();
-	list< map<string, shared_ptr<Value> > > getViews();
+	list< map<string, string> > getTables();
+	list< map<string, string> > getSequences();
+	list< map<string, string> > getViews();
 
 	static SqlScriptRunner* createInstance();
 protected:
-	list<string> sortTablesByDependency(list< map<string, shared_ptr<Value> > >& allTables, list< map<string, shared_ptr<Value> > >& dependencies);
-	list< map<string, shared_ptr<Value> > > getTableDependencies();
-	list< map<string, shared_ptr<Value> > > getSequenceDependencies();
-	list< map<string, shared_ptr<Value> > > getViewDependencies();
-	list< map<string, shared_ptr<Value> > > getDependentFunctions(string tableName);
-	deque<string> getDependentTables(string tableName, const list< map<string, shared_ptr<Value> > >& dependencies);
+	list<string> sortTablesByDependency(list< map<string, string> >& allTables, list< map<string, string> >& dependencies);
+	list< map<string, string> > getTableDependencies();
+	list< map<string, string> > getSequenceDependencies();
+	list< map<string, string> > getViewDependencies();
+	list< map<string, string> > getDependentFunctions(string tableName);
+	deque<string> getDependentTables(string tableName, const list< map<string, string> >& dependencies);
 
-	bool hasDependency(string tableName, const list< map<string, shared_ptr<Value> > >& dependencies, set<string>& excludeTables);
+	bool hasDependency(string tableName, const list< map<string, string> >& dependencies, set<string>& excludeTables);
 private:
 	PGconn* getConnection();
-	list< map<string, shared_ptr<Value> > > _execute(string script);
+	list< map<string, string> > _execute(string script);
 	void clearTables(const set<string>& preservedTables);
 	void cleanTables(const set<string>& preservedTables);
 	void clearViews(const set<string>& preservedViews);

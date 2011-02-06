@@ -65,8 +65,8 @@ PGconn* PostgresSqlScriptRunner::getConnection(){
     return m_pConn;
 }
 
-list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::_execute(string script){
-    list< map<string, shared_ptr<Value> > > result;
+list< map<string, string> > PostgresSqlScriptRunner::_execute(string script){
+    list< map<string, string> > result;
 //    cout << "executing sql: " << script <<endl;
     m_pConn = getConnection();
     PGresult* res = PQexec(m_pConn, script.c_str());
@@ -88,10 +88,10 @@ list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::_execute(string
 
     for (int i = 0; i < PQntuples(res); i++)
     {
-        map<string, shared_ptr<Value> > row;
+        map<string, string> row;
         for (int j = 0; j < nFields; j++){
 //          cout << "  add field " << PQfname(res, j) << " with value:" <<  PQgetvalue(res, i, j)<< endl;
-            row[PQfname(res, j)] = shared_ptr<Value>(new Value(PQgetvalue(res, i, j)));
+            row[PQfname(res, j)] = PQgetvalue(res, i, j);
         }
 
         result.push_back(row);
@@ -106,16 +106,16 @@ void PostgresSqlScriptRunner::run(shared_ptr<ChangeScript> script){
     execute(script->getContent());
 }
 
-list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::execute(string script){
+list< map<string, string> > PostgresSqlScriptRunner::execute(string script){
     return _execute(script);
 }
 
-list< map<string, shared_ptr<Value> > >  PostgresSqlScriptRunner::query(string script){
+list< map<string, string> >  PostgresSqlScriptRunner::query(string script){
     return _execute(script);
 }
 
-map<string, shared_ptr<Value> >  PostgresSqlScriptRunner::get(string script){
-    list< map<string, shared_ptr<Value> > > results = _execute(script);
+map<string, string>  PostgresSqlScriptRunner::get(string script){
+    list< map<string, string> > results = _execute(script);
     if(results.size() > size_t(0)){
         return results.front();
     }else{
@@ -125,13 +125,13 @@ map<string, shared_ptr<Value> >  PostgresSqlScriptRunner::get(string script){
         throw DbException(stream.str());
     }
 
-    return map<string, shared_ptr<Value> >();
+    return map<string, string>();
 }
 
-shared_ptr<Value> PostgresSqlScriptRunner::scalar(string script){
-    list< map<string, shared_ptr<Value> > > results = _execute(script);
+string PostgresSqlScriptRunner::scalar(string script){
+    list< map<string, string> > results = _execute(script);
     if(results.size() > size_t(0) && results.front().size() > size_t(0)){
-        map<string, shared_ptr<Value> > row = results.front();
+        map<string, string> row = results.front();
         return (*(row.begin())).second;
     }else{
         ostringstream stream;
@@ -139,15 +139,13 @@ shared_ptr<Value> PostgresSqlScriptRunner::scalar(string script){
         cout << stream.str()<<endl;
         throw DbException(stream.str());
     }
-
-    return shared_ptr<Value>();
 }
 
 void PostgresSqlScriptRunner::ensureScriptsTableExists(ExecutedScripts& settings){
     ostringstream stream;
     stream << "SELECT relname FROM pg_class WHERE relname = '" << settings.getTableName() <<"'";
 
-    list< map<string, shared_ptr<Value> > > results = _execute(stream.str());
+    list< map<string, string> > results = _execute(stream.str());
     if(results.size() == size_t(0)){
         ostringstream stream;
         stream << "CREATE TABLE " << settings.getTableName() << "(" << endl << " " <<
@@ -170,15 +168,15 @@ void PostgresSqlScriptRunner::ensureScriptsTableExists(ExecutedScripts& settings
     }
 }
 
-map<string, shared_ptr<Value> > PostgresSqlScriptRunner::getLatestVersion(ExecutedScripts& settings){
+map<string, string> PostgresSqlScriptRunner::getLatestVersion(ExecutedScripts& settings){
     ostringstream stream;
     stream  << "SELECT * FROM " << settings.getTableName()
             << "  ORDER BY "<< settings.getScriptNoColumnName() << " DESC LIMIT 1";
-    list< map<string, shared_ptr<Value> > > results = _execute(stream.str());
+    list< map<string, string> > results = _execute(stream.str());
     if(results.size() > size_t(0)){
         return results.front();
     }else{
-        return map<string, shared_ptr<Value> >();
+        return map<string, string>();
     }
 }
 
@@ -232,7 +230,7 @@ void PostgresSqlScriptRunner::cleanDatabase(shared_ptr<Database> database){
     cleanTables(fullOptions.preservedTables());
 }
 
-list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::getTables(){
+list< map<string, string> > PostgresSqlScriptRunner::getTables(){
     string sql = " \
         SELECT n.nspname as schema, \
           c.relname as name, \
@@ -253,12 +251,12 @@ list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::getTables(){
           AND pg_catalog.pg_table_is_visible(c.oid) \
     ";
 
-    list< map<string, shared_ptr<Value> > > tables = _execute(sql);
+    list< map<string, string> > tables = _execute(sql);
 
     return tables;
 }
 
-list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::getSequences(){
+list< map<string, string> > PostgresSqlScriptRunner::getSequences(){
     string sql = " \
         SELECT n.nspname as schema, \
           c.relname as name, \
@@ -279,13 +277,13 @@ list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::getSequences(){
           AND pg_catalog.pg_table_is_visible(c.oid) \
     ";
 
-    list< map<string, shared_ptr<Value> > > tables = _execute(sql);
+    list< map<string, string> > tables = _execute(sql);
 
     return tables;
 }
 
 
-list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::getViews(){
+list< map<string, string> > PostgresSqlScriptRunner::getViews(){
     string sql = " \
         SELECT n.nspname as schema, \
           c.relname as name, \
@@ -306,18 +304,18 @@ list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::getViews(){
           AND pg_catalog.pg_table_is_visible(c.oid) \
     ";
 
-    list< map<string, shared_ptr<Value> > > tables = _execute(sql);
+    list< map<string, string> > tables = _execute(sql);
 
     return tables;
 }
 
-bool PostgresSqlScriptRunner::hasDependency(string tableName, const list< map<string, shared_ptr<Value> > >& dependencies, set<string>& excludeTables){
-    for (list< map<string, shared_ptr<Value> > >::const_iterator itDependencies= dependencies.begin() ; itDependencies != dependencies.end(); itDependencies++ ){
-        map<string, shared_ptr<Value> > dependency = *itDependencies;
+bool PostgresSqlScriptRunner::hasDependency(string tableName, const list< map<string, string> >& dependencies, set<string>& excludeTables){
+    for (list< map<string, string> >::const_iterator itDependencies= dependencies.begin() ; itDependencies != dependencies.end(); itDependencies++ ){
+        map<string, string> dependency = *itDependencies;
 
-        if(dependency["foreign_table_name"]->asString() == tableName &&
-                excludeTables.find(dependency["table_name"]->asString()) == excludeTables.end() &&
-                dependency["table_name"]->asString() != tableName){
+        if(dependency["foreign_table_name"] == tableName &&
+                excludeTables.find(dependency["table_name"]) == excludeTables.end() &&
+                dependency["table_name"] != tableName){
             return true;
         }
     }
@@ -326,23 +324,23 @@ bool PostgresSqlScriptRunner::hasDependency(string tableName, const list< map<st
 }
 
 list<string> PostgresSqlScriptRunner::sortTablesByDependency(
-        list< map<string, shared_ptr<Value> > >& allTables, list< map<string, shared_ptr<Value> > >& dependencies
+        list< map<string, string> >& allTables, list< map<string, string> >& dependencies
 ){
     list<string> tables;
     set<string> processedTables;
 
     int maxLoop=2000;
     while(maxLoop-- > 0){
-        for (list< map<string, shared_ptr<Value> > >::const_iterator it= allTables.begin() ; it != allTables.end(); it++){
-            map<string, shared_ptr<Value> > table = *it;
+        for (list< map<string, string> >::const_iterator it= allTables.begin() ; it != allTables.end(); it++){
+            map<string, string> table = *it;
 
-            if(processedTables.find(table["name"]->asString()) != processedTables.end()){
+            if(processedTables.find(table["name"]) != processedTables.end()){
                 continue;
             }
 
-            if(!hasDependency(table["name"]->asString(), dependencies, processedTables)){
-                tables.push_back(table["name"]->asString());
-                processedTables.insert(table["name"]->asString());
+            if(!hasDependency(table["name"], dependencies, processedTables)){
+                tables.push_back(table["name"]);
+                processedTables.insert(table["name"]);
             }
         }
     }
@@ -351,8 +349,8 @@ list<string> PostgresSqlScriptRunner::sortTablesByDependency(
 }
 
 void PostgresSqlScriptRunner::clearTables(const set<string>& preservedObjects){
-    list< map<string, shared_ptr<Value> > > tables =  getTables();
-    list< map<string, shared_ptr<Value> > > dependencies = getTableDependencies();
+    list< map<string, string> > tables =  getTables();
+    list< map<string, string> > dependencies = getTableDependencies();
 
     list<string> tablesToRemove = sortTablesByDependency(tables, dependencies);
     for (list<string>::iterator it= tablesToRemove.begin() ; it != tablesToRemove.end(); it++ ){
@@ -374,8 +372,8 @@ void PostgresSqlScriptRunner::clearTables(const set<string>& preservedObjects){
 }
 
 void PostgresSqlScriptRunner::cleanTables(const set<string>& preservedObjects){
-    list< map<string, shared_ptr<Value> > > tables =  getTables();
-    list< map<string, shared_ptr<Value> > > dependencies = getTableDependencies();
+    list< map<string, string> > tables =  getTables();
+    list< map<string, string> > dependencies = getTableDependencies();
     ostringstream drop;
     drop << "TRUNCATE TABLE ";
 
@@ -407,8 +405,8 @@ void PostgresSqlScriptRunner::cleanTables(const set<string>& preservedObjects){
 }
 
 void PostgresSqlScriptRunner::clearViews(const set<string>& preservedViews){
-    list< map<string, shared_ptr<Value> > > views =  getViews();
-    list< map<string, shared_ptr<Value> > > dependencies = getViewDependencies();
+    list< map<string, string> > views =  getViews();
+    list< map<string, string> > dependencies = getViewDependencies();
 
     list<string> viewsToRemove = sortTablesByDependency(views, dependencies);
     for (list<string>::iterator it= viewsToRemove.begin() ; it != viewsToRemove.end(); it++ ){
@@ -430,10 +428,10 @@ void PostgresSqlScriptRunner::clearViews(const set<string>& preservedViews){
 }
 
 void PostgresSqlScriptRunner::clearSequences(const set<string>& preservedSequences){
-    list< map<string, shared_ptr<Value> > > sequences =  getSequences();
+    list< map<string, string> > sequences =  getSequences();
 
-    for (list< map<string, shared_ptr<Value> > >::iterator it= sequences.begin() ; it != sequences.end(); it++ ){
-        string sequence = (*it)["name"]->asString();
+    for (list< map<string, string> >::iterator it= sequences.begin() ; it != sequences.end(); it++ ){
+        string sequence = (*it)["name"];
 
         if(preservedSequences.find(sequence) != preservedSequences.end() ){
             continue;
@@ -455,24 +453,24 @@ void PostgresSqlScriptRunner::clearFunctions(const set<string>& preservedFunctio
                     proname FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) \
                     WHERE ns.nspname NOT IN ('pg_catalog', 'information_schema') order by proname";
 
-    list< map<string, shared_ptr<Value> > > objects = _execute(sql);
+    list< map<string, string> > objects = _execute(sql);
 
-    for (list< map<string, shared_ptr<Value> > >::iterator it= objects.begin() ; it != objects.end(); it++ ){
-        map<string, shared_ptr<Value> > function = *it;
+    for (list< map<string, string> >::iterator it= objects.begin() ; it != objects.end(); it++ ){
+        map<string, string> function = *it;
 
-        if(preservedFunctions.find(function["proname"]->asString()) != preservedFunctions.end() ){
+        if(preservedFunctions.find(function["proname"]) != preservedFunctions.end() ){
             continue;
         }
 
-        cout << function["drop_sql"]->asString()<<endl;
+        cout << function["drop_sql"]<<endl;
 //      ostringstream drop;
-//      drop << "DROP " << object["type"]->asString() << " \"" << object["name"]->asString() << "\""<<endl;
-        _execute(function["drop_sql"]->asString());
+//      drop << "DROP " << object["type"] << " \"" << object["name"] << "\""<<endl;
+        _execute(function["drop_sql"]);
     }
 
 }
 
-list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::getTableDependencies(){
+list< map<string, string> > PostgresSqlScriptRunner::getTableDependencies(){
     string sql="SELECT tc.constraint_name, tc.table_name, kcu.column_name, \
                     ccu.table_name AS foreign_table_name, \
                     ccu.column_name AS foreign_column_name \
@@ -482,24 +480,24 @@ list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::getTableDepende
                     JOIN information_schema.constraint_column_usage AS ccu ON ccu.constraint_name = tc.constraint_name \
                 WHERE constraint_type = 'FOREIGN KEY' \
                 ";
-    list< map<string, shared_ptr<Value> > > result = _execute(sql);
+    list< map<string, string> > result = _execute(sql);
 
     return result;
 }
 
-list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::getSequenceDependencies(){
+list< map<string, string> > PostgresSqlScriptRunner::getSequenceDependencies(){
     string sql="SELECT o.relname as sequence_name, ref.relname as table_name \
                 FROM pg_class o, pg_depend d, pg_class ref, pg_namespace n \
                 WHERE o.oid=d.objid AND d.refobjid=ref.oid AND ref.relnamespace=n.oid \
                     AND deptype='a' AND ref.relkind='r' AND o.relkind='S' \
                     AND n.nspname NOT IN ('pg_catalog', 'information_schema') \
                 ";
-    list< map<string, shared_ptr<Value> > > result = _execute(sql);
+    list< map<string, string> > result = _execute(sql);
 
     return result;
 }
 
-list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::getViewDependencies(){
+list< map<string, string> > PostgresSqlScriptRunner::getViewDependencies(){
     string sql="SELECT DISTINCT cl_d.relname as foreign_table_name, cl_r.relname as table_name, \
                     CASE cl_d.relkind \
                      WHEN 'r' THEN 'table' \
@@ -512,13 +510,13 @@ list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::getViewDependen
                 WHERE cl_r.oid=r.ev_class AND r.oid=d.objid AND d.refobjid=cl_d.oid AND cl_d.relnamespace = n.oid \
                     AND n.nspname NOT IN ('pg_catalog', 'information_schema') \
                 ";
-    list< map<string, shared_ptr<Value> > > result = _execute(sql);
+    list< map<string, string> > result = _execute(sql);
 
     return result;
 }
 
 ClearOptions& PostgresSqlScriptRunner::extendPreservedTables(ClearOptions& clearOptions){
-    list< map<string, shared_ptr<Value> > > viewDependendedTables = getViewDependencies();
+    list< map<string, string> > viewDependendedTables = getViewDependencies();
     set<string> views = clearOptions.preservedViews();
     for (set<string>::iterator it= views.begin() ; it != views.end(); it++ ){
         extendViewDependencies(*it, viewDependendedTables, clearOptions);
@@ -526,18 +524,18 @@ ClearOptions& PostgresSqlScriptRunner::extendPreservedTables(ClearOptions& clear
 
     set<string> tables = clearOptions.preservedTables();
 
-    list< map<string, shared_ptr<Value> > > dependencies = getTableDependencies();
+    list< map<string, string> > dependencies = getTableDependencies();
     for (set<string>::iterator it= tables.begin() ; it != tables.end(); it++ ){
         deque<string> subs = getDependentTables(*it, dependencies);
         clearOptions.preservedTables(subs.begin(), subs.end());
     }
 
-    list< map<string, shared_ptr<Value> > > sequenceDependencies = getSequenceDependencies();
+    list< map<string, string> > sequenceDependencies = getSequenceDependencies();
     tables = clearOptions.preservedTables();
-    for (list< map<string, shared_ptr<Value> > >::iterator it= sequenceDependencies.begin() ; it != sequenceDependencies.end(); it++ ){
-        int idx = tables.count((*it)["table_name"]->asString());
+    for (list< map<string, string> >::iterator it= sequenceDependencies.begin() ; it != sequenceDependencies.end(); it++ ){
+        int idx = tables.count((*it)["table_name"]);
         if(idx > 0){
-            clearOptions.preservedSequence((*it)["sequence_name"]->asString());
+            clearOptions.preservedSequence((*it)["sequence_name"]);
         }
     }
 
@@ -549,22 +547,22 @@ ClearOptions& PostgresSqlScriptRunner::extendPreservedFunctions(ClearOptions& cl
                     FROM pg_depend d, pg_class c, pg_proc p, pg_class c2, pg_index i \
                     WHERE c.oid = i.indrelid AND i.indexrelid = c2.oid AND c2.oid=d.objid AND d.refobjid=p.oid \
                 ";
-    list< map<string, shared_ptr<Value> > > tableDependendedFunctions = _execute(sql);
+    list< map<string, string> > tableDependendedFunctions = _execute(sql);
 
     set<string> preservedTables = clearOptions.preservedTables();
 
-    for (list< map<string, shared_ptr<Value> > >::iterator it= tableDependendedFunctions.begin() ; it != tableDependendedFunctions.end(); it++ ){
-        map<string, shared_ptr<Value> > tableDependendedFunction = *it;
+    for (list< map<string, string> >::iterator it= tableDependendedFunctions.begin() ; it != tableDependendedFunctions.end(); it++ ){
+        map<string, string> tableDependendedFunction = *it;
 
-        if(clearOptions.isPreservedTable(tableDependendedFunction["table"]->asString())){
-            clearOptions.preservedFunction(tableDependendedFunction["function"]->asString());
+        if(clearOptions.isPreservedTable(tableDependendedFunction["table"])){
+            clearOptions.preservedFunction(tableDependendedFunction["function"]);
         }
     }
 
     return clearOptions;
 }
 
-list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::getDependentFunctions(string tableName){
+list< map<string, string> > PostgresSqlScriptRunner::getDependentFunctions(string tableName){
     //TODO: check this method, not implemented yet
     string sql="select c.relname, p.proname \
                 from pg_depend d, pg_class c, pg_proc p \
@@ -575,19 +573,19 @@ list< map<string, shared_ptr<Value> > > PostgresSqlScriptRunner::getDependentFun
                     WHERE c.relname = 'test2' AND c.oid = i.indrelid AND i.indexrelid = c2.oid \
                     ) \
                 ";
-    list< map<string, shared_ptr<Value> > > result = _execute(sql);
+    list< map<string, string> > result = _execute(sql);
     return result;
 }
 
-deque<string> PostgresSqlScriptRunner::getDependentTables(string tableName, const list< map<string, shared_ptr<Value> > >& dependencies){
+deque<string> PostgresSqlScriptRunner::getDependentTables(string tableName, const list< map<string, string > >& dependencies){
     deque<string> result;
 
-    for (list< map<string, shared_ptr<Value> > >::const_iterator it= dependencies.begin() ; it != dependencies.end(); it++ ){
-        map<string, shared_ptr<Value> > dependency = *it;
+    for (list< map<string, string> >::const_iterator it= dependencies.begin() ; it != dependencies.end(); it++ ){
+        map<string, string > dependency = *it;
 
-        if(dependency["table_name"]->asString() == tableName){
-            result.insert(result.begin(), dependency["foreign_table_name"]->asString());
-            deque<string> subs = getDependentTables(dependency["foreign_table_name"]->asString(), dependencies);
+        if(dependency["table_name"] == tableName){
+            result.insert(result.begin(), dependency["foreign_table_name"]);
+            deque<string> subs = getDependentTables(dependency["foreign_table_name"], dependencies);
             result.insert(result.begin(), subs.begin(), subs.end());
         }
     }
@@ -595,16 +593,16 @@ deque<string> PostgresSqlScriptRunner::getDependentTables(string tableName, cons
     return result;
 }
 
-ClearOptions& PostgresSqlScriptRunner::extendViewDependencies(string tableName, const list< map<string, shared_ptr<Value> > >& viewDependendedTables, ClearOptions& clearOptions){
-    for (list< map<string, shared_ptr<Value> > >::const_iterator it= viewDependendedTables.begin() ; it != viewDependendedTables.end(); it++ ){
-        map<string, shared_ptr<Value> > viewDependendedTable = *it;
-//        cout << "  compare with "<< viewDependendedTable["table_name"]->asString()<<endl;
-        if(viewDependendedTable["table_name"]->asString() == tableName && viewDependendedTable["foreign_table_name"]->asString() != tableName){
-            if(viewDependendedTable["type"]->asString() == "table"){
-                clearOptions.preservedTable(viewDependendedTable["foreign_table_name"]->asString());
-            }else if(viewDependendedTable["type"]->asString() == "view"){
-                clearOptions.preservedView(viewDependendedTable["foreign_table_name"]->asString());
-                extendViewDependencies(viewDependendedTable["foreign_table_name"]->asString(), viewDependendedTables, clearOptions);
+ClearOptions& PostgresSqlScriptRunner::extendViewDependencies(string tableName, const list< map<string, string > >& viewDependendedTables, ClearOptions& clearOptions){
+    for (list< map<string, string > >::const_iterator it= viewDependendedTables.begin() ; it != viewDependendedTables.end(); it++ ){
+        map<string, string> viewDependendedTable = *it;
+//        cout << "  compare with "<< viewDependendedTable["table_name"]<<endl;
+        if(viewDependendedTable["table_name"] == tableName && viewDependendedTable["foreign_table_name"] != tableName){
+            if(viewDependendedTable["type"] == "table"){
+                clearOptions.preservedTable(viewDependendedTable["foreign_table_name"]);
+            }else if(viewDependendedTable["type"] == "view"){
+                clearOptions.preservedView(viewDependendedTable["foreign_table_name"]);
+                extendViewDependencies(viewDependendedTable["foreign_table_name"], viewDependendedTables, clearOptions);
             }
         }
     }

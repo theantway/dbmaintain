@@ -82,14 +82,13 @@ void DbMaintain::update(){
 }
 
 int DbMaintain::getLatestVersion(SqlScriptRunner& runner, ExecutedScripts& executedScriptsSettings){
-    map<string, shared_ptr<Value> > latest = runner.getLatestVersion(executedScriptsSettings);
-    shared_ptr<Value> no = latest["script_no"];
+    map<string, string> latest = runner.getLatestVersion(executedScriptsSettings);
 
-    int latestNo = 0;
-    if(no.get() != NULL){
-        latestNo = no->asInt();
+    if(latest.count("script_no")){
+        return atoi(latest["script_no"].c_str());
     }
-    return latestNo;
+
+    return 0;
 }
 
 void DbMaintain::validate() {

@@ -16,23 +16,23 @@ public:
     virtual void run(shared_ptr<ChangeScript> script){
 
     }
-    virtual list< map<string, shared_ptr<Value> > > execute(string script){
-        return list< map<string, shared_ptr<Value> > >();
+    virtual list< map<string, string> > execute(string script){
+        return list< map<string, string> >();
     }
-    virtual list< map<string, shared_ptr<Value> > > query(string script){
-        return list< map<string, shared_ptr<Value> > >();
+    virtual list< map<string, string> > query(string script){
+        return list< map<string, string> >();
     }
-    virtual map<string, shared_ptr<Value> > get(string script){
-        return map<string, shared_ptr<Value> >();
+    virtual map<string, string> get(string script){
+        return map<string, string>();
     }
-    virtual shared_ptr<Value> scalar(string script){
-        return shared_ptr<Value>(new Value("val"));
+    virtual string scalar(string script){
+        return "val";
     }
     virtual void setConnectionString(string connectionString){
     }
     virtual void ensureScriptsTableExists(ExecutedScripts& executedScripts){}
-    virtual map<string, shared_ptr<Value> > getLatestVersion(ExecutedScripts& executedScriptsSettings){
-        return map<string, shared_ptr<Value> >();
+    virtual map<string, string> getLatestVersion(ExecutedScripts& executedScriptsSettings){
+        return map<string, string>();
     }
     virtual void beginRunScript(ExecutedScripts& executedScriptsSettings, shared_ptr<ChangeScript> script){}
     virtual void endRunScript(ExecutedScripts& executedScriptsSettings, shared_ptr<ChangeScript> script){}

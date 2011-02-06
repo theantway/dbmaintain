@@ -39,17 +39,16 @@ SUITE(PostgresSqlScriptRunnerTest){
      */
     TEST_FIXTURE (PostgresSqlScriptRunnerTest, should_get_single_value_from_db)
     {
-        ASSERT_EQUAL(runner->scalar("select datname from pg_catalog.pg_database where datname='postgres'")->asString(), "postgres");
-        ASSERT_EQUAL(runner->scalar("select 1 as intval")->asInt(), 1);
+        ASSERT_EQUAL(runner->scalar("select datname from pg_catalog.pg_database where datname='postgres'"), "postgres");
+        ASSERT_EQUAL(runner->scalar("select 1 as intval"), "1");
     }
 
     TEST_FIXTURE (PostgresSqlScriptRunnerTest, should_get_single_row_from_db)
     {
-        map<string, shared_ptr<Value> > result = runner->get("select datname, 1 as IntVal, 0.12 as DoubleVal from pg_catalog.pg_database where datname='postgres'");
-        ASSERT_EQUAL(result["datname"]->asString(), "postgres");
-        ASSERT_EQUAL(result["intval"]->asInt(), 1);
-        ASSERT_EQUAL(result["doubleval"]->asDouble(), 0.12);
-        ASSERT_EQUAL(result["not-exists"], shared_ptr<Value>());
+        map<string, string> result = runner->get("select datname, 1 as IntVal, 0.12 as DoubleVal from pg_catalog.pg_database where datname='postgres'");
+        ASSERT_EQUAL(result["datname"], "postgres");
+        ASSERT_EQUAL(result["intval"], "1");
+        ASSERT_EQUAL(result["doubleval"], "0.12");
     }
 
     TEST_FIXTURE (PostgresSqlScriptRunnerTest, should_ensure_script_table_exists)
@@ -58,14 +57,14 @@ SUITE(PostgresSqlScriptRunnerTest){
         map<string, string> fieldsMap;
         runner->execute("DROP TABLE IF EXISTS " + executedScripts.getTableName());
         runner->ensureScriptsTableExists(executedScripts);
-        ASSERT_EQUAL(runner->scalar("SELECT relname FROM pg_class WHERE relname = 'dbmaintain_scripts'")->asString(), executedScripts.getTableName());
+        ASSERT_EQUAL(runner->scalar("SELECT relname FROM pg_class WHERE relname = 'dbmaintain_scripts'"), executedScripts.getTableName());
 
         runner->execute("INSERT INTO dbmaintain_scripts(script_name) values('test')");
-        ASSERT_EQUAL(runner->scalar("SELECT id FROM dbmaintain_scripts LIMIT 1")->asInt(), 1);
+        ASSERT_EQUAL(runner->scalar("SELECT id FROM dbmaintain_scripts LIMIT 1"), "1");
 
         runner->ensureScriptsTableExists(executedScripts);
-        ASSERT_EQUAL(runner->scalar("SELECT relname FROM pg_class WHERE relname = 'dbmaintain_scripts'")->asString(), executedScripts.getTableName());
-        ASSERT_EQUAL(runner->scalar("SELECT id FROM dbmaintain_scripts LIMIT 1")->asInt(), 1);
+        ASSERT_EQUAL(runner->scalar("SELECT relname FROM pg_class WHERE relname = 'dbmaintain_scripts'"), executedScripts.getTableName());
+        ASSERT_EQUAL(runner->scalar("SELECT id FROM dbmaintain_scripts LIMIT 1"), "1");
     }
 
     TEST_FIXTURE (PostgresSqlScriptRunnerTest, clean_tables_should_ignore_preserved_tables)
@@ -85,10 +84,10 @@ SUITE(PostgresSqlScriptRunnerTest){
 
         runner->cleanDatabase(db);
 
-        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM other_table")->asInt(), 0);
-        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM account")->asInt(), 1);
-        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM account_user")->asInt(), 1);
-        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM access_log")->asInt(), 1);
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM other_table"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM account"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM account_user"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM access_log"), "1");
     }
 
     TEST_FIXTURE (PostgresSqlScriptRunnerTest, clear_database_should_skip_preserved_and_dependent_tables_and_functions)
@@ -117,12 +116,12 @@ SUITE(PostgresSqlScriptRunnerTest){
         expectedTables.insert("purchase");
         expectedTables.insert("purchase_log");
 
-        list< map<string, shared_ptr<Value> > > tables = runner->getTables();
+        list< map<string, string> > tables = runner->getTables();
         ASSERT_EQUAL(tables.size(), size_t(3));
 
-        for (list< map<string, shared_ptr<Value> > >::const_iterator it=tables.begin() ; it != tables.end(); it++ ){
-            map<string, shared_ptr<Value> > table = *it;
-            ASSERT_EQUAL(expectedTables.find(table["name"]->asString()) != expectedTables.end(), true);
+        for (list< map<string, string> >::const_iterator it=tables.begin() ; it != tables.end(); it++ ){
+            map<string, string> table = *it;
+            ASSERT_EQUAL(expectedTables.find(table["name"]) != expectedTables.end(), true);
         }
     }
 
