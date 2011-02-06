@@ -34,20 +34,20 @@ string ClearOptions::describe() const{
 
     return oss.str();
 }
-
-shared_ptr<ClearOptions> ClearOptions::clone() const{
-    shared_ptr<ClearOptions> result(new ClearOptions());
-
-    result->preservedSchemas(preservedSchemas());
-    result->preservedTables(preservedTables());
-    result->preservedViews(preservedViews());
-    result->preservedFunctions(preservedFunctions());
-    result->preservedMaterializedViews(preservedMaterializedViews());
-    result->preservedSynonyms(preservedSynonyms());
-    result->preservedSequences(preservedSequences());
-
-    return result;
-}
+//
+//shared_ptr<ClearOptions> ClearOptions::clone() const{
+//    shared_ptr<ClearOptions> result(new ClearOptions());
+//
+//    result->preservedSchemas(preservedSchemas());
+//    result->preservedTables(preservedTables());
+//    result->preservedViews(preservedViews());
+//    result->preservedFunctions(preservedFunctions());
+//    result->preservedMaterializedViews(preservedMaterializedViews());
+//    result->preservedSynonyms(preservedSynonyms());
+//    result->preservedSequences(preservedSequences());
+//
+//    return result;
+//}
 
 const set<string>& ClearOptions::preservedSchemas() const{
     return m_preservedSchemas;
@@ -74,25 +74,25 @@ const set<string>& ClearOptions::preservedSequences() const{
     return m_preservedSequences;
 }
 
-void ClearOptions::preservedSchemas(const set<string> schemas){
+void ClearOptions::preservedSchemas(const vector<string>& schemas){
     m_preservedSchemas.insert(schemas.begin(), schemas.end());
 }
-void ClearOptions::preservedTables(const set<string> tables){
+void ClearOptions::preservedTables(const vector<string>& tables){
     m_preservedTables.insert(tables.begin(), tables.end());
 }
-void ClearOptions::preservedFunctions(const set<string> functions){
+void ClearOptions::preservedFunctions(const vector<string>& functions){
     m_preservedFunctions.insert(functions.begin(), functions.end());
 }
-void ClearOptions::preservedViews(const set<string> views){
+void ClearOptions::preservedViews(const vector<string>& views){
     m_preservedViews.insert(views.begin(), views.end());
 }
-void ClearOptions::preservedMaterializedViews(const set<string> materializedViews){
+void ClearOptions::preservedMaterializedViews(const vector<string>& materializedViews){
     m_preservedMaterializedViews.insert(materializedViews.begin(), materializedViews.end());
 }
-void ClearOptions::preservedSynonyms(const set<string> synonyms){
+void ClearOptions::preservedSynonyms(const vector<string>& synonyms){
     m_preservedSynonyms.insert(synonyms.begin(), synonyms.end());
 }
-void ClearOptions::preservedSequences(const set<string> sequences){
+void ClearOptions::preservedSequences(const vector<string>& sequences){
     m_preservedSequences.insert(sequences.begin(), sequences.end());
 }
 

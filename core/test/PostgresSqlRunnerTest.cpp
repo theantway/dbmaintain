@@ -80,11 +80,8 @@ SUITE(PostgresSqlScriptRunnerTest){
         runner->execute("INSERT INTO access_log(user_id) VALUES((select id from account_user where name='test-user' limit 1))");
         runner->execute("INSERT INTO other_table(name) VALUES('anything')");
 
-        shared_ptr<ClearOptions> cleanOptions(new ClearOptions());
-        cleanOptions->preservedTable("access_log");
-
         shared_ptr<Database> db(new Database());
-        db->setCleanOptions(cleanOptions);
+        db->preservedTables("access_log");
 
         runner->cleanDatabase(db);
 
@@ -110,11 +107,8 @@ SUITE(PostgresSqlScriptRunnerTest){
         runner->execute("CREATE TABLE other_table(id BIGSERIAL PRIMARY KEY, parent_id bigint references other_table(id))");
         runner->execute("CREATE INDEX idx_purchase_name  ON purchase(reverse_last_64(name) varchar_pattern_ops)");
 
-        shared_ptr<ClearOptions> clearOptions(new ClearOptions());
-        clearOptions->preservedTable("purchase_log");
-
         shared_ptr<Database> db(new Database());
-        db->setClearOptions(clearOptions);
+        db->preservedTables("purchase_log");
 
         runner->clearDatabase(db);
 
@@ -154,28 +148,28 @@ SUITE(PostgresSqlScriptRunnerTest){
         runner->execute("CREATE TABLE Test2(id BIGSERIAL PRIMARY KEY, name varchar(100), test_id bigint references test(id) )");
         runner->execute("CREATE INDEX idx_test2_name  ON test2(reverse_last_64(name) varchar_pattern_ops)");
 
-        shared_ptr<ClearOptions> clearOptions(new ClearOptions());
-        clearOptions->preservedView("customer_purchase_view");
+        ClearOptions clearOptions;
+        clearOptions.preservedView("customer_purchase_view");
 
-        shared_ptr<ClearOptions> resultOptions = runner->extendPreservedObjects(clearOptions);
+        ClearOptions& resultOptions = runner->extendPreservedObjects(clearOptions);
 
         set<string> expectedTables;
         expectedTables.insert("customer");
         expectedTables.insert("purchase");
         expectedTables.insert("purchase_log");
 
-        set<string> preservedTables = resultOptions->preservedTables();
+        set<string> preservedTables = resultOptions.preservedTables();
         ASSERT_EQUAL(equal(expectedTables.begin(), expectedTables.end(), preservedTables.begin()), true);
 
         set<string> expectedFunctions;
         expectedFunctions.insert("reverse_last_64");
-        set<string> preservedFunctions = resultOptions->preservedFunctions();
+        set<string> preservedFunctions = resultOptions.preservedFunctions();
         ASSERT_EQUAL(equal(expectedFunctions.begin(), expectedFunctions.end(), preservedFunctions.begin()), true);
 
         set<string> expectedViews;
         expectedViews.insert("purchase_view");
         expectedViews.insert("customer_purchase_view");
-        set<string> preservedViews = resultOptions->preservedViews();
+        set<string> preservedViews = resultOptions.preservedViews();
         ASSERT_EQUAL(equal(expectedViews.begin(), expectedViews.end(), preservedViews.begin()), true);
     }
 
@@ -202,22 +196,22 @@ SUITE(PostgresSqlScriptRunnerTest){
         runner->execute("CREATE TABLE other_table(id BIGSERIAL PRIMARY KEY)");
         runner->execute("CREATE INDEX idx_account_name  ON account(reverse_last_64(name) varchar_pattern_ops)");
 
-        shared_ptr<ClearOptions> clearOptions(new ClearOptions());
-        clearOptions->preservedTable("access_log");
+        ClearOptions clearOptions;
+        clearOptions.preservedTable("access_log");
 
-        shared_ptr<ClearOptions> resultOptions = runner->extendPreservedObjects(clearOptions);
+        ClearOptions& resultOptions = runner->extendPreservedObjects(clearOptions);
 
         set<string> expectedTables;
         expectedTables.insert("account");
         expectedTables.insert("account_user");
         expectedTables.insert("access_log");
 
-        set<string> preservedTables = resultOptions->preservedTables();
+        set<string> preservedTables = resultOptions.preservedTables();
         ASSERT_EQUAL(equal(expectedTables.begin(), expectedTables.end(), preservedTables.begin()), true);
 
         set<string> expectedFunctions;
         expectedFunctions.insert("reverse_last_64");
-        set<string> preservedFunctions = resultOptions->preservedFunctions();
+        set<string> preservedFunctions = resultOptions.preservedFunctions();
         ASSERT_EQUAL(equal(expectedFunctions.begin(), expectedFunctions.end(), preservedFunctions.begin()), true);
     }
 }

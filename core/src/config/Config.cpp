@@ -28,7 +28,6 @@ void Config::applyFromFile(string configFile){
     applyDatabases(fileConfig);
     applyScripts(fileConfig);
     applyExecutedScriptsSettings(fileConfig);
-
 }
 
 void Config::applyDatabases(FileConfig& fileConfig){
@@ -40,16 +39,15 @@ void Config::applyDatabases(FileConfig& fileConfig){
         db->setDialect(fileConfig.get(dbName, "dialect", ""));
         db->setUrl(fileConfig.get(dbName, "url", ""));
 
+        db->preservedSchemas(fileConfig.get(dbName, "preserve.schemas", ""));
+        db->preservedTables(fileConfig.get(dbName, "preserve.tables", ""));
+        db->preservedViews(fileConfig.get(dbName, "preserve.views", ""));
+        db->preservedFunctions(fileConfig.get(dbName, "preserve.functions", ""));
+        db->preservedMaterializedViews(fileConfig.get(dbName, "preserve.materialized_views", ""));
+        db->preservedSynonyms(fileConfig.get(dbName, "preserve.synonyms", ""));
+        db->preservedSequences(fileConfig.get(dbName, "preserve.sequences", ""));
+
         cout << "add db type=" << db->getDialect() << " url=" << db->getUrl()<<endl;
-        string scriptsSettingName = fileConfig.get(dbName, "scripts_setting", "");
-        if(scriptsSettingName != ""){
-
-        }
-
-        string preservedObjects = fileConfig.get(dbName, "preserved_objects", "");
-        if(preservedObjects != ""){
-
-        }
 
         addDatabase(dbName, db);
     }

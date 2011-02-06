@@ -9,7 +9,6 @@
 #include "config/ClearOptions.h"
 #include "config/ExecutedScripts.h"
 
-
 using namespace boost;
 using namespace std;
 
@@ -20,19 +19,23 @@ public:
 
     string getDialect();
     string getUrl();
-    shared_ptr<ClearOptions> getClearOptions();
-    shared_ptr<ClearOptions> getCleanOptions();
-
     void setDialect(string dialect);
     void setUrl(string url);
-    void setClearOptions(shared_ptr<ClearOptions> options);
-    void setCleanOptions(shared_ptr<ClearOptions> options);
+
+    ClearOptions getPreservedObjects();
+
+    Database& preservedSchemas(const string& schemas);
+    Database& preservedTables(const string& tables);
+    Database& preservedViews(const string& views);
+    Database& preservedFunctions(const string& functions);
+    Database& preservedMaterializedViews(const string& materializedViews);
+    Database& preservedSynonyms(const string& synonyms);
+    Database& preservedSequences(const string& sequences);
+
 private:
     string m_dialect;
     string m_url;
-    shared_ptr<ClearOptions> m_clearOptions;
-    shared_ptr<ClearOptions> m_cleanOptions;
+    ClearOptions m_preservedObjects;
 };
 
 #endif	/* CORE_CONFIG_DATABASE_H */
-

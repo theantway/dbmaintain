@@ -2,6 +2,7 @@
 #define CORE_CONFIG_CLEAROPTIONS_H_
 
 #include <set>
+#include <vector>
 #include <string>
 #include <iterator>
 
@@ -27,13 +28,13 @@ public:
 	const set<string>& preservedSynonyms() const;
 	const set<string>& preservedSequences() const;
 
-	void preservedSchemas(const set<string> schemas);
-	void preservedTables(const set<string> tables);
-	void preservedViews(const set<string> views);
-	void preservedFunctions(const set<string> functions);
-	void preservedMaterializedViews(const set<string> materializedViews);
-	void preservedSynonyms(const set<string> synonyms);
-	void preservedSequences(const set<string> sequences);
+	void preservedSchemas(const vector<string>& schemas);
+	void preservedTables(const vector<string>& tables);
+	void preservedViews(const vector<string>& views);
+	void preservedFunctions(const vector<string>& functions);
+	void preservedMaterializedViews(const vector<string>& materializedViews);
+	void preservedSynonyms(const vector<string>& synonyms);
+	void preservedSequences(const vector<string>& sequences);
 
 	template <class _InputIterator>
 	void preservedSchemas(_InputIterator first, _InputIterator last){

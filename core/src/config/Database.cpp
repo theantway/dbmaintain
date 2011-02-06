@@ -1,23 +1,17 @@
 #include "config/Database.h"
 
+#include <vector>
+
+#include "StringUtil.h"
+
 Database::Database() {
 }
 
 Database::~Database() {
 }
 
-shared_ptr<ClearOptions> Database::getClearOptions(){
-    if(!m_clearOptions){
-        m_clearOptions = shared_ptr<ClearOptions>(new ClearOptions());
-    }
-    return m_clearOptions;
-}
-
-shared_ptr<ClearOptions> Database::getCleanOptions(){
-    if(!m_cleanOptions){
-        m_cleanOptions = shared_ptr<ClearOptions>(new ClearOptions());
-    }
-    return m_cleanOptions;
+ClearOptions Database::getPreservedObjects(){
+    return m_preservedObjects;
 }
 
 string Database::getDialect(){
@@ -36,10 +30,48 @@ void Database::setUrl(string url){
     m_url = url;
 }
 
-void Database::setClearOptions(shared_ptr<ClearOptions> options){
-    m_clearOptions = options;
+Database& Database::preservedSchemas(const string& schemas){
+    return *this;
 }
 
-void Database::setCleanOptions(shared_ptr<ClearOptions> options){
-    m_cleanOptions = options;
+Database& Database::preservedTables(const string& tables){
+    vector<string> tableList = StringUtil::split(tables, ",");
+    m_preservedObjects.preservedTables(tableList.begin(), tableList.end());
+
+    return *this;
+}
+
+Database& Database::preservedViews(const string& views){
+    vector<string> viewList = StringUtil::split(views, ",");
+    m_preservedObjects.preservedViews(viewList.begin(), viewList.end());
+
+    return *this;
+}
+
+Database& Database::preservedFunctions(const string& functions){
+    vector<string> functionList = StringUtil::split(functions, ",");
+    m_preservedObjects.preservedFunctions(functionList.begin(), functionList.end());
+
+    return *this;
+}
+
+Database& Database::preservedMaterializedViews(const string& materializedViews){
+    vector<string> viewsList = StringUtil::split(materializedViews, ",");
+    m_preservedObjects.preservedMaterializedViews(viewsList.begin(), viewsList.end());
+
+    return *this;
+}
+
+Database& Database::preservedSynonyms(const string& synonyms){
+    vector<string> synonymsList = StringUtil::split(synonyms, ",");
+    m_preservedObjects.preservedSynonyms(synonymsList.begin(), synonymsList.end());
+
+    return *this;
+}
+
+Database& Database::preservedSequences(const string& sequences){
+    vector<string> sequenceList = StringUtil::split(sequences, ",");
+    m_preservedObjects.preservedSequences(sequenceList.begin(), sequenceList.end());
+
+    return *this;
 }

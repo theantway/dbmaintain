@@ -39,15 +39,10 @@ public:
 	virtual void clearDatabase(shared_ptr<Database> database);
     virtual void cleanDatabase(shared_ptr<Database> database);
 
-	ClearOptions extendPreservedObjects(const ClearOptions& options);
-	ClearOptions extendPreservedTables(ClearOptions& clearOptions);
-    ClearOptions extendPreservedFunctions(ClearOptions& clearOptions);
-    ClearOptions extendViewDependencies(string tableName, const list< map<string, shared_ptr<Value> > >& viewDependendedTables, ClearOptions& clearOptions);
-
-	shared_ptr<ClearOptions> extendPreservedObjects(shared_ptr<ClearOptions> options);
-	shared_ptr<ClearOptions> extendPreservedTables(shared_ptr<ClearOptions> clearOptions);
-	shared_ptr<ClearOptions> extendPreservedFunctions(shared_ptr<ClearOptions> clearOptions);
-	shared_ptr<ClearOptions> extendViewDependencies(string tableName, const list< map<string, shared_ptr<Value> > >& viewDependendedTables, shared_ptr<ClearOptions> clearOptions);
+	ClearOptions& extendPreservedObjects(ClearOptions& options);
+	ClearOptions& extendPreservedTables(ClearOptions& clearOptions);
+    ClearOptions& extendPreservedFunctions(ClearOptions& clearOptions);
+    ClearOptions& extendViewDependencies(string tableName, const list< map<string, shared_ptr<Value> > >& viewDependendedTables, ClearOptions& clearOptions);
 
 	list< map<string, shared_ptr<Value> > > getTables();
 	list< map<string, shared_ptr<Value> > > getSequences();
