@@ -31,6 +31,8 @@ public:
     Database& preservedMaterializedViews(const string& materializedViews);
     Database& preservedSynonyms(const string& synonyms);
     Database& preservedSequences(const string& sequences);
+    Database& preservedDataOnlySchemas(const string& schemas);
+    Database& preservedDataOnlyTables(const string& tables);
 
 private:
     string m_dialect;

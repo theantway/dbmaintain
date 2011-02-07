@@ -62,7 +62,7 @@ private:
 	PGconn* getConnection();
 	list< map<string, string> > _execute(string script);
 	void clearTables(const set<string>& preservedTables);
-	void cleanTables(const set<string>& preservedTables);
+	void cleanTables(const set<string>& preservedTables, const set<string>& preservedDataOnlyTables);
 	void clearViews(const set<string>& preservedViews);
 	void clearSequences(const set<string>& preservedSequences);
 	void clearFunctions(const set<string>& preservedFunctions);

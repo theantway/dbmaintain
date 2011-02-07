@@ -227,7 +227,9 @@ void PostgresSqlScriptRunner::clearDatabase(shared_ptr<Database> database){
 void PostgresSqlScriptRunner::cleanDatabase(shared_ptr<Database> database){
     ClearOptions fullOptions = database->getPreservedObjects();
     extendPreservedObjects(fullOptions);
-    cleanTables(fullOptions.preservedTables());
+
+    cout << "preserved objects to clean: " << endl << fullOptions.describe();
+    cleanTables(fullOptions.preservedTables(), fullOptions.preservedDataOnlyTables());
 }
 
 list< map<string, string> > PostgresSqlScriptRunner::getTables(){
@@ -371,7 +373,7 @@ void PostgresSqlScriptRunner::clearTables(const set<string>& preservedObjects){
     }
 }
 
-void PostgresSqlScriptRunner::cleanTables(const set<string>& preservedObjects){
+void PostgresSqlScriptRunner::cleanTables(const set<string>& preservedTables, const set<string>& preservedDataOnlyTables){
     list< map<string, string> > tables =  getTables();
     list< map<string, string> > dependencies = getTableDependencies();
     ostringstream drop;
@@ -383,7 +385,9 @@ void PostgresSqlScriptRunner::cleanTables(const set<string>& preservedObjects){
     for (list<string>::iterator it= tablesToRemove.begin() ; it != tablesToRemove.end(); it++ ){
         string tableName = *it;
 
-        if(preservedObjects.find(tableName) != preservedObjects.end() ){
+        if(preservedTables.find(tableName) != preservedTables.end() ||
+                preservedDataOnlyTables.find(tableName) != preservedDataOnlyTables.end()
+                ){
             continue;
         }
 
@@ -522,12 +526,18 @@ ClearOptions& PostgresSqlScriptRunner::extendPreservedTables(ClearOptions& clear
         extendViewDependencies(*it, viewDependendedTables, clearOptions);
     }
 
-    set<string> tables = clearOptions.preservedTables();
-
     list< map<string, string> > dependencies = getTableDependencies();
+
+    set<string> tables = clearOptions.preservedTables();
     for (set<string>::iterator it= tables.begin() ; it != tables.end(); it++ ){
         deque<string> subs = getDependentTables(*it, dependencies);
         clearOptions.preservedTables(subs.begin(), subs.end());
+    }
+
+    set<string> dataOnlyTables = clearOptions.preservedDataOnlyTables();
+    for (set<string>::iterator it= dataOnlyTables.begin() ; it != dataOnlyTables.end(); it++ ){
+        deque<string> subs = getDependentTables(*it, dependencies);
+        clearOptions.preservedDataOnlyTables(subs.begin(), subs.end());
     }
 
     list< map<string, string> > sequenceDependencies = getSequenceDependencies();

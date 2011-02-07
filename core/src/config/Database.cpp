@@ -1,9 +1,5 @@
 #include "config/Database.h"
 
-#include <vector>
-
-#include "StringUtil.h"
-
 Database::Database() {
 }
 
@@ -31,47 +27,54 @@ void Database::setUrl(string url){
 }
 
 Database& Database::preservedSchemas(const string& schemas){
+    m_preservedObjects.preservedSchemas(schemas);
     return *this;
 }
 
 Database& Database::preservedTables(const string& tables){
-    vector<string> tableList = StringUtil::split(tables, ",");
-    m_preservedObjects.preservedTables(tableList.begin(), tableList.end());
+    m_preservedObjects.preservedTables(tables);
 
     return *this;
 }
 
 Database& Database::preservedViews(const string& views){
-    vector<string> viewList = StringUtil::split(views, ",");
-    m_preservedObjects.preservedViews(viewList.begin(), viewList.end());
+    m_preservedObjects.preservedViews(views);
 
     return *this;
 }
 
 Database& Database::preservedFunctions(const string& functions){
-    vector<string> functionList = StringUtil::split(functions, ",");
-    m_preservedObjects.preservedFunctions(functionList.begin(), functionList.end());
+    m_preservedObjects.preservedFunctions(functions);
 
     return *this;
 }
 
 Database& Database::preservedMaterializedViews(const string& materializedViews){
-    vector<string> viewsList = StringUtil::split(materializedViews, ",");
-    m_preservedObjects.preservedMaterializedViews(viewsList.begin(), viewsList.end());
+    m_preservedObjects.preservedMaterializedViews(materializedViews);
 
     return *this;
 }
 
 Database& Database::preservedSynonyms(const string& synonyms){
-    vector<string> synonymsList = StringUtil::split(synonyms, ",");
-    m_preservedObjects.preservedSynonyms(synonymsList.begin(), synonymsList.end());
+    m_preservedObjects.preservedSynonyms(synonyms);
 
     return *this;
 }
 
 Database& Database::preservedSequences(const string& sequences){
-    vector<string> sequenceList = StringUtil::split(sequences, ",");
-    m_preservedObjects.preservedSequences(sequenceList.begin(), sequenceList.end());
+    m_preservedObjects.preservedSequences(sequences);
+
+    return *this;
+}
+
+Database& Database::preservedDataOnlySchemas(const string& schemas){
+    m_preservedObjects.preservedDataOnlySchemas(schemas);
+
+    return *this;
+}
+
+Database& Database::preservedDataOnlyTables(const string& tables){
+    m_preservedObjects.preservedDataOnlyTables(tables);
 
     return *this;
 }

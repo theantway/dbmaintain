@@ -46,6 +46,8 @@ void Config::applyDatabases(FileConfig& fileConfig){
         db->preservedMaterializedViews(fileConfig.get(dbName, "preserve.materialized_views", ""));
         db->preservedSynonyms(fileConfig.get(dbName, "preserve.synonyms", ""));
         db->preservedSequences(fileConfig.get(dbName, "preserve.sequences", ""));
+        db->preservedDataOnlySchemas(fileConfig.get(dbName, "preserve.data_only.schemas", ""));
+        db->preservedDataOnlyTables(fileConfig.get(dbName, "preserve.data_only.tables", ""));
 
         cout << "add db type=" << db->getDialect() << " url=" << db->getUrl()<<endl;
 
