@@ -61,11 +61,11 @@ protected:
 private:
 	PGconn* getConnection();
 	list< map<string, string> > _execute(string script);
-	void clearTables(const set<string>& preservedTables);
+	void clearTables(const ClearOptions& preservedObjects);
 	void cleanTables(const ClearOptions& preservedObjects);
 	void clearViews(const ClearOptions& preservedObjects);
-	void clearSequences(const set<string>& preservedSequences);
-	void clearFunctions(const set<string>& preservedFunctions);
+	void clearSequences(const ClearOptions& preservedObjects);
+	void clearFunctions(const ClearOptions& preservedObjects);
 
 private:
 	PGconn     *m_pConn;

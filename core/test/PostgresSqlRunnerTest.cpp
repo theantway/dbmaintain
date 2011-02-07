@@ -119,9 +119,8 @@ SUITE(PostgresSqlScriptRunnerTest){
         list< map<string, string> > tables = runner->getTables();
         ASSERT_EQUAL(tables.size(), size_t(3));
 
-        for (list< map<string, string> >::const_iterator it=tables.begin() ; it != tables.end(); it++ ){
-            map<string, string> table = *it;
-            ASSERT_EQUAL(expectedTables.find(table["name"]) != expectedTables.end(), true);
+        for (list< map<string, string> >::iterator it=tables.begin() ; it != tables.end(); it++ ){
+            ASSERT_EQUAL(expectedTables.count((*it)["name"]), size_t(1));
         }
     }
 

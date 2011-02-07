@@ -219,9 +219,9 @@ void PostgresSqlScriptRunner::clearDatabase(shared_ptr<Database> database){
 
     cout << "preserved objects to clear: " << endl << fullOptions.describe();
     clearViews(fullOptions);
-    clearTables(fullOptions.preservedTables());
-    clearFunctions(fullOptions.preservedFunctions());
-    clearSequences(fullOptions.preservedSequences());
+    clearTables(fullOptions);
+    clearFunctions(fullOptions);
+    clearSequences(fullOptions);
 }
 
 void PostgresSqlScriptRunner::cleanDatabase(shared_ptr<Database> database){
@@ -356,9 +356,11 @@ list< map<string, string> > PostgresSqlScriptRunner::sortTablesByDependency(
     return tables;
 }
 
-void PostgresSqlScriptRunner::clearTables(const set<string>& preservedObjects){
+void PostgresSqlScriptRunner::clearTables(const ClearOptions& preservedObjects){
     list< map<string, string> > tables =  getTables();
     list< map<string, string> > dependencies = getTableDependencies();
+    const set<string>& preservedTables = preservedObjects.preservedTables();
+    const set<string>& preservedSchemas = preservedObjects.preservedSchemas();
 
     list< map<string, string> > tablesToRemove = sortTablesByDependency(tables, dependencies);
     for (list< map<string, string> >::iterator it= tablesToRemove.begin() ; it != tablesToRemove.end(); it++ ){
@@ -367,8 +369,9 @@ void PostgresSqlScriptRunner::clearTables(const set<string>& preservedObjects){
         string tableName = table["name"];
         string fullName = schemaName + "." + tableName;
 
-        if(preservedObjects.find(tableName) != preservedObjects.end() ||
-                preservedObjects.find(fullName) != preservedObjects.end()){
+        if(preservedTables.find(tableName) != preservedTables.end() ||
+                preservedSchemas.find(schemaName) != preservedSchemas.end() ||
+                preservedTables.find(fullName) != preservedTables.end()){
             continue;
         }
 
@@ -392,6 +395,7 @@ void PostgresSqlScriptRunner::cleanTables(const ClearOptions& preservedObjects){
     list< map<string, string> > tablesToRemove = sortTablesByDependency(tables, dependencies);
     const set<string>& preservedTables = preservedObjects.preservedTables();
     const set<string>& preservedDataOnlyTables = preservedObjects.preservedDataOnlyTables();
+    const set<string>& preservedSchemas = preservedObjects.preservedSchemas();
 
     bool hasTablesToTruncate=false;
     for (list< map<string, string> >::iterator it= tablesToRemove.begin() ; it != tablesToRemove.end(); it++ ){
@@ -400,7 +404,8 @@ void PostgresSqlScriptRunner::cleanTables(const ClearOptions& preservedObjects){
         string tableName = table["name"];
         string fullName = schemaName + "." + tableName;
 
-        if(preservedTables.find(tableName) != preservedTables.end() ||
+        if(preservedSchemas.find(schemaName) != preservedSchemas.end() ||
+                preservedTables.find(tableName) != preservedTables.end() ||
                 preservedTables.find(fullName) != preservedTables.end() ||
                 preservedDataOnlyTables.find(tableName) != preservedDataOnlyTables.end() ||
                 preservedDataOnlyTables.find(fullName) != preservedDataOnlyTables.end()
@@ -417,11 +422,13 @@ void PostgresSqlScriptRunner::cleanTables(const ClearOptions& preservedObjects){
         drop << "\"" << schemaName << "\".\"" << tableName << "\"";
     }
 
-    try{
-        cout << drop.str()<<endl;
-        _execute(drop.str());
-    }catch(DbException& e){
-        throw e;
+    if(hasTablesToTruncate){
+        try{
+            cout << drop.str()<<endl;
+            _execute(drop.str());
+        }catch(DbException& e){
+            throw e;
+        }
     }
 }
 
@@ -431,6 +438,7 @@ void PostgresSqlScriptRunner::clearViews(const ClearOptions& preservedObjects){
 
     list< map<string, string> > viewsToRemove = sortTablesByDependency(views, dependencies);
     const set<string>& preservedViews = preservedObjects.preservedViews();
+    const set<string>& preservedSchemas = preservedObjects.preservedSchemas();
 
     for (list< map<string, string> >::iterator it= viewsToRemove.begin() ; it != viewsToRemove.end(); it++ ){
         map<string, string>& table = *it;
@@ -438,7 +446,8 @@ void PostgresSqlScriptRunner::clearViews(const ClearOptions& preservedObjects){
         string viewName = table["name"];
         string fullName = schemaName + "." + viewName;
 
-        if(preservedViews.find(viewName) != preservedViews.end() ||
+        if(preservedSchemas.find(schemaName) != preservedSchemas.end() ||
+                preservedViews.find(viewName) != preservedViews.end() ||
                 preservedViews.find(fullName) != preservedViews.end()
                 ){
             continue;
@@ -455,14 +464,17 @@ void PostgresSqlScriptRunner::clearViews(const ClearOptions& preservedObjects){
     }
 }
 
-void PostgresSqlScriptRunner::clearSequences(const set<string>& preservedSequences){
+void PostgresSqlScriptRunner::clearSequences(const ClearOptions& preservedObjects){
     list< map<string, string> > sequences =  getSequences();
+    const set<string>& preservedSchemas = preservedObjects.preservedSchemas();
+    const set<string>& preservedSequences = preservedObjects.preservedSequences();
 
     for (list< map<string, string> >::iterator it= sequences.begin() ; it != sequences.end(); it++ ){
         string sequence = (*it)["name"];
         string schema = (*it)["schema"];
 
-        if(preservedSequences.find(sequence) != preservedSequences.end() ||
+        if(preservedSchemas.find(schema) != preservedSchemas.end() ||
+                preservedSequences.find(sequence) != preservedSequences.end() ||
                 preservedSequences.find(schema + "." + sequence) != preservedSequences.end() ){
             continue;
         }
@@ -478,17 +490,20 @@ void PostgresSqlScriptRunner::clearSequences(const set<string>& preservedSequenc
     }
 }
 
-void PostgresSqlScriptRunner::clearFunctions(const set<string>& preservedFunctions){
+void PostgresSqlScriptRunner::clearFunctions(const ClearOptions& preservedObjects){
     string sql = "SELECT 'DROP FUNCTION \"' || ns.nspname || '\".\"' || proname || '\"(' || oidvectortypes(proargtypes) || ') ' as drop_sql, \
                     proname, ns.nspname as schema FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) \
                     WHERE ns.nspname NOT IN ('pg_catalog', 'information_schema') order by proname";
 
+    const set<string>& preservedSchemas = preservedObjects.preservedSchemas();
+    const set<string>& preservedFunctions = preservedObjects.preservedFunctions();
     list< map<string, string> > objects = _execute(sql);
 
     for (list< map<string, string> >::iterator it= objects.begin() ; it != objects.end(); it++ ){
         map<string, string> function = *it;
 
-        if(preservedFunctions.find(function["proname"]) != preservedFunctions.end() ||
+        if(preservedSchemas.find(function["schema"]) != preservedSchemas.end() ||
+                preservedFunctions.find(function["proname"]) != preservedFunctions.end() ||
                 preservedFunctions.find(function["schema"] + "." + function["proname"]) != preservedFunctions.end()){
             continue;
         }
@@ -498,7 +513,6 @@ void PostgresSqlScriptRunner::clearFunctions(const set<string>& preservedFunctio
 //      drop << "DROP " << object["type"] << " \"" << object["name"] << "\""<<endl;
         _execute(function["drop_sql"]);
     }
-
 }
 
 list< map<string, string> > PostgresSqlScriptRunner::getTableDependencies(){
