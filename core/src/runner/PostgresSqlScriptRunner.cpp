@@ -218,7 +218,7 @@ void PostgresSqlScriptRunner::clearDatabase(shared_ptr<Database> database){
     extendPreservedObjects(fullOptions);
 
     cout << "preserved objects to clear: " << endl << fullOptions.describe();
-    clearViews(fullOptions.preservedViews());
+    clearViews(fullOptions);
     clearTables(fullOptions.preservedTables());
     clearFunctions(fullOptions.preservedFunctions());
     clearSequences(fullOptions.preservedSequences());
@@ -229,7 +229,7 @@ void PostgresSqlScriptRunner::cleanDatabase(shared_ptr<Database> database){
     extendPreservedObjects(fullOptions);
 
     cout << "preserved objects to clean: " << endl << fullOptions.describe();
-    cleanTables(fullOptions.preservedTables(), fullOptions.preservedDataOnlyTables());
+    cleanTables(fullOptions);
 }
 
 list< map<string, string> > PostgresSqlScriptRunner::getTables(){
@@ -311,13 +311,14 @@ list< map<string, string> > PostgresSqlScriptRunner::getViews(){
     return tables;
 }
 
-bool PostgresSqlScriptRunner::hasDependency(string tableName, const list< map<string, string> >& dependencies, set<string>& excludeTables){
+bool PostgresSqlScriptRunner::hasDependency(string schemaName, string tableName, const list< map<string, string> >& dependencies, set<string>& excludeTables){
     for (list< map<string, string> >::const_iterator itDependencies= dependencies.begin() ; itDependencies != dependencies.end(); itDependencies++ ){
         map<string, string> dependency = *itDependencies;
+        string fullName = dependency["schema_name"] + "." + dependency["table_name"];
 
-        if(dependency["foreign_table_name"] == tableName &&
-                excludeTables.find(dependency["table_name"]) == excludeTables.end() &&
-                dependency["table_name"] != tableName){
+        if(dependency["foreign_table_name"] == tableName && dependency["foreign_schema_name"] == schemaName &&
+                excludeTables.find(fullName) == excludeTables.end() &&
+                (dependency["table_name"] != tableName || dependency["schema_name"] != schemaName ) ){
             return true;
         }
     }
@@ -325,24 +326,29 @@ bool PostgresSqlScriptRunner::hasDependency(string tableName, const list< map<st
     return false;
 }
 
-list<string> PostgresSqlScriptRunner::sortTablesByDependency(
+list< map<string, string> > PostgresSqlScriptRunner::sortTablesByDependency(
         list< map<string, string> >& allTables, list< map<string, string> >& dependencies
 ){
-    list<string> tables;
+    list< map<string, string> > tables;
     set<string> processedTables;
 
     int maxLoop=2000;
     while(maxLoop-- > 0){
         for (list< map<string, string> >::const_iterator it= allTables.begin() ; it != allTables.end(); it++){
             map<string, string> table = *it;
+            string fullName = table["schema"] + "." +table["name"];
 
-            if(processedTables.find(table["name"]) != processedTables.end()){
+            if(processedTables.find(fullName) != processedTables.end()){
                 continue;
             }
 
-            if(!hasDependency(table["name"], dependencies, processedTables)){
-                tables.push_back(table["name"]);
-                processedTables.insert(table["name"]);
+            if(!hasDependency(table["schema"], table["name"], dependencies, processedTables)){
+                map<string, string> curTable;
+                curTable["schema"] = table["schema"];
+                curTable["name"] = table["name"];
+
+                tables.push_back(curTable);
+                processedTables.insert(fullName);
             }
         }
     }
@@ -354,16 +360,20 @@ void PostgresSqlScriptRunner::clearTables(const set<string>& preservedObjects){
     list< map<string, string> > tables =  getTables();
     list< map<string, string> > dependencies = getTableDependencies();
 
-    list<string> tablesToRemove = sortTablesByDependency(tables, dependencies);
-    for (list<string>::iterator it= tablesToRemove.begin() ; it != tablesToRemove.end(); it++ ){
-        string tableName = *it;
+    list< map<string, string> > tablesToRemove = sortTablesByDependency(tables, dependencies);
+    for (list< map<string, string> >::iterator it= tablesToRemove.begin() ; it != tablesToRemove.end(); it++ ){
+        map<string, string>& table = *it;
+        string schemaName = table["schema"];
+        string tableName = table["name"];
+        string fullName = schemaName + "." + tableName;
 
-        if(preservedObjects.find(tableName) != preservedObjects.end() ){
+        if(preservedObjects.find(tableName) != preservedObjects.end() ||
+                preservedObjects.find(fullName) != preservedObjects.end()){
             continue;
         }
 
         ostringstream drop;
-        drop << "DROP TABLE \"" << tableName << "\"";
+        drop << "DROP TABLE \"" << schemaName << "\".\""<< tableName << "\"";
         try{
             cout << drop.str()<<endl;
             _execute(drop.str());
@@ -373,20 +383,27 @@ void PostgresSqlScriptRunner::clearTables(const set<string>& preservedObjects){
     }
 }
 
-void PostgresSqlScriptRunner::cleanTables(const set<string>& preservedTables, const set<string>& preservedDataOnlyTables){
+void PostgresSqlScriptRunner::cleanTables(const ClearOptions& preservedObjects){
     list< map<string, string> > tables =  getTables();
     list< map<string, string> > dependencies = getTableDependencies();
     ostringstream drop;
     drop << "TRUNCATE TABLE ";
 
-    list<string> tablesToRemove = sortTablesByDependency(tables, dependencies);
+    list< map<string, string> > tablesToRemove = sortTablesByDependency(tables, dependencies);
+    const set<string>& preservedTables = preservedObjects.preservedTables();
+    const set<string>& preservedDataOnlyTables = preservedObjects.preservedDataOnlyTables();
 
     bool hasTablesToTruncate=false;
-    for (list<string>::iterator it= tablesToRemove.begin() ; it != tablesToRemove.end(); it++ ){
-        string tableName = *it;
+    for (list< map<string, string> >::iterator it= tablesToRemove.begin() ; it != tablesToRemove.end(); it++ ){
+        map<string, string>& table = *it;
+        string schemaName = table["schema"];
+        string tableName = table["name"];
+        string fullName = schemaName + "." + tableName;
 
         if(preservedTables.find(tableName) != preservedTables.end() ||
-                preservedDataOnlyTables.find(tableName) != preservedDataOnlyTables.end()
+                preservedTables.find(fullName) != preservedTables.end() ||
+                preservedDataOnlyTables.find(tableName) != preservedDataOnlyTables.end() ||
+                preservedDataOnlyTables.find(fullName) != preservedDataOnlyTables.end()
                 ){
             continue;
         }
@@ -397,7 +414,7 @@ void PostgresSqlScriptRunner::cleanTables(const set<string>& preservedTables, co
 
         hasTablesToTruncate = true;
 
-        drop << "\"" << tableName << "\"";
+        drop << "\"" << schemaName << "\".\"" << tableName << "\"";
     }
 
     try{
@@ -408,20 +425,27 @@ void PostgresSqlScriptRunner::cleanTables(const set<string>& preservedTables, co
     }
 }
 
-void PostgresSqlScriptRunner::clearViews(const set<string>& preservedViews){
+void PostgresSqlScriptRunner::clearViews(const ClearOptions& preservedObjects){
     list< map<string, string> > views =  getViews();
     list< map<string, string> > dependencies = getViewDependencies();
 
-    list<string> viewsToRemove = sortTablesByDependency(views, dependencies);
-    for (list<string>::iterator it= viewsToRemove.begin() ; it != viewsToRemove.end(); it++ ){
-        string viewName = *it;
+    list< map<string, string> > viewsToRemove = sortTablesByDependency(views, dependencies);
+    const set<string>& preservedViews = preservedObjects.preservedViews();
 
-        if(preservedViews.find(viewName) != preservedViews.end() ){
+    for (list< map<string, string> >::iterator it= viewsToRemove.begin() ; it != viewsToRemove.end(); it++ ){
+        map<string, string>& table = *it;
+        string schemaName = table["schema"];
+        string viewName = table["name"];
+        string fullName = schemaName + "." + viewName;
+
+        if(preservedViews.find(viewName) != preservedViews.end() ||
+                preservedViews.find(fullName) != preservedViews.end()
+                ){
             continue;
         }
 
         ostringstream drop;
-        drop << "DROP VIEW \"" << viewName << "\"";
+        drop << "DROP VIEW \"" << schemaName << "\".\"" << viewName << "\"";
         try{
             cout << drop.str()<<endl;
             _execute(drop.str());
@@ -436,13 +460,15 @@ void PostgresSqlScriptRunner::clearSequences(const set<string>& preservedSequenc
 
     for (list< map<string, string> >::iterator it= sequences.begin() ; it != sequences.end(); it++ ){
         string sequence = (*it)["name"];
+        string schema = (*it)["schema"];
 
-        if(preservedSequences.find(sequence) != preservedSequences.end() ){
+        if(preservedSequences.find(sequence) != preservedSequences.end() ||
+                preservedSequences.find(schema + "." + sequence) != preservedSequences.end() ){
             continue;
         }
 
         ostringstream drop;
-        drop << "DROP SEQUENCE \"" << sequence << "\"";
+        drop << "DROP SEQUENCE \"" << schema << "\".\"" << sequence << "\"";
         try{
             cout << drop.str()<<endl;
             _execute(drop.str());
@@ -453,8 +479,8 @@ void PostgresSqlScriptRunner::clearSequences(const set<string>& preservedSequenc
 }
 
 void PostgresSqlScriptRunner::clearFunctions(const set<string>& preservedFunctions){
-    string sql = "SELECT 'DROP FUNCTION ' || ns.nspname || '.' || proname || '(' || oidvectortypes(proargtypes) || ') ' as drop_sql, \
-                    proname FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) \
+    string sql = "SELECT 'DROP FUNCTION \"' || ns.nspname || '\".\"' || proname || '\"(' || oidvectortypes(proargtypes) || ') ' as drop_sql, \
+                    proname, ns.nspname as schema FROM pg_proc INNER JOIN pg_namespace ns ON (pg_proc.pronamespace = ns.oid) \
                     WHERE ns.nspname NOT IN ('pg_catalog', 'information_schema') order by proname";
 
     list< map<string, string> > objects = _execute(sql);
@@ -462,7 +488,8 @@ void PostgresSqlScriptRunner::clearFunctions(const set<string>& preservedFunctio
     for (list< map<string, string> >::iterator it= objects.begin() ; it != objects.end(); it++ ){
         map<string, string> function = *it;
 
-        if(preservedFunctions.find(function["proname"]) != preservedFunctions.end() ){
+        if(preservedFunctions.find(function["proname"]) != preservedFunctions.end() ||
+                preservedFunctions.find(function["schema"] + "." + function["proname"]) != preservedFunctions.end()){
             continue;
         }
 
@@ -476,6 +503,8 @@ void PostgresSqlScriptRunner::clearFunctions(const set<string>& preservedFunctio
 
 list< map<string, string> > PostgresSqlScriptRunner::getTableDependencies(){
     string sql="SELECT tc.constraint_name, tc.table_name, kcu.column_name, \
+                    kcu.table_schema as schema_name, \
+                    ccu.table_schema as foreign_schema_name, \
                     ccu.table_name AS foreign_table_name, \
                     ccu.column_name AS foreign_column_name \
                 FROM \
@@ -502,7 +531,8 @@ list< map<string, string> > PostgresSqlScriptRunner::getSequenceDependencies(){
 }
 
 list< map<string, string> > PostgresSqlScriptRunner::getViewDependencies(){
-    string sql="SELECT DISTINCT cl_d.relname as foreign_table_name, cl_r.relname as table_name, \
+    string sql="SELECT DISTINCT view_n.nspname as schema_name, cl_r.relname as table_name, \
+                    dep_n.nspname as foreign_schema_name, cl_d.relname as foreign_table_name, \
                     CASE cl_d.relkind \
                      WHEN 'r' THEN 'table' \
                      WHEN 'v' THEN 'view' \
@@ -510,10 +540,9 @@ list< map<string, string> > PostgresSqlScriptRunner::getViewDependencies(){
                      WHEN 'S' THEN 'sequence' \
                      WHEN 's' THEN 'special' \
                   END as type \
-                FROM pg_class AS cl_r, pg_rewrite AS r, pg_depend AS d, pg_class AS cl_d, pg_namespace n \
-                WHERE cl_r.oid=r.ev_class AND r.oid=d.objid AND d.refobjid=cl_d.oid AND cl_d.relnamespace = n.oid \
-                    AND n.nspname NOT IN ('pg_catalog', 'information_schema') \
-                ";
+                FROM pg_class AS cl_r, pg_rewrite AS r, pg_depend AS d, pg_class AS cl_d, pg_namespace dep_n, pg_namespace view_n \
+                WHERE cl_r.oid=r.ev_class AND r.oid=d.objid AND d.refobjid=cl_d.oid AND cl_d.relnamespace = dep_n.oid AND cl_r.relnamespace = view_n.oid\
+                    AND dep_n.nspname NOT IN ('pg_catalog', 'information_schema')";
     list< map<string, string> > result = _execute(sql);
 
     return result;

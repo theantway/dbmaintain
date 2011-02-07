@@ -50,20 +50,20 @@ public:
 
 	static SqlScriptRunner* createInstance();
 protected:
-	list<string> sortTablesByDependency(list< map<string, string> >& allTables, list< map<string, string> >& dependencies);
+	list< map<string, string> > sortTablesByDependency(list< map<string, string> >& allTables, list< map<string, string> >& dependencies);
 	list< map<string, string> > getTableDependencies();
 	list< map<string, string> > getSequenceDependencies();
 	list< map<string, string> > getViewDependencies();
 	list< map<string, string> > getDependentFunctions(string tableName);
 	deque<string> getDependentTables(string tableName, const list< map<string, string> >& dependencies);
 
-	bool hasDependency(string tableName, const list< map<string, string> >& dependencies, set<string>& excludeTables);
+	bool hasDependency(string schemaName, string tableName, const list< map<string, string> >& dependencies, set<string>& excludeTables);
 private:
 	PGconn* getConnection();
 	list< map<string, string> > _execute(string script);
 	void clearTables(const set<string>& preservedTables);
-	void cleanTables(const set<string>& preservedTables, const set<string>& preservedDataOnlyTables);
-	void clearViews(const set<string>& preservedViews);
+	void cleanTables(const ClearOptions& preservedObjects);
+	void clearViews(const ClearOptions& preservedObjects);
 	void clearSequences(const set<string>& preservedSequences);
 	void clearFunctions(const set<string>& preservedFunctions);
 
