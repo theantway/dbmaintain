@@ -174,7 +174,18 @@ SUITE(StringUtilTest){
         expected.push_back("key");
         expected.push_back("value=value2");
 
-        CHECK_ARRAY_EQUAL(StringUtil::split("key=value=value2", "=", 2), expected, expected.size());
+        CHECK_ARRAY_EQUAL(StringUtil::split(str1, "=", 2), expected, expected.size());
+    }
+
+    TEST_FIXTURE (StringUtilTest, should_trim_string_when_split)
+    {
+        string str1="table1, table2 , \t table3";
+        vector<string> expected;
+        expected.push_back("table1");
+        expected.push_back("table2");
+        expected.push_back("table3");
+
+        CHECK_ARRAY_EQUAL(StringUtil::split(str1, ","), expected, expected.size());
     }
 
     TEST_FIXTURE (StringUtilTest, should_check_strings_case_insensitive_equals)

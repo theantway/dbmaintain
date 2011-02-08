@@ -250,7 +250,6 @@ list< map<string, string> > PostgresSqlScriptRunner::getTables(){
               AND n.nspname <> 'pg_catalog' \
               AND n.nspname <> 'information_schema' \
               AND n.nspname !~ '^pg_toast' \
-          AND pg_catalog.pg_table_is_visible(c.oid) \
     ";
 
     list< map<string, string> > tables = _execute(sql);
@@ -276,7 +275,6 @@ list< map<string, string> > PostgresSqlScriptRunner::getSequences(){
               AND n.nspname <> 'pg_catalog' \
               AND n.nspname <> 'information_schema' \
               AND n.nspname !~ '^pg_toast' \
-          AND pg_catalog.pg_table_is_visible(c.oid) \
     ";
 
     list< map<string, string> > tables = _execute(sql);
@@ -303,7 +301,6 @@ list< map<string, string> > PostgresSqlScriptRunner::getViews(){
               AND n.nspname <> 'pg_catalog' \
               AND n.nspname <> 'information_schema' \
               AND n.nspname !~ '^pg_toast' \
-          AND pg_catalog.pg_table_is_visible(c.oid) \
     ";
 
     list< map<string, string> > tables = _execute(sql);
@@ -396,6 +393,7 @@ void PostgresSqlScriptRunner::cleanTables(const ClearOptions& preservedObjects){
     const set<string>& preservedTables = preservedObjects.preservedTables();
     const set<string>& preservedDataOnlyTables = preservedObjects.preservedDataOnlyTables();
     const set<string>& preservedSchemas = preservedObjects.preservedSchemas();
+    const set<string>& preservedDataOnlySchemas = preservedObjects.preservedDataOnlySchemas();
 
     bool hasTablesToTruncate=false;
     for (list< map<string, string> >::iterator it= tablesToRemove.begin() ; it != tablesToRemove.end(); it++ ){
@@ -405,6 +403,7 @@ void PostgresSqlScriptRunner::cleanTables(const ClearOptions& preservedObjects){
         string fullName = schemaName + "." + tableName;
 
         if(preservedSchemas.find(schemaName) != preservedSchemas.end() ||
+                preservedDataOnlySchemas.find(schemaName) != preservedDataOnlySchemas.end() ||
                 preservedTables.find(tableName) != preservedTables.end() ||
                 preservedTables.find(fullName) != preservedTables.end() ||
                 preservedDataOnlyTables.find(tableName) != preservedDataOnlyTables.end() ||
@@ -499,7 +498,7 @@ void PostgresSqlScriptRunner::clearFunctions(const ClearOptions& preservedObject
     const set<string>& preservedFunctions = preservedObjects.preservedFunctions();
     list< map<string, string> > objects = _execute(sql);
 
-    for (list< map<string, string> >::iterator it= objects.begin() ; it != objects.end(); it++ ){
+    for (list< map<string, string> >::iterator it= objects.begin(); it != objects.end(); it++ ){
         map<string, string> function = *it;
 
         if(preservedSchemas.find(function["schema"]) != preservedSchemas.end() ||
@@ -596,9 +595,9 @@ ClearOptions& PostgresSqlScriptRunner::extendPreservedTables(ClearOptions& clear
 }
 
 ClearOptions& PostgresSqlScriptRunner::extendPreservedFunctions(ClearOptions& clearOptions){
-    string sql = "SELECT c.relname as table, p.proname as function \
-                    FROM pg_depend d, pg_class c, pg_proc p, pg_class c2, pg_index i \
-                    WHERE c.oid = i.indrelid AND i.indexrelid = c2.oid AND c2.oid=d.objid AND d.refobjid=p.oid \
+    string sql = "SELECT tn.nspname as schema_name, c.relname as table, fn.nspname as function_schema, p.proname as function \
+                    FROM pg_depend d, pg_class c, pg_proc p, pg_class c2, pg_index i, pg_namespace tn, pg_namespace fn \
+                    WHERE c.oid = i.indrelid AND i.indexrelid = c2.oid AND c2.oid=d.objid AND d.refobjid=p.oid AND c.relnamespace=tn.oid AND c2.relnamespace=fn.oid \
                 ";
     list< map<string, string> > tableDependendedFunctions = _execute(sql);
 
@@ -607,8 +606,10 @@ ClearOptions& PostgresSqlScriptRunner::extendPreservedFunctions(ClearOptions& cl
     for (list< map<string, string> >::iterator it= tableDependendedFunctions.begin() ; it != tableDependendedFunctions.end(); it++ ){
         map<string, string> tableDependendedFunction = *it;
 
-        if(clearOptions.isPreservedTable(tableDependendedFunction["table"])){
-            clearOptions.preservedFunction(tableDependendedFunction["function"]);
+        cout << "check function for table " << tableDependendedFunction["schema_name"] + "." + tableDependendedFunction["table"] <<endl;
+        if(clearOptions.isPreservedTable(tableDependendedFunction["table"]) ||
+                clearOptions.isPreservedTable(tableDependendedFunction["schema_name"] + "." + tableDependendedFunction["table"])){
+            clearOptions.preservedFunction(tableDependendedFunction["function_schema"] + "." + tableDependendedFunction["function"]);
         }
     }
 
@@ -636,9 +637,10 @@ deque<string> PostgresSqlScriptRunner::getDependentTables(string tableName, cons
     for (list< map<string, string> >::const_iterator it= dependencies.begin() ; it != dependencies.end(); it++ ){
         map<string, string > dependency = *it;
 
-        if(dependency["table_name"] == tableName){
-            result.insert(result.begin(), dependency["foreign_table_name"]);
-            deque<string> subs = getDependentTables(dependency["foreign_table_name"], dependencies);
+        if(dependency["table_name"] == tableName ||
+                dependency["schema_name"] + "." + dependency["table_name"] == tableName){
+            result.insert(result.begin(), dependency["foreign_schema_name"] + "." + dependency["foreign_table_name"]);
+            deque<string> subs = getDependentTables(dependency["foreign_schema_name"] + "." + dependency["foreign_table_name"], dependencies);
             result.insert(result.begin(), subs.begin(), subs.end());
         }
     }
@@ -649,13 +651,17 @@ deque<string> PostgresSqlScriptRunner::getDependentTables(string tableName, cons
 ClearOptions& PostgresSqlScriptRunner::extendViewDependencies(string tableName, const list< map<string, string > >& viewDependendedTables, ClearOptions& clearOptions){
     for (list< map<string, string > >::const_iterator it= viewDependendedTables.begin() ; it != viewDependendedTables.end(); it++ ){
         map<string, string> viewDependendedTable = *it;
+        string fullName = viewDependendedTable["schema_name"] + "." + viewDependendedTable["table_name"];
+        string fullDependencyName = viewDependendedTable["foreign_schema_name"] + "." + viewDependendedTable["foreign_table_name"];
 //        cout << "  compare with "<< viewDependendedTable["table_name"]<<endl;
-        if(viewDependendedTable["table_name"] == tableName && viewDependendedTable["foreign_table_name"] != tableName){
+        if((viewDependendedTable["table_name"] == tableName && viewDependendedTable["foreign_table_name"] != tableName) ||
+                (fullName == tableName && fullDependencyName != fullName)
+                ){
             if(viewDependendedTable["type"] == "table"){
-                clearOptions.preservedTable(viewDependendedTable["foreign_table_name"]);
+                clearOptions.preservedTable(fullDependencyName);
             }else if(viewDependendedTable["type"] == "view"){
-                clearOptions.preservedView(viewDependendedTable["foreign_table_name"]);
-                extendViewDependencies(viewDependendedTable["foreign_table_name"], viewDependendedTables, clearOptions);
+                clearOptions.preservedView(fullDependencyName);
+                extendViewDependencies(fullDependencyName, viewDependendedTables, clearOptions);
             }
         }
     }

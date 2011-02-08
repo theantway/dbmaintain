@@ -30,6 +30,55 @@ SUITE(PostgresSqlScriptRunnerTest){
 
         virtual ~PostgresSqlScriptRunnerTest() {
         }
+
+        void setupTables(){
+            runner->execute("CREATE OR REPLACE FUNCTION reverse_last_64(TEXT) RETURNS TEXT AS $$ \
+                                 SELECT \
+                                    array_to_string( \
+                                      ARRAY \
+                                        ( SELECT substring($1, s.i,1) FROM generate_series(length($1), greatest(length($1) - 64 + 1, 1), -1) AS s(i) ), \
+                                      ''); \
+                                $$ LANGUAGE SQL IMMUTABLE");
+
+            runner->execute("CREATE OR REPLACE FUNCTION reverse(TEXT) RETURNS TEXT AS $$ \
+                                 SELECT \
+                                    array_to_string( \
+                                      ARRAY \
+                                        ( SELECT substring($1, s.i, 1) FROM generate_series(length($1), greatest(length($1) + 1, 1), -1) AS s(i) ), \
+                                      ''); \
+                                $$ LANGUAGE SQL IMMUTABLE");
+
+            runner->execute("CREATE TABLE customer(id BIGSERIAL PRIMARY KEY, name varchar(100))");
+            runner->execute("CREATE TABLE purchase(id BIGSERIAL PRIMARY KEY, name varchar(100), customer_id bigint references customer(id) )");
+            runner->execute("CREATE TABLE purchase_log(id BIGSERIAL PRIMARY KEY,  purchase_id bigint references purchase(id) )");
+            runner->execute("CREATE TABLE other_table(id BIGSERIAL PRIMARY KEY, parent_id bigint references other_table(id))");
+            runner->execute("CREATE INDEX idx_purchase_name  ON purchase(reverse_last_64(name) varchar_pattern_ops)");
+            runner->execute("CREATE VIEW purchase_view AS SELECT * FROM purchase_log");
+            runner->execute("CREATE VIEW customer_purchase_view AS SELECT * FROM purchase_view");
+            runner->execute("INSERT INTO customer(name) values('bob')");
+            runner->execute("INSERT INTO purchase(name, customer_id) values('purchase', (select id from customer where name='bob'))");
+            runner->execute("INSERT INTO purchase_log(purchase_id) values((select id from purchase where name='purchase'))");
+            runner->execute("INSERT INTO other_table(id, parent_id) VALUES(1, NULL)");
+            runner->execute("INSERT INTO other_table(id, parent_id) VALUES(2, 1)");
+
+            list< map<string, string> > schema = runner->query("select * from pg_catalog.pg_namespace where nspname='schema_account'");
+            if(schema.size() > 0){
+                runner->execute("DROP SCHEMA schema_account cascade");
+            }
+
+            runner->execute("CREATE SCHEMA schema_account");
+            runner->execute("CREATE TABLE schema_account.account(id BIGSERIAL PRIMARY KEY, name varchar(100))");
+            runner->execute("CREATE TABLE schema_account.account_user(id BIGSERIAL PRIMARY KEY, name varchar(100), account_id bigint references schema_account.account(id) )");
+            runner->execute("CREATE TABLE schema_account.access_log(id BIGSERIAL PRIMARY KEY,  user_id bigint references schema_account.account_user(id) )");
+            runner->execute("CREATE TABLE schema_account.other_table(id BIGSERIAL PRIMARY KEY, name varchar(100))");
+            runner->execute("CREATE TABLE schema_account.other_table2(id BIGSERIAL PRIMARY KEY, name varchar(100))");
+            runner->execute("CREATE INDEX idx_account_user_name  ON schema_account.account_user(reverse_last_64(name) varchar_pattern_ops)");
+            runner->execute("CREATE VIEW schema_account.access_log_view AS SELECT * FROM schema_account.access_log");
+            runner->execute("INSERT INTO schema_account.account(name) VALUES('test-account')");
+            runner->execute("INSERT INTO schema_account.account_user(name, account_id) VALUES('test-user', (select id from schema_account.account where name='test-account' limit 1))");
+            runner->execute("INSERT INTO schema_account.access_log(user_id) VALUES((select id from schema_account.account_user where name='test-user' limit 1))");
+            runner->execute("INSERT INTO schema_account.other_table(name) VALUES('anything')");
+        }
     };
 
     /*
@@ -67,27 +116,191 @@ SUITE(PostgresSqlScriptRunnerTest){
         ASSERT_EQUAL(runner->scalar("SELECT id FROM dbmaintain_scripts LIMIT 1"), "1");
     }
 
-    TEST_FIXTURE (PostgresSqlScriptRunnerTest, clean_tables_should_ignore_preserved_tables)
+    TEST_FIXTURE (PostgresSqlScriptRunnerTest, clean_all_tables)
     {
-        runner->execute("CREATE TABLE account(id BIGSERIAL PRIMARY KEY, name varchar(100))");
-        runner->execute("CREATE TABLE account_user(id BIGSERIAL PRIMARY KEY, name varchar(100), account_id bigint references account(id) )");
-        runner->execute("CREATE TABLE access_log(id BIGSERIAL PRIMARY KEY,  user_id bigint references account_user(id) )");
-        runner->execute("CREATE TABLE other_table(id BIGSERIAL PRIMARY KEY, name varchar(100))");
-        runner->execute("CREATE TABLE other_table2(id BIGSERIAL PRIMARY KEY, name varchar(100))");
-        runner->execute("INSERT INTO account(name) VALUES('test-account')");
-        runner->execute("INSERT INTO account_user(name, account_id) VALUES('test-user', (select id from account where name='test-account' limit 1))");
-        runner->execute("INSERT INTO access_log(user_id) VALUES((select id from account_user where name='test-user' limit 1))");
-        runner->execute("INSERT INTO other_table(name) VALUES('anything')");
+        setupTables();
 
         shared_ptr<Database> db(new Database());
-        db->preservedTables("access_log");
-
         runner->cleanDatabase(db);
 
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM customer"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM purchase"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM purchase_log"), "0");
         ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM other_table"), "0");
-        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM account"), "1");
-        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM account_user"), "1");
-        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM access_log"), "1");
+
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM schema_account.account"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM schema_account.account_user"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM schema_account.access_log"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM schema_account.other_table"), "0");
+    }
+
+    TEST_FIXTURE (PostgresSqlScriptRunnerTest, clean_tables_should_ignore_preserved_schemas)
+    {
+        setupTables();
+
+        shared_ptr<Database> db(new Database());
+        db->preservedSchemas("schema_account");
+        runner->cleanDatabase(db);
+
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM customer"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM purchase"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM purchase_log"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM other_table"), "0");
+
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM schema_account.account"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM schema_account.account_user"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM schema_account.access_log"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM schema_account.other_table"), "1");
+    }
+
+    TEST_FIXTURE (PostgresSqlScriptRunnerTest, clean_tables_should_ignore_preserved_tables)
+    {
+        setupTables();
+
+        shared_ptr<Database> db(new Database());
+        db->preservedTables("purchase_log,schema_account.account_user");
+        runner->cleanDatabase(db);
+
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM customer"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM purchase"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM purchase_log"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM other_table"), "0");
+
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM schema_account.account"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM schema_account.account_user"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM schema_account.access_log"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM schema_account.other_table"), "0");
+    }
+
+    TEST_FIXTURE (PostgresSqlScriptRunnerTest, clean_tables_should_ignore_preserved_views)
+    {
+        setupTables();
+
+        shared_ptr<Database> db(new Database());
+        db->preservedViews("customer_purchase_view, schema_account.access_log_view ");
+        runner->cleanDatabase(db);
+
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM customer"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM purchase"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM purchase_log"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM other_table"), "0");
+
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM schema_account.account"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM schema_account.account_user"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM schema_account.access_log"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM schema_account.other_table"), "0");
+    }
+
+    TEST_FIXTURE (PostgresSqlScriptRunnerTest, clean_tables_should_ignore_preserved_data_only_schemas)
+    {
+        setupTables();
+
+        shared_ptr<Database> db(new Database());
+        db->preservedDataOnlySchemas("schema_account");
+        runner->cleanDatabase(db);
+
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM customer"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM purchase"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM purchase_log"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM other_table"), "0");
+
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM schema_account.account"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM schema_account.account_user"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM schema_account.access_log"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM schema_account.other_table"), "1");
+
+    }
+
+    TEST_FIXTURE (PostgresSqlScriptRunnerTest, clean_tables_should_ignore_preserved_data_only_tables)
+    {
+        setupTables();
+
+        shared_ptr<Database> db(new Database());
+        db->preservedDataOnlyTables("purchase_log,schema_account.account_user");
+        runner->cleanDatabase(db);
+
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM customer"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM purchase"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM purchase_log"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM other_table"), "0");
+
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM schema_account.account"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM schema_account.account_user"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM schema_account.access_log"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM schema_account.other_table"), "0");
+    }
+
+    TEST_FIXTURE (PostgresSqlScriptRunnerTest, clear_all_tables)
+    {
+        setupTables();
+
+        shared_ptr<Database> db(new Database());
+        runner->clearDatabase(db);
+
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='customer'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='purchase'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='purchase_log'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='other_table'"), "0");
+
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='account'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='account_user'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='access_log'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='other_table2'"), "0");
+    }
+
+    TEST_FIXTURE (PostgresSqlScriptRunnerTest, clear_tables_should_ignore_preserved_schemas)
+    {
+        setupTables();
+
+        shared_ptr<Database> db(new Database());
+        db->preservedSchemas("schema_account");
+        runner->clearDatabase(db);
+
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='customer'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='purchase'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='purchase_log'"), "0");
+
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='account'"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='account_user'"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='access_log'"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='other_table'"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='other_table2'"), "1");
+    }
+
+    TEST_FIXTURE (PostgresSqlScriptRunnerTest, clear_tables_should_ignore_preserved_views)
+    {
+        setupTables();
+
+        shared_ptr<Database> db(new Database());
+        db->preservedViews("customer_purchase_view, schema_account.access_log_view ");
+        runner->clearDatabase(db);
+
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='customer'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='purchase'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='purchase_log'"), "0");
+
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='account'"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='account_user'"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='access_log'"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='other_table'"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='other_table2'"), "1");
+
+    }
+
+    TEST_FIXTURE (PostgresSqlScriptRunnerTest, clear_tables_should_ignore_preserved_tables)
+    {
+    }
+
+    TEST_FIXTURE (PostgresSqlScriptRunnerTest, clear_tables_should_ignore_preserved_function)
+    {
+    }
+
+    TEST_FIXTURE (PostgresSqlScriptRunnerTest, clear_tables_should_ignore_preserved_sequence)
+    {
+    }
+
+    TEST_FIXTURE (PostgresSqlScriptRunnerTest, clear_tables_should_clear_preserved_data_only_schemas_and_tables)
+    {
     }
 
     TEST_FIXTURE (PostgresSqlScriptRunnerTest, clear_database_should_skip_preserved_and_dependent_tables_and_functions)
