@@ -187,3 +187,7 @@ void ClearOptions::preservedDataOnlyTable(const string& table){
 bool ClearOptions::isPreservedTable(const string& table){
     return m_preservedTables.find(table) != m_preservedTables.end();
 }
+
+bool ClearOptions::isPreservedSchema(const string& schema){
+    return m_preservedSchemas.find(schema) != m_preservedSchemas.end();
+}

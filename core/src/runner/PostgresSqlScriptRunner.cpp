@@ -375,7 +375,7 @@ void PostgresSqlScriptRunner::clearTables(const ClearOptions& preservedObjects){
         ostringstream drop;
         drop << "DROP TABLE \"" << schemaName << "\".\""<< tableName << "\"";
         try{
-            cout << drop.str()<<endl;
+//            cout << drop.str()<<endl;
             _execute(drop.str());
         }catch(DbException& e){
             throw e;
@@ -423,7 +423,7 @@ void PostgresSqlScriptRunner::cleanTables(const ClearOptions& preservedObjects){
 
     if(hasTablesToTruncate){
         try{
-            cout << drop.str()<<endl;
+//            cout << drop.str()<<endl;
             _execute(drop.str());
         }catch(DbException& e){
             throw e;
@@ -455,7 +455,7 @@ void PostgresSqlScriptRunner::clearViews(const ClearOptions& preservedObjects){
         ostringstream drop;
         drop << "DROP VIEW \"" << schemaName << "\".\"" << viewName << "\"";
         try{
-            cout << drop.str()<<endl;
+//            cout << drop.str()<<endl;
             _execute(drop.str());
         }catch(DbException& e){
             throw e;
@@ -481,7 +481,7 @@ void PostgresSqlScriptRunner::clearSequences(const ClearOptions& preservedObject
         ostringstream drop;
         drop << "DROP SEQUENCE \"" << schema << "\".\"" << sequence << "\"";
         try{
-            cout << drop.str()<<endl;
+//            cout << drop.str()<<endl;
             _execute(drop.str());
         }catch(DbException& e){
             throw e;
@@ -507,7 +507,7 @@ void PostgresSqlScriptRunner::clearFunctions(const ClearOptions& preservedObject
             continue;
         }
 
-        cout << function["drop_sql"]<<endl;
+//        cout << function["drop_sql"]<<endl;
 //      ostringstream drop;
 //      drop << "DROP " << object["type"] << " \"" << object["name"] << "\""<<endl;
         _execute(function["drop_sql"]);
@@ -532,9 +532,9 @@ list< map<string, string> > PostgresSqlScriptRunner::getTableDependencies(){
 }
 
 list< map<string, string> > PostgresSqlScriptRunner::getSequenceDependencies(){
-    string sql="SELECT o.relname as sequence_name, ref.relname as table_name \
-                FROM pg_class o, pg_depend d, pg_class ref, pg_namespace n \
-                WHERE o.oid=d.objid AND d.refobjid=ref.oid AND ref.relnamespace=n.oid \
+    string sql="SELECT sn.nspname as sequence_schema, o.relname as sequence_name, n.nspname as table_schema, ref.relname as table_name \
+                FROM pg_class o, pg_depend d, pg_class ref, pg_namespace n, pg_namespace sn \
+                WHERE o.oid=d.objid AND d.refobjid=ref.oid AND ref.relnamespace=n.oid AND o.relnamespace=sn.oid\
                     AND deptype='a' AND ref.relkind='r' AND o.relkind='S' \
                     AND n.nspname NOT IN ('pg_catalog', 'information_schema') \
                 ";
@@ -585,9 +585,11 @@ ClearOptions& PostgresSqlScriptRunner::extendPreservedTables(ClearOptions& clear
     list< map<string, string> > sequenceDependencies = getSequenceDependencies();
     tables = clearOptions.preservedTables();
     for (list< map<string, string> >::iterator it= sequenceDependencies.begin() ; it != sequenceDependencies.end(); it++ ){
-        int idx = tables.count((*it)["table_name"]);
-        if(idx > 0){
-            clearOptions.preservedSequence((*it)["sequence_name"]);
+        string tableName = (*it)["table_name"];
+        string fullName = (*it)["table_schema"] + "." + tableName;
+
+        if(tables.count(tableName) || tables.count(fullName)){
+            clearOptions.preservedSequence((*it)["sequence_schema"] +"."+(*it)["sequence_name"]);
         }
     }
 
@@ -597,7 +599,7 @@ ClearOptions& PostgresSqlScriptRunner::extendPreservedTables(ClearOptions& clear
 ClearOptions& PostgresSqlScriptRunner::extendPreservedFunctions(ClearOptions& clearOptions){
     string sql = "SELECT tn.nspname as schema_name, c.relname as table, fn.nspname as function_schema, p.proname as function \
                     FROM pg_depend d, pg_class c, pg_proc p, pg_class c2, pg_index i, pg_namespace tn, pg_namespace fn \
-                    WHERE c.oid = i.indrelid AND i.indexrelid = c2.oid AND c2.oid=d.objid AND d.refobjid=p.oid AND c.relnamespace=tn.oid AND c2.relnamespace=fn.oid \
+                    WHERE c.oid = i.indrelid AND i.indexrelid = c2.oid AND c2.oid=d.objid AND d.refobjid=p.oid AND c.relnamespace=tn.oid AND p.pronamespace=fn.oid \
                 ";
     list< map<string, string> > tableDependendedFunctions = _execute(sql);
 
@@ -606,8 +608,9 @@ ClearOptions& PostgresSqlScriptRunner::extendPreservedFunctions(ClearOptions& cl
     for (list< map<string, string> >::iterator it= tableDependendedFunctions.begin() ; it != tableDependendedFunctions.end(); it++ ){
         map<string, string> tableDependendedFunction = *it;
 
-        cout << "check function for table " << tableDependendedFunction["schema_name"] + "." + tableDependendedFunction["table"] <<endl;
+//        cout << "check function for table " << tableDependendedFunction["schema_name"] + "." + tableDependendedFunction["table"] <<endl;
         if(clearOptions.isPreservedTable(tableDependendedFunction["table"]) ||
+                clearOptions.isPreservedSchema(tableDependendedFunction["schema_name"]) ||
                 clearOptions.isPreservedTable(tableDependendedFunction["schema_name"] + "." + tableDependendedFunction["table"])){
             clearOptions.preservedFunction(tableDependendedFunction["function_schema"] + "." + tableDependendedFunction["function"]);
         }

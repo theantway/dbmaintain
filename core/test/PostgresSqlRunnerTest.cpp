@@ -67,6 +67,7 @@ SUITE(PostgresSqlScriptRunnerTest){
             }
 
             runner->execute("CREATE SCHEMA schema_account");
+            runner->execute("CREATE SEQUENCE schema_account.account_seq START 101");
             runner->execute("CREATE TABLE schema_account.account(id BIGSERIAL PRIMARY KEY, name varchar(100))");
             runner->execute("CREATE TABLE schema_account.account_user(id BIGSERIAL PRIMARY KEY, name varchar(100), account_id bigint references schema_account.account(id) )");
             runner->execute("CREATE TABLE schema_account.access_log(id BIGSERIAL PRIMARY KEY,  user_id bigint references schema_account.account_user(id) )");
@@ -275,154 +276,93 @@ SUITE(PostgresSqlScriptRunnerTest){
         db->preservedViews("customer_purchase_view, schema_account.access_log_view ");
         runner->clearDatabase(db);
 
-        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='customer'"), "0");
-        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='purchase'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='customer'"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='purchase'"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='purchase_log'"), "1");
+
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='account'"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='account_user'"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='access_log'"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='other_table'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='other_table2'"), "0");
+    }
+
+    TEST_FIXTURE (PostgresSqlScriptRunnerTest, clear_tables_should_ignore_preserved_tables)
+    {
+        setupTables();
+
+        shared_ptr<Database> db(new Database());
+        db->preservedTables("purchase , schema_account.access_log ");
+        runner->clearDatabase(db);
+
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='customer'"), "1");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='purchase'"), "1");
         ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='purchase_log'"), "0");
 
         ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='account'"), "1");
         ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='account_user'"), "1");
         ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='access_log'"), "1");
-        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='other_table'"), "1");
-        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='other_table2'"), "1");
-
-    }
-
-    TEST_FIXTURE (PostgresSqlScriptRunnerTest, clear_tables_should_ignore_preserved_tables)
-    {
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='other_table'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='other_table2'"), "0");
     }
 
     TEST_FIXTURE (PostgresSqlScriptRunnerTest, clear_tables_should_ignore_preserved_function)
     {
+        setupTables();
+
+        shared_ptr<Database> db(new Database());
+        db->preservedFunctions("reverse_last_64 ");
+        runner->clearDatabase(db);
+
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='customer'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='purchase'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='purchase_log'"), "0");
+
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='account'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='account_user'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='access_log'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='other_table'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='other_table2'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_proc where proname='reverse_last_64'"), "1");
     }
 
     TEST_FIXTURE (PostgresSqlScriptRunnerTest, clear_tables_should_ignore_preserved_sequence)
     {
+        setupTables();
+
+        shared_ptr<Database> db(new Database());
+        db->preservedSequences("account_seq");
+        runner->clearDatabase(db);
+
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='customer'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='purchase'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='purchase_log'"), "0");
+
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='account'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='account_user'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='access_log'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='other_table'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='other_table2'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='account_seq'"), "1");
     }
 
     TEST_FIXTURE (PostgresSqlScriptRunnerTest, clear_tables_should_clear_preserved_data_only_schemas_and_tables)
     {
-    }
-
-    TEST_FIXTURE (PostgresSqlScriptRunnerTest, clear_database_should_skip_preserved_and_dependent_tables_and_functions)
-    {
-        runner->execute("CREATE OR REPLACE FUNCTION reverse_last_64(TEXT) RETURNS TEXT AS $$ \
-                             SELECT \
-                                array_to_string( \
-                                  ARRAY \
-                                    ( SELECT substring($1, s.i,1) FROM generate_series(length($1), greatest(length($1) - 64 + 1, 1), -1) AS s(i) ), \
-                                  ''); \
-                            $$ LANGUAGE SQL IMMUTABLE");
-
-        runner->execute("CREATE TABLE customer(id BIGSERIAL PRIMARY KEY, name varchar(100))");
-        runner->execute("CREATE TABLE purchase(id BIGSERIAL PRIMARY KEY, name varchar(100), customer_id bigint references customer(id) )");
-        runner->execute("CREATE TABLE purchase_log(id BIGSERIAL PRIMARY KEY,  purchase_id bigint references purchase(id) )");
-        runner->execute("CREATE TABLE other_table(id BIGSERIAL PRIMARY KEY, parent_id bigint references other_table(id))");
-        runner->execute("CREATE INDEX idx_purchase_name  ON purchase(reverse_last_64(name) varchar_pattern_ops)");
+        setupTables();
 
         shared_ptr<Database> db(new Database());
-        db->preservedTables("purchase_log");
-
+        db->preservedDataOnlySchemas("public, schema_account ");
+        db->preservedDataOnlyTables("customer");
         runner->clearDatabase(db);
 
-        set<string> expectedTables;
-        expectedTables.insert("customer");
-        expectedTables.insert("purchase");
-        expectedTables.insert("purchase_log");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='customer'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='purchase'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='purchase_log'"), "0");
 
-        list< map<string, string> > tables = runner->getTables();
-        ASSERT_EQUAL(tables.size(), size_t(3));
-
-        for (list< map<string, string> >::iterator it=tables.begin() ; it != tables.end(); it++ ){
-            ASSERT_EQUAL(expectedTables.count((*it)["name"]), size_t(1));
-        }
-    }
-
-    TEST_FIXTURE (PostgresSqlScriptRunnerTest, extend_preserved_objects_should_add_dependent_tables_views_and_functions_by_view)
-    {
-        runner->execute("CREATE OR REPLACE FUNCTION reverse_last_64(TEXT) RETURNS TEXT AS $$ \
-                             SELECT \
-                                array_to_string( \
-                                  ARRAY \
-                                    ( SELECT substring($1, s.i,1) FROM generate_series(length($1), greatest(length($1) - 64 + 1, 1), -1) AS s(i) ), \
-                                  ''); \
-                            $$ LANGUAGE SQL IMMUTABLE");
-
-        runner->execute("CREATE TABLE customer(id BIGSERIAL PRIMARY KEY, name varchar(100))");
-        runner->execute("CREATE TABLE purchase(id BIGSERIAL PRIMARY KEY, name varchar(100), customer_id bigint references customer(id) )");
-        runner->execute("CREATE TABLE purchase_log(id BIGSERIAL PRIMARY KEY,  purchase_id bigint references purchase(id) )");
-        runner->execute("CREATE TABLE other_table(id BIGSERIAL PRIMARY KEY, parent_id bigint references other_table(id))");
-        runner->execute("CREATE INDEX idx_purchase_name  ON purchase(reverse_last_64(name) varchar_pattern_ops)");
-        runner->execute("CREATE VIEW purchase_view AS SELECT * FROM purchase_log");
-        runner->execute("CREATE VIEW customer_purchase_view AS SELECT * FROM purchase_view");
-
-        runner->execute("CREATE TABLE Test(id BIGSERIAL PRIMARY KEY, name varchar(100))");
-        runner->execute("CREATE TABLE Test2(id BIGSERIAL PRIMARY KEY, name varchar(100), test_id bigint references test(id) )");
-        runner->execute("CREATE INDEX idx_test2_name  ON test2(reverse_last_64(name) varchar_pattern_ops)");
-
-        ClearOptions clearOptions;
-        clearOptions.preservedView("customer_purchase_view");
-
-        ClearOptions& resultOptions = runner->extendPreservedObjects(clearOptions);
-
-        set<string> expectedTables;
-        expectedTables.insert("customer");
-        expectedTables.insert("purchase");
-        expectedTables.insert("purchase_log");
-
-        set<string> preservedTables = resultOptions.preservedTables();
-        ASSERT_EQUAL(equal(expectedTables.begin(), expectedTables.end(), preservedTables.begin()), true);
-
-        set<string> expectedFunctions;
-        expectedFunctions.insert("reverse_last_64");
-        set<string> preservedFunctions = resultOptions.preservedFunctions();
-        ASSERT_EQUAL(equal(expectedFunctions.begin(), expectedFunctions.end(), preservedFunctions.begin()), true);
-
-        set<string> expectedViews;
-        expectedViews.insert("purchase_view");
-        expectedViews.insert("customer_purchase_view");
-        set<string> preservedViews = resultOptions.preservedViews();
-        ASSERT_EQUAL(equal(expectedViews.begin(), expectedViews.end(), preservedViews.begin()), true);
-    }
-
-    TEST_FIXTURE (PostgresSqlScriptRunnerTest, extend_preserved_objects_should_add_dependent_tables_and_functions_by_table)
-    {
-        runner->execute("CREATE OR REPLACE FUNCTION reverse_last_64(TEXT) RETURNS TEXT AS $$ \
-                             SELECT \
-                                array_to_string( \
-                                  ARRAY \
-                                    ( SELECT substring($1, s.i,1) FROM generate_series(length($1), greatest(length($1) - 64 + 1, 1), -1) AS s(i) ), \
-                                  ''); \
-                            $$ LANGUAGE SQL IMMUTABLE");
-        runner->execute("CREATE OR REPLACE FUNCTION reverse_last_128(TEXT) RETURNS TEXT AS $$ \
-                             SELECT \
-                                array_to_string( \
-                                  ARRAY \
-                                    ( SELECT substring($1, s.i,1) FROM generate_series(length($1), greatest(length($1) - 128 + 1, 1), -1) AS s(i) ), \
-                                  ''); \
-                            $$ LANGUAGE SQL IMMUTABLE");
-
-        runner->execute("CREATE TABLE account(id BIGSERIAL PRIMARY KEY, name varchar(100))");
-        runner->execute("CREATE TABLE account_user(id BIGSERIAL PRIMARY KEY, name varchar(100), account_id bigint references account(id) )");
-        runner->execute("CREATE TABLE access_log(id BIGSERIAL PRIMARY KEY,  user_id bigint references account_user(id) )");
-        runner->execute("CREATE TABLE other_table(id BIGSERIAL PRIMARY KEY)");
-        runner->execute("CREATE INDEX idx_account_name  ON account(reverse_last_64(name) varchar_pattern_ops)");
-
-        ClearOptions clearOptions;
-        clearOptions.preservedTable("access_log");
-
-        ClearOptions& resultOptions = runner->extendPreservedObjects(clearOptions);
-
-        set<string> expectedTables;
-        expectedTables.insert("account");
-        expectedTables.insert("account_user");
-        expectedTables.insert("access_log");
-
-        set<string> preservedTables = resultOptions.preservedTables();
-        ASSERT_EQUAL(equal(expectedTables.begin(), expectedTables.end(), preservedTables.begin()), true);
-
-        set<string> expectedFunctions;
-        expectedFunctions.insert("reverse_last_64");
-        set<string> preservedFunctions = resultOptions.preservedFunctions();
-        ASSERT_EQUAL(equal(expectedFunctions.begin(), expectedFunctions.end(), preservedFunctions.begin()), true);
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='account'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='account_user'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='access_log'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='other_table'"), "0");
+        ASSERT_EQUAL(runner->scalar("SELECT count(*) FROM pg_class where relname='other_table2'"), "0");
     }
 }

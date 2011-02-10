@@ -106,6 +106,7 @@ public:
 	void preservedDataOnlySchema(const string& schema);
 	void preservedDataOnlyTable(const string& table);
 
+	bool isPreservedSchema(const string& schema);
 	bool isPreservedTable(const string& table);
 
 private:
