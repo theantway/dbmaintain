@@ -1,5 +1,6 @@
 #include "DbMaintain.h"
 
+#include <ctime>
 #include <iostream>
 
 #include "config/FileConfig.h"
@@ -91,6 +92,9 @@ int main(int argc, char** argv){
 
     CSimpleOpt args(argc, argv, g_rgOptions);
 
+    const time_t beginTime = time(NULL);
+    bool needReportTime=false;
+
     DbMaintain deploy;
     while (args.Next()) {
         if (args.LastError() == SO_SUCCESS) {
@@ -105,12 +109,15 @@ int main(int argc, char** argv){
                 deploy.setConfigFile(args.OptionArg());
                 break;
             case OPT_UPDATE:
+                needReportTime = true;
                 deploy.update();
                 break;
             case OPT_CLEAR:
+                needReportTime = true;
                 deploy.clear();
                 break;
             case OPT_CLEAN:
+                needReportTime = true;
                 deploy.clean();
                 break;
             }
@@ -123,5 +130,13 @@ int main(int argc, char** argv){
         }
     }
 
+    if(args.FileCount() > 0){
+        usage();
+    }else{
+        if(needReportTime){
+            double used = difftime(time(NULL), beginTime);
+            std::cout << "used time: " << used << " seconds." <<endl;
+        }
+    }
     return 0;
 }
