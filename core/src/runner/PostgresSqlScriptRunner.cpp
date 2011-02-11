@@ -41,7 +41,7 @@ PGconn* PostgresSqlScriptRunner::getConnection(){
     {
         m_pConn = PQconnectdb(m_connectionString.c_str());
         if (PQstatus(m_pConn) != CONNECTION_OK){
-            fprintf(stderr, "Connection to database failed: %s", PQerrorMessage(m_pConn));
+            cerr << "Connection to database failed: " << PQerrorMessage(m_pConn) <<endl;
             return NULL;
         }
 

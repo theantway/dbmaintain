@@ -38,11 +38,11 @@ void TestReporterStdout::ReportSummary(int const totalTestCount, int const faile
     using namespace std;
 
     if (failureCount > 0)
-        printf("FAILURE: %d out of %d tests failed (%d failures).\n", failedTestCount, totalTestCount, failureCount);
+        cout << "FAILURE: " << failedTestCount << " out of " << totalTestCount << " tests failed(" << failureCount << " failures)." <<endl;
     else
-        printf("Success: %d tests passed.\n", totalTestCount);
+        cout << "Success: " << totalTestCount << " tests passed." <<endl;
 
-    printf("Test time: %.2f seconds.\n", secondsElapsed);
+    cout << "Test time: " << secondsElapsed << " seconds." <<endl;
 }
 
 }
