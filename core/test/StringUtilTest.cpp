@@ -188,6 +188,14 @@ SUITE(StringUtilTest){
         CHECK_ARRAY_EQUAL(StringUtil::split(str1, ","), expected, expected.size());
     }
 
+    TEST_FIXTURE (StringUtilTest, should_return_empty_vector_when_split_empty_string)
+    {
+        string str1="  ";
+        vector<string> expected;
+
+        ASSERT_EQUAL(StringUtil::split(str1, ",").size(), size_t(0));
+    }
+
     TEST_FIXTURE (StringUtilTest, should_check_strings_case_insensitive_equals)
     {
         string str1="key=Value";

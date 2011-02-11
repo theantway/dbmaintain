@@ -14,9 +14,11 @@ ClearOptions::~ClearOptions(){
 
 const string ClearOptions::describe(string name, const set<string>& options) const{
     ostringstream oss;
-    oss << "preserved " << name << ":" <<endl;
-    for (set<string>::iterator it= options.begin() ; it != options.end(); it++ ){
-        oss << "  " << (*it) << endl;
+    if(options.size() > 0){
+        oss << "preserved " << name << ":" << endl;
+        for (set<string>::iterator it= options.begin() ; it != options.end(); it++ ){
+            oss << "  " << (*it) << endl;
+        }
     }
 
     return oss.str();
@@ -36,7 +38,11 @@ string ClearOptions::describe() const{
         << describe("data only tables", m_preservedDataOnlyTables)
     ;
 
-    return oss.str();
+    if(oss.str().length() > 0){
+        return "preserved objects:\n" + oss.str();
+    }
+
+    return "";
 }
 //
 //shared_ptr<ClearOptions> ClearOptions::clone() const{

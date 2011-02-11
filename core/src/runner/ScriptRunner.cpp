@@ -35,7 +35,7 @@ void ScriptRunner::registSqlRunner(string name, shared_ptr<SqlScriptRunner> runn
 }
 
 void ScriptRunner::init(){
-    cout << "init script runners" <<endl;
+//    cout << "init script runners" <<endl;
     ScriptRunnerFactory::Register("postgres", &PostgresSqlScriptRunner::createInstance);
 }
 

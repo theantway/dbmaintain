@@ -49,7 +49,7 @@ void Config::applyDatabases(FileConfig& fileConfig){
         db->preservedDataOnlySchemas(fileConfig.get(dbName, "preserve.data_only.schemas", ""));
         db->preservedDataOnlyTables(fileConfig.get(dbName, "preserve.data_only.tables", ""));
 
-        cout << "add db type=" << db->getDialect() << " url=" << db->getUrl()<<endl;
+//        cout << "add db type=" << db->getDialect() << " url=" << db->getUrl()<<endl;
 
         addDatabase(dbName, db);
     }
@@ -63,7 +63,7 @@ void Config::applyScripts(FileConfig& fileConfig){
         string extension = (*it).first;
         string runnerName = (*it).second;
 
-        cout << "add runner " << runnerName << " for " << extension <<endl;
+//        cout << "add runner " << runnerName << " for " << extension <<endl;
         if(runnerName == ""){
             addScriptExtension(extension, "database");
         }else{

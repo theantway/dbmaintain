@@ -217,7 +217,7 @@ void PostgresSqlScriptRunner::clearDatabase(shared_ptr<Database> database){
     ClearOptions fullOptions = database->getPreservedObjects();
     extendPreservedObjects(fullOptions);
 
-    cout << "preserved objects to clear: " << endl << fullOptions.describe();
+    cout << fullOptions.describe();
     clearViews(fullOptions);
     clearTables(fullOptions);
     clearFunctions(fullOptions);
@@ -228,7 +228,7 @@ void PostgresSqlScriptRunner::cleanDatabase(shared_ptr<Database> database){
     ClearOptions fullOptions = database->getPreservedObjects();
     extendPreservedObjects(fullOptions);
 
-    cout << "preserved objects to clean: " << endl << fullOptions.describe();
+    cout << fullOptions.describe();
     cleanTables(fullOptions);
 }
 

@@ -43,7 +43,9 @@ vector<string> StringUtil::split(const string& str,
         string part = str.substr(lastPos, pos - lastPos);
         part = trim(part, " \t");
         // Found a token, add it to the vector.
-        tokens.push_back(part);
+        if(part.length() > 0){
+            tokens.push_back(part);
+        }
 
         // Skip delimiters.  Note the "not_of"
         lastPos = str.find_first_not_of(delimiters, pos);
@@ -54,7 +56,9 @@ vector<string> StringUtil::split(const string& str,
                 maxParts > 0 && tokens.size() >= maxParts - 1){
             string part = str.substr(lastPos);
             part = trim(part, " \t");
-            tokens.push_back(part);
+            if(part.length() > 0){
+                tokens.push_back(part);
+            }
             break;
         }
     }
@@ -62,7 +66,9 @@ vector<string> StringUtil::split(const string& str,
     if( tokens.size() <=0){
         string result(str);
         trim(result, " \t");
-        tokens.push_back(result);
+        if(result.length() > 0){
+            tokens.push_back(result);
+        }
     }
 
     return tokens;
