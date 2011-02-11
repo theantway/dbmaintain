@@ -79,6 +79,7 @@ void Config::applyScripts(FileConfig& fileConfig){
 }
 
 void Config::applyExecutedScriptsSettings(FileConfig& fileConfig){
+    m_executedScriptsSettings.setBaselineRevision(fileConfig.getInt("executedScripts", "baseline.revision", 0));
     m_executedScriptsSettings.setDatabaseName(fileConfig.get("executedScripts", "databaseName", ""));
     m_executedScriptsSettings.setTableName(fileConfig.get("executedScripts", "tableName", ""));
     m_executedScriptsSettings.setAutoCreateTable(fileConfig.getBool("executedScripts", "autoCreateTable", m_executedScriptsSettings.isAutoCreateTable()));

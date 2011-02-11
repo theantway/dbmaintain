@@ -12,6 +12,9 @@ public:
 
     void set(string& field, string value);
 
+    int getBaselineRevision() const;
+    void setBaselineRevision(int revision);
+
     string getDatabaseName() const;
     void setDatabaseName(string name);
 
@@ -43,6 +46,7 @@ public:
     void setExecutedStatusColumnName(string name);
 
 private:
+    int    m_baselineRevision;
     string m_databaseName;
     string m_tableName;
     bool   m_autoCreateTable;

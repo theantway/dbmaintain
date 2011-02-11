@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <set>
 
 #include "ChangeScript.h"
@@ -60,13 +61,23 @@ void DbMaintain::update(){
     ExecutedScripts& executedScriptsSettings = m_config.getExecutedScriptsSettings();
     runner->ensureScriptsTableExists(executedScriptsSettings);
     int latestNo = getLatestVersion(*runner.get(), executedScriptsSettings);
+    int baselineRevision = executedScriptsSettings.getBaselineRevision();
+    int startFromNo = latestNo > baselineRevision -1 ? latestNo : baselineRevision -1;
 
     ChangeScriptRepository changeScriptRepository(DirectoryScanner().getChangeScriptsForDirectory(m_config.getScriptsLocation()));
 
-    list< shared_ptr<ChangeScript> > scriptsToApply = changeScriptRepository.getScriptsToApply(latestNo);
+    list< shared_ptr<ChangeScript> > scriptsToApply = changeScriptRepository.getScriptsToApply(startFromNo);
+
+    string baselineMessage;
+
+    if(baselineRevision > 0){
+        ostringstream oss;
+        oss << "base line revision in config is " << baselineRevision << ". ";
+        baselineMessage = oss.str();
+    }
 
     cout << "Found " << changeScriptRepository.getAvailableChangeScripts().size() << " scripts in file system, "
-        << "the latest script no in db is "<< latestNo << ". " << endl
+        << "the latest script no in db is "<< latestNo << ". " << baselineMessage << endl
         << "There are " << scriptsToApply.size() << " script(s) need to apply." << endl;
 
     for (list< shared_ptr<ChangeScript> >::iterator it=scriptsToApply.begin() ; it != scriptsToApply.end(); it++ ){

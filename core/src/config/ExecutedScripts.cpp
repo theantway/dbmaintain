@@ -25,6 +25,14 @@ void ExecutedScripts::set(string& field, string value){
     }
 }
 
+int ExecutedScripts::getBaselineRevision() const{
+    return m_baselineRevision;
+}
+
+void ExecutedScripts::setBaselineRevision(int revision){
+    m_baselineRevision = revision;
+}
+
 string ExecutedScripts::getDatabaseName() const{
     return m_databaseName;
 }
