@@ -359,6 +359,10 @@ void PostgresSqlScriptRunner::clearTables(const ClearOptions& preservedObjects){
     const set<string>& preservedTables = preservedObjects.preservedTables();
     const set<string>& preservedSchemas = preservedObjects.preservedSchemas();
 
+    ostringstream drop;
+    drop << "DROP TABLE ";
+
+    bool hasTablesToClear=false;
     list< map<string, string> > tablesToRemove = sortTablesByDependency(tables, dependencies);
     for (list< map<string, string> >::iterator it= tablesToRemove.begin() ; it != tablesToRemove.end(); it++ ){
         map<string, string>& table = *it;
@@ -372,8 +376,16 @@ void PostgresSqlScriptRunner::clearTables(const ClearOptions& preservedObjects){
             continue;
         }
 
-        ostringstream drop;
-        drop << "DROP TABLE \"" << schemaName << "\".\""<< tableName << "\"";
+        if(hasTablesToClear){
+            drop << ", ";
+        }
+
+        hasTablesToClear=true;
+
+        drop << "\"" << schemaName << "\".\""<< tableName << "\"";
+    }
+
+    if(hasTablesToClear){
         try{
 //            cout << drop.str()<<endl;
             _execute(drop.str());
